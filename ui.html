@@ -40,7 +40,7 @@ button{width:100%;padding:14px;margin:6px 0;border:1px solid #40515f;border-radi
 button:hover{background:#263742}
 button:focus-visible{outline:2px solid #38d9ff;outline-offset:2px}
 button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-button:disabled{background:#151d24;color:#65727d;cursor:not-allowed}.super-research{margin-top:18px;padding-top:14px;border-top:1px solid #33424f}.tree-node{padding:12px;margin:8px 0;border:1px solid #40515f;border-radius:8px;background:#0b1117}.tree-node small{color:#9eabb6}.tree-node button{min-height:42px;padding:8px;margin-top:8px;font-size:12px}.locked-node{opacity:.55}.hidden-node{display:none}button.tutorial-locked{position:relative;padding-right:48px}button.tutorial-locked::after{content:"";position:absolute;right:14px;top:50%;width:18px;height:18px;transform:translateY(-50%);background:url("assets/icons/ui/lock.svg") center/contain no-repeat;opacity:.9}
+button:disabled{background:#151d24;color:#65727d;cursor:not-allowed}.voice-locked{opacity:.62!important}.super-research{margin-top:18px;padding-top:14px;border-top:1px solid #33424f}.tree-node{padding:12px;margin:8px 0;border:1px solid #40515f;border-radius:8px;background:#0b1117}.tree-node small{color:#9eabb6}.tree-node button{min-height:42px;padding:8px;margin-top:8px;font-size:12px}.locked-node{opacity:.55}.hidden-node{display:none}button.tutorial-locked{position:relative;padding-right:48px}button.tutorial-locked::after{content:"";position:absolute;right:14px;top:50%;width:18px;height:18px;transform:translateY(-50%);background:url("assets/icons/ui/lock.svg") center/contain no-repeat;opacity:.9}
 button small{font-size:.75em;font-weight:normal;color:#aab6bf}
 .cost{float:right;color:#38d9ff}
 .energy-cost{color:#8edfff}
@@ -199,8 +199,22 @@ let raidActive=false;
 let raidTimer=0;
 let raidTimerId=null;
 let repairQueue=null;
+let tutorialVoicePlaying=false;
+let tutorialVoiceLast="";
+let tutorialVoiceToken=0;
 
-
+const tutorialVoice={
+ intro:"https://www.aidocmaker.com/g0/audio?name=ce4871e2686440b0817d86c51fb8a993",
+ office:"https://www.aidocmaker.com/g0/audio?name=aa3070987cf54b538c93c6c2f8c1af6e2",
+ experimentRoom:"https://www.aidocmaker.com/g0/audio?name=bf78fa6a5e3f4db192f08485f222f939",
+ power:"https://www.aidocmaker.com/g0/audio?name=b50aa1d0312e427d8744a9d478aa7163",
+ scientist:"https://www.aidocmaker.com/g0/audio?name=c6781f5941ff481d9f2836dffc49106e9",
+ security:"https://www.aidocmaker.com/g0/audio?name=f3e9c79c6b8845dfadcadf4789a91d1a",
+ experiment:"https://www.aidocmaker.com/g0/audio?name=c2dffa9fdf7746089028e74d4fe62e5f",
+ researchComplete:"https://www.aidocmaker.com/g0/audio?name=c850e5c1e1cf4f2995794635ddc10bb5",
+ complete:"https://www.aidocmaker.com/g0/audio?name=5d08c08ee1ff45c280bb3bc727d68efc"
+};
+let tutorialVoiceEnabled=true;
 
 const SAVE_KEY="blacksite01_tycoon_save_v1";
 const DEFAULT_STATE={
@@ -366,16 +380,63 @@ function startRaid(){
 }
 function safeClassToggle(el,cls,on){if(el)el.classList.toggle(cls,on)}
 
+function setTutorialButtonsLocked(locked){
+ const ids=["office","experimentBuilding","power","scientist","securityStaff","basicExperiment"];
+ ids.forEach(id=>{
+  const button=document.getElementById(id);
+  if(!button)return;
+  button.dataset.voiceLocked=locked?"1":"0";
+  button.setAttribute("aria-disabled",locked?"true":"false");
+  button.classList.toggle("voice-locked",locked);
+ });
+}
 function playTutorialVoice(key){
- if(!tutorialVoiceEnabled)return;
+ if(!tutorialVoiceEnabled)return Promise.resolve(false);
  const url=tutorialVoice[key];
- if(!url||tutorialVoiceLast===key)return;
- tutorialVoiceLast=key;
  const audio=document.getElementById("tutorialVoice");
- if(!audio)return;
+ if(!url||!audio)return Promise.resolve(false);
+ if(tutorialVoicePlaying){
+  if(tutorialVoiceLast===key)return Promise.resolve(false);
+  audio.pause();
+ }
+ tutorialVoiceLast=key;
+ tutorialVoicePlaying=true;
+ const token=++tutorialVoiceToken;
+ setTutorialButtonsLocked(true);
+ const guide=document.getElementById("tutorialGuide");
+ if(guide)guide.classList.add("voice-active");
+ audio.onended=()=>{
+  if(token!==tutorialVoiceToken)return;
+  tutorialVoicePlaying=false;
+  tutorialVoiceLast="";
+  audio.onended=null;
+  if(guide)guide.classList.remove("voice-active");
+  updateSteps();
+ };
+ audio.onerror=()=>{
+  if(token!==tutorialVoiceToken)return;
+  tutorialVoicePlaying=false;
+  tutorialVoiceLast="";
+  audio.onended=null;
+  if(guide)guide.classList.remove("voice-active");
+  updateSteps();
+ };
  audio.src=url;
  audio.currentTime=0;
- audio.play().catch(()=>{});
+ const playPromise=audio.play();
+ if(playPromise&&typeof playPromise.catch==="function"){
+  return playPromise.then(()=>true).catch(()=>{
+   if(token===tutorialVoiceToken){
+    tutorialVoicePlaying=false;
+    tutorialVoiceLast="";
+    audio.onended=null;
+    if(guide)guide.classList.remove("voice-active");
+    updateSteps();
+   }
+   return false;
+  });
+ }
+ return Promise.resolve(true);
 }
 function updateTutorialGuide(){
  const guide=document.getElementById("tutorialGuide");
@@ -387,15 +448,26 @@ function updateTutorialGuide(){
  if(tutorialStep>6||!targetId){guide.classList.remove("active");return;}
  const target=document.getElementById(targetId);
  if(!target){guide.classList.remove("active");return;}
- const rect=target.getBoundingClientRect();
  const narrow=window.innerWidth<700;
- const x=narrow?Math.max(8,Math.min(window.innerWidth-210,rect.left)):Math.max(8,rect.left-220);
- const y=narrow?Math.max(8,rect.top-58):Math.max(8,rect.top+12);
+ label.textContent=["","BUILD THE OFFICE","BUILD THE EXPERIMENT ROOM","INSTALL THE POWER SYSTEM","HIRE THE SCIENTIST","HIRE SECURITY","RUN THE SYSTEMS TEST"][tutorialStep];
+ guide.classList.add("active");
+ const targetRect=target.getBoundingClientRect();
+ const guideRect=guide.getBoundingClientRect();
+ let x,y;
+ if(narrow){
+  x=Math.max(8,Math.min(window.innerWidth-guideRect.width-8,targetRect.left+(targetRect.width-guideRect.width)/2));
+  y=targetRect.top-guideRect.height-12;
+  if(y<8)y=Math.min(window.innerHeight-guideRect.height-8,targetRect.bottom+12);
+  arrow.textContent=y<targetRect.top?"↓":"↑";
+ }else{
+  const leftX=targetRect.left-guideRect.width-16;
+  const rightX=targetRect.right+16;
+  if(leftX>=8){x=leftX;arrow.textContent="➜";}
+  else{x=Math.min(window.innerWidth-guideRect.width-8,rightX);arrow.textContent="←";}
+  y=Math.max(8,Math.min(window.innerHeight-guideRect.height-8,targetRect.top+(targetRect.height-guideRect.height)/2));
+ }
  guide.style.left=x+"px";
  guide.style.top=y+"px";
- label.textContent=["","BUILD THE OFFICE","BUILD THE EXPERIMENT ROOM","INSTALL THE POWER SYSTEM","HIRE THE SCIENTIST","HIRE SECURITY","RUN THE SYSTEMS TEST"][tutorialStep];
- arrow.textContent=narrow?"↓":"➜";
- guide.classList.add("active");
 }
 window.addEventListener("resize",updateTutorialGuide);
 window.addEventListener("scroll",updateTutorialGuide,{passive:true});
@@ -438,14 +510,14 @@ function updateSteps(){
  document.getElementById("powerRoom").innerHTML=state.power?"POWER<small>GENERATOR ONLINE · +15 CAPACITY</small>":"POWER<small>Locked until tutorial</small>";
  document.getElementById("researchRoom").innerHTML="RESEARCH WING<small>"+(researchQueue?"RESEARCH IN PROGRESS":"ACTIVE")+"</small>";
 
- document.getElementById("office").disabled=recovering||constructionBusy|| (tutorialComplete?state.office:(tutorialStep!==1||state.office||points<200||!hasEnergy(ENERGY.office)));
- document.getElementById("experimentBuilding").disabled=recovering||constructionBusy|| (tutorialComplete?(!state.office||points<400||state.experimentRoom||!hasEnergy(ENERGY.experimentBuilding)):(tutorialStep!==2||!state.office||points<400||state.experimentRoom||!hasEnergy(ENERGY.experimentBuilding)));
- document.getElementById("power").disabled=recovering||constructionBusy|| (tutorialComplete?(!state.experimentRoom||points<500||state.power):(tutorialStep!==3||!state.experimentRoom||points<500||state.power));
+ document.getElementById("office").disabled=tutorialVoicePlaying||recovering||constructionBusy|| (tutorialComplete?state.office:(tutorialStep!==1||state.office||points<200||!hasEnergy(ENERGY.office)));
+ document.getElementById("experimentBuilding").disabled=tutorialVoicePlaying||recovering||constructionBusy|| (tutorialComplete?(!state.office||points<400||state.experimentRoom||!hasEnergy(ENERGY.experimentBuilding)):(tutorialStep!==2||!state.office||points<400||state.experimentRoom||!hasEnergy(ENERGY.experimentBuilding)));
+ document.getElementById("power").disabled=tutorialVoicePlaying||recovering||constructionBusy|| (tutorialComplete?(!state.experimentRoom||points<500||state.power):(tutorialStep!==3||!state.experimentRoom||points<500||state.power));
 
- document.getElementById("scientist").disabled=recovering||tutorialComplete?(!state.office||points<300||state.scientists>=2):(tutorialStep!==4||!state.office||!state.power||points<300||state.scientists>=2);
- document.getElementById("securityStaff").disabled=recovering||tutorialComplete?(!state.office||points<250||state.scientists<1||state.security>=1):(tutorialStep!==5||!state.office||state.scientists<1||points<250||state.security>=1);
+ document.getElementById("scientist").disabled=tutorialVoicePlaying||recovering||tutorialComplete?(!state.office||points<300||state.scientists>=2):(tutorialStep!==4||!state.office||!state.power||points<300||state.scientists>=2);
+ document.getElementById("securityStaff").disabled=tutorialVoicePlaying||recovering||tutorialComplete?(!state.office||points<250||state.scientists<1||state.security>=1):(tutorialStep!==5||!state.office||state.scientists<1||points<250||state.security>=1);
 
- document.getElementById("basicExperiment").disabled=recovering||tutorialComplete?(!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment||researchQueue):(tutorialStep!==6||!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment||researchQueue);
+ document.getElementById("basicExperiment").disabled=tutorialVoicePlaying||recovering||tutorialComplete?(!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment||researchQueue):(tutorialStep!==6||!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment||researchQueue);
 
  if(tutorialComplete){
   lockableButtons.forEach(id=>{
@@ -463,6 +535,9 @@ function updateSteps(){
   securityStaff:tutorialStep!==5,
   basicExperiment:tutorialStep!==6,
  };
+ if(tutorialVoicePlaying){
+  Object.keys(tutorialLocks).forEach(id=>tutorialLocks[id]=true);
+ }
  Object.entries(tutorialLocks).forEach(([id,locked])=>{
   const button=document.getElementById(id);
   if(!button)return;
@@ -512,7 +587,13 @@ function updateSteps(){
 }
 
 function spend(cost){if(points<cost)return false;points-=cost;return true}
-function completeStep(n){if(tutorialStep===n){tutorialStep++;const voiceKeys={1:"office",2:"experimentRoom",3:"power",4:"scientist",5:"security",6:"experiment"};if(voiceKeys[n])playTutorialVoice(voiceKeys[n]);}}
+function completeStep(n){
+ if(tutorialStep===n){
+  tutorialStep++;
+  const voiceKeys={1:"office",2:"experimentRoom",3:"power",4:"scientist",5:"security",6:"experiment"};
+  if(voiceKeys[n])playTutorialVoice(voiceKeys[n]);
+ }
+}
 
 function startConstruction(type,cost,energyCost,done){
  if(constructionQueue||points<cost||(energyCost&&!hasEnergy(energyCost)))return;
@@ -555,7 +636,7 @@ document.querySelectorAll(".tab").forEach(tab=>tab.addEventListener("click",()=>
 setInterval(()=>{
  if(repairQueue&&Date.now()>=repairQueue.finish)finishRepair();
  if(constructionQueue&&Date.now()>=constructionQueue.finish){const done=constructionQueue.done;constructionQueue=null;done()}
- if(researchQueue){const left=Math.max(0,Math.ceil((researchQueue.finish-Date.now())/1000));document.getElementById("researchStatus").textContent="Scientist researching · "+left+"s";if(Date.now()>=researchQueue.finish){researchQueue=null;state.basicExperiment=true;income=5;document.getElementById("researchStatus").textContent="Research complete · +5 RP/sec";playTutorialVoice("researchComplete");const audio=document.getElementById("tutorialVoice");if(audio)audio.onended=()=>{audio.onended=null;tutorialVoiceLast="";playTutorialVoice("complete");};}}
+ if(researchQueue){const left=Math.max(0,Math.ceil((researchQueue.finish-Date.now())/1000));document.getElementById("researchStatus").textContent="Scientist researching · "+left+"s";if(Date.now()>=researchQueue.finish){researchQueue=null;state.basicExperiment=true;income=5;document.getElementById("researchStatus").textContent="Research complete · +5 RP/sec";playTutorialVoice("researchComplete").then(()=>{});}}
  else if(state.basicExperiment){document.getElementById("researchStatus").textContent="Research active · Scientist assigned";}
  if(state.basicExperiment){
   points+=income;
