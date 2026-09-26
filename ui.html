@@ -67,7 +67,7 @@ button small{font-size:.75em;font-weight:normal;color:#aab6bf}
 .recovery{display:none;margin-top:14px;padding:14px;border:1px solid #8b3a3a;border-radius:8px;background:#170b0b;color:#f0caca}
 .recovery.active{display:block}
 .damage-mark{border-color:#e63946!important;box-shadow:0 0 12px #5c1717!important}
-.raid-marker{display:flex;align-items:center;gap:6px;position:absolute;z-index:5;padding:7px 9px;border:2px solid #e63946;border-radius:8px;background:#260808;color:#ff7777;font-weight:bold;font-size:11px;box-shadow:0 0 12px #e63946;animation:markerPulse .7s steps(2,end) infinite}
+.tutorial-guide{position:fixed;z-index:20;display:none;pointer-events:none;align-items:center;gap:8px;color:#38d9ff;font-weight:bold;font-size:13px;text-transform:uppercase;text-shadow:0 0 8px #000}.tutorial-guide.active{display:flex}.tutorial-arrow{font-size:30px;line-height:1;filter:drop-shadow(0 0 5px #38d9ff)}.tutorial-guide-label{padding:7px 10px;border:1px solid #38d9ff;border-radius:7px;background:#07131a;box-shadow:0 0 12px #38d9ff44}.tutorial-guide.voice-active .tutorial-guide-label{border-color:#eef4f8}.raid-marker{display:flex;align-items:center;gap:6px;position:absolute;z-index:5;padding:7px 9px;border:2px solid #e63946;border-radius:8px;background:#260808;color:#ff7777;font-weight:bold;font-size:11px;box-shadow:0 0 12px #e63946;animation:markerPulse .7s steps(2,end) infinite}
 .security-shield{display:flex;align-items:center;gap:6px;position:absolute;z-index:4;padding:7px 9px;border:2px solid #38d9ff;border-radius:8px;background:#071923;color:#8eeaff;font-weight:bold;font-size:11px;box-shadow:0 0 12px #38d9ff}
 @keyframes markerPulse{50%{transform:scale(1.08)}}
 
@@ -91,7 +91,7 @@ button small{font-size:.75em;font-weight:normal;color:#aab6bf}
 <div class="stat"><div class="label">Raid Risk</div><div class="value" id="raidRisk">0%</div></div>
 </section>
 
-<main>
+<div class="tutorial-guide" id="tutorialGuide" aria-live="polite"><span class="tutorial-arrow" id="tutorialArrow">➜</span><span class="tutorial-guide-label" id="tutorialGuideLabel">BUILD THE OFFICE</span></div>\n\n<main>
 <section class="panel">
 <h2>BLACKSITE-01 Facility Map</h2>
 <div class="note">Level 1 begins with basic facility infrastructure. Buildings use energy capacity. Staff and experiments do not consume energy.</div>
@@ -366,6 +366,39 @@ function startRaid(){
 }
 function safeClassToggle(el,cls,on){if(el)el.classList.toggle(cls,on)}
 
+function playTutorialVoice(key){
+ if(!tutorialVoiceEnabled)return;
+ const url=tutorialVoice[key];
+ if(!url||tutorialVoiceLast===key)return;
+ tutorialVoiceLast=key;
+ const audio=document.getElementById("tutorialVoice");
+ if(!audio)return;
+ audio.src=url;
+ audio.currentTime=0;
+ audio.play().catch(()=>{});
+}
+function updateTutorialGuide(){
+ const guide=document.getElementById("tutorialGuide");
+ const label=document.getElementById("tutorialGuideLabel");
+ const arrow=document.getElementById("tutorialArrow");
+ if(!guide||!label||!arrow)return;
+ const targets={1:"office",2:"experimentBuilding",3:"power",4:"scientist",5:"securityStaff",6:"basicExperiment"};
+ const targetId=targets[tutorialStep];
+ if(tutorialStep>6||!targetId){guide.classList.remove("active");return;}
+ const target=document.getElementById(targetId);
+ if(!target){guide.classList.remove("active");return;}
+ const rect=target.getBoundingClientRect();
+ const narrow=window.innerWidth<700;
+ const x=narrow?Math.max(8,Math.min(window.innerWidth-210,rect.left)):Math.max(8,rect.left-220);
+ const y=narrow?Math.max(8,rect.top-58):Math.max(8,rect.top+12);
+ guide.style.left=x+"px";
+ guide.style.top=y+"px";
+ label.textContent=["","BUILD THE OFFICE","BUILD THE EXPERIMENT ROOM","INSTALL THE POWER SYSTEM","HIRE THE SCIENTIST","HIRE SECURITY","RUN THE SYSTEMS TEST"][tutorialStep];
+ arrow.textContent=narrow?"↓":"➜";
+ guide.classList.add("active");
+}
+window.addEventListener("resize",updateTutorialGuide);
+window.addEventListener("scroll",updateTutorialGuide,{passive:true});
 function updateSteps(){
  const ids=["stepOffice","stepExperimentRoom","stepPower","stepScientist","stepSecurity","stepExperiment"];
  ids.forEach((id,i)=>{
@@ -479,7 +512,7 @@ function updateSteps(){
 }
 
 function spend(cost){if(points<cost)return false;points-=cost;return true}
-function completeStep(n){if(tutorialStep===n)tutorialStep++}
+function completeStep(n){if(tutorialStep===n){tutorialStep++;const voiceKeys={1:"office"};if(voiceKeys[n])playTutorialVoice(voiceKeys[n]);}}
 
 function startConstruction(type,cost,energyCost,done){
  if(constructionQueue||points<cost||(energyCost&&!hasEnergy(energyCost)))return;
