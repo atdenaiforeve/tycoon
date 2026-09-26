@@ -260,7 +260,8 @@ function startRaid(){
  raidTimer=12;
  const banner=document.getElementById("raidBanner");
  banner.className="raid-banner active";
- document.body.classList.add("raid-active");\n positionRaidMarkers();
+ document.body.classList.add("raid-active");
+ positionRaidMarkers();
  document.getElementById("raidTimer").textContent=raidTimer;
  raidTimerId=setInterval(()=>{
   raidTimer--;
@@ -289,7 +290,8 @@ function updateSteps(){
   el.className="step "+(i<tutorialStep-1?"done":i===tutorialStep-1?"current":"locked");
  });
 
- const tutorialComplete=tutorialStep>6;\n const recovering=!!repairQueue;
+ const tutorialComplete=tutorialStep>6;
+ const recovering=!!repairQueue;
  const constructionBusy=!!constructionQueue;
  document.getElementById("tutorialPanel").style.display=tutorialComplete?"none":"block";
  document.getElementById("superResearchPanel").style.display=tutorialComplete?"block":"none";
@@ -433,7 +435,8 @@ document.querySelectorAll(".tab").forEach(tab=>tab.addEventListener("click",()=>
 }));
 
 setInterval(()=>{
- if(repairQueue&&Date.now()>=repairQueue.finish)finishRepair();\n if(constructionQueue&&Date.now()>=constructionQueue.finish){const done=constructionQueue.done;constructionQueue=null;done()}
+ if(repairQueue&&Date.now()>=repairQueue.finish)finishRepair();
+ if(constructionQueue&&Date.now()>=constructionQueue.finish){const done=constructionQueue.done;constructionQueue=null;done()}
  if(researchQueue){const left=Math.max(0,Math.ceil((researchQueue.finish-Date.now())/1000));document.getElementById("researchStatus").textContent="Scientist researching · "+left+"s";if(Date.now()>=researchQueue.finish){researchQueue=null;state.basicExperiment=true;income=5;document.getElementById("researchStatus").textContent="Research complete · +5 RP/sec";}}
  else if(state.basicExperiment){document.getElementById("researchStatus").textContent="Research active · Scientist assigned";}
  if(state.basicExperiment){
