@@ -36,7 +36,7 @@ h2{margin:0 0 10px;font-size:clamp(19px,2.5vw,24px)}
 .info{margin-top:16px;padding:14px;background:#090e13;border-left:3px solid #5b7180;border-radius:7px;color:#c5d0d8;line-height:1.5;font-size:clamp(13px,1.8vw,16px)}
 button{width:100%;padding:14px;margin:6px 0;border:1px solid #40515f;border-radius:9px;background:#1d2a34;color:#f4f8fa;font-size:clamp(14px,2vw,17px);font-weight:bold;cursor:pointer;min-height:62px;text-align:left}
 button:hover{background:#263742}
-button:disabled{background:#151d24;color:#65727d;cursor:not-allowed}button.tutorial-locked{position:relative;padding-right:48px}button.tutorial-locked::after{content:"🔒";position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:16px;opacity:.8}
+button:disabled{background:#151d24;color:#65727d;cursor:not-allowed}.super-research{margin-top:18px;padding-top:14px;border-top:1px solid #33424f}.tree-node{padding:12px;margin:8px 0;border:1px solid #40515f;border-radius:8px;background:#0b1117}.tree-node small{color:#9eabb6}.tree-node button{min-height:42px;padding:8px;margin-top:8px;font-size:12px}.locked-node{opacity:.55}.hidden-node{display:none}button.tutorial-locked{position:relative;padding-right:48px}button.tutorial-locked::after{content:"🔒";position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:16px;opacity:.8}
 button small{font-size:.75em;font-weight:normal;color:#aab6bf}
 .cost{float:right;color:#38d9ff}
 .energy-cost{color:#8edfff}
@@ -67,6 +67,8 @@ button small{font-size:.75em;font-weight:normal;color:#aab6bf}
 <div class="stat"><div class="label">Research / sec</div><div class="value" id="income">0 RP / sec</div></div>
 <div class="stat"><div class="label">Energy Load</div><div class="value" id="energy">0 / 8</div></div>
 <div class="stat"><div class="label">Facility Status</div><div class="value" id="status">TUTORIAL</div></div>
+<div class="stat"><div class="label">Super Research</div><div class="value" id="srp">0 SRP</div></div>
+<div class="stat"><div class="label">Raid Risk</div><div class="value" id="raidRisk">0%</div></div>
 </section>
 
 <main>
@@ -124,6 +126,15 @@ button small{font-size:.75em;font-weight:normal;color:#aab6bf}
 <div class="upgrade-list" id="experiments">
 <button id="basicExperiment">FACILITY SYSTEMS TEST <span class="cost">350 RP</span><br><small>Level 1 Experiment — tests basic powered equipment and begins research</small><div class="upgrade-count" id="experimentCount">Experiments: 0</div></button>
 </div>
+
+<div class="super-research" id="superResearchPanel" style="display:none">
+<h2>SUPER RESEARCH TREE</h2>
+<div class="note">Permanent progression. Undiscovered nodes reveal themselves only when their requirements are met.</div>
+<div class="tree-node unlocked-node" id="srConstruction">CONSTRUCTION SPEED<br><small>1 SRP — buildings complete faster</small><button id="buyConstruction">RESEARCH</button></div>
+<div class="tree-node locked-node" id="srFacility">FACILITY LEVEL<br><small>3 SRP — unlocks higher facility levels</small><button id="buyFacility">RESEARCH</button></div>
+<div class="tree-node locked-node" id="srGovernment">GOVERNMENT COVER<br><small>5 SRP — reduces raid-risk increases from experiments</small><button id="buyGovernment">RESEARCH</button></div>
+<div class="tree-node hidden-node" id="srShade">GOVERNMENT SHADE<br><small>Undisclosed until discovered</small></div>
+</div>
 </aside>
 </main>
 
@@ -133,6 +144,10 @@ let income=0;
 let tutorialStep=1;
 let energyUsed=0;
 let energyCapacity=8;
+let superResearch=0;
+let raidRisk=0;
+let governmentCover=false;
+let facilityLevel=1;
 
 const state={
  office:false,
@@ -143,7 +158,8 @@ const state={
  researchWing:false,
  basicExperiment:false,
  advancedExperiment:false,
- advancedExperiment:false
+ advancedExperiment:false,
+ constructionSpeed:false
 };
 
 const ENERGY={
@@ -154,6 +170,7 @@ const ENERGY={
 
 const pointsEl=document.getElementById("points"),incomeEl=document.getElementById("income"),statusEl=document.getElementById("status");
 const energyEl=document.getElementById("energy"),info=document.getElementById("info"),assignment=document.getElementById("assignment");
+const srpEl=document.getElementById("srp"),raidRiskEl=document.getElementById("raidRisk");
 
 function hasEnergy(cost){return energyUsed+cost<=energyCapacity}
 function useEnergy(cost){if(!hasEnergy(cost))return false;energyUsed+=cost;return true}
@@ -166,6 +183,7 @@ function updateSteps(){
  });
 
  const tutorialComplete=tutorialStep>6;
+ document.getElementById("superResearchPanel").style.display=tutorialComplete?"block":"none";
  const lockableButtons=["office","experimentBuilding","power","scientist","securityStaff","basicExperiment","researchBuilding","advancedExperiment"];
  statusEl.textContent=tutorialComplete?"OPERATIONAL":"TUTORIAL";
 
@@ -223,6 +241,14 @@ function updateSteps(){
  pointsEl.textContent=Math.floor(points).toLocaleString()+" RP";
  incomeEl.textContent=Math.floor(income)+" RP / sec";
  energyEl.textContent=energyUsed+" / "+energyCapacity;
+ srpEl.textContent=superResearch+" SRP";
+ raidRiskEl.textContent=Math.round(raidRisk)+"%";
+ document.getElementById("buyConstruction").disabled=!tutorialComplete||state.constructionSpeed||superResearch<1;
+ document.getElementById("buyFacility").disabled=!tutorialComplete||facilityLevel>=5||superResearch<3||!state.constructionSpeed;
+ document.getElementById("buyGovernment").disabled=!tutorialComplete||governmentCover||superResearch<5||!state.constructionSpeed;
+ document.getElementById("srFacility").className="tree-node "+(state.constructionSpeed?"":"locked-node");
+ document.getElementById("srGovernment").className="tree-node "+(state.constructionSpeed?"":"locked-node");
+ document.getElementById("srShade").style.display=governmentCover?"block":"none";
 
  const messages=[
  "Build the Office first. It requires 3 Energy.",
@@ -241,6 +267,10 @@ function spend(cost){if(points<cost)return false;points-=cost;return true}
 function completeStep(n){if(tutorialStep===n)tutorialStep++}
 
 function action(type){
+ if(type==="buyConstruction"&&tutorialStep>6&&!state.constructionSpeed&&superResearch>=1){superResearch-=1;state.constructionSpeed=true}
+ else if(type==="buyFacility"&&tutorialStep>6&&state.constructionSpeed&&facilityLevel<5&&superResearch>=3){superResearch-=3;facilityLevel++}
+ else if(type==="buyGovernment"&&tutorialStep>6&&state.constructionSpeed&&!governmentCover&&superResearch>=5){superResearch-=5;governmentCover=true}
+ else 
  if(type==="office"&&tutorialStep===1&&!state.office&&spend(200)&&useEnergy(ENERGY.office)){state.office=true;completeStep(1)}
  else if(type==="experimentBuilding"&&tutorialStep===2&&state.office&&!state.experimentRoom&&spend(400)&&useEnergy(ENERGY.experimentBuilding)){state.experimentRoom=true;completeStep(2)}
  else if(type==="power"&&tutorialStep===3&&state.experimentRoom&&!state.power&&spend(500)){state.power=true;energyCapacity+=ENERGY.powerCapacity;completeStep(3)}
@@ -250,7 +280,7 @@ function action(type){
   updateSteps();
 }
 
-["office","scientist","securityStaff","experimentBuilding","basicExperiment","power","researchBuilding","advancedExperiment"].forEach(id=>document.getElementById(id).addEventListener("click",()=>action(id)));
+["office","scientist","securityStaff","experimentBuilding","basicExperiment","power","researchBuilding","advancedExperiment","buyConstruction","buyFacility","buyGovernment"].forEach(id=>document.getElementById(id).addEventListener("click",()=>action(id)));
 
 document.querySelectorAll(".tab").forEach(tab=>tab.addEventListener("click",()=>{
  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
@@ -259,7 +289,16 @@ document.querySelectorAll(".tab").forEach(tab=>tab.addEventListener("click",()=>
  document.getElementById(tab.dataset.tab).classList.add("active");
 }));
 
-setInterval(()=>{if(state.basicExperiment)points+=income;updateSteps()},1000);
+setInterval(()=>{
+ if(state.basicExperiment){
+  points+=income;
+  superResearch+=0.02;
+  const experiments=(state.basicExperiment?1:0)+(state.advancedExperiment?1:0);
+  const baseRisk=experiments*3;
+  raidRisk=Math.max(0,baseRisk*(governmentCover?0.4:1)-state.security*2);
+ }
+ updateSteps();
+},1000);
 updateSteps();
 </script>
 </body>
