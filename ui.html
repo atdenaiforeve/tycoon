@@ -67,7 +67,7 @@ button small{font-size:.75em;font-weight:normal;color:#aab6bf}
 .recovery{display:none;margin-top:14px;padding:14px;border:1px solid #8b3a3a;border-radius:8px;background:#170b0b;color:#f0caca}
 .recovery.active{display:block}
 .damage-mark{border-color:#e63946!important;box-shadow:0 0 12px #5c1717!important}
-.tutorial-guide{position:fixed;z-index:20;display:none;pointer-events:none;align-items:center;gap:8px;color:#38d9ff;font-weight:bold;font-size:13px;text-transform:uppercase;text-shadow:0 0 8px #000}.tutorial-guide.active{display:flex}.tutorial-arrow{font-size:30px;line-height:1;filter:drop-shadow(0 0 5px #38d9ff)}.tutorial-guide-label{padding:7px 10px;border:1px solid #38d9ff;border-radius:7px;background:#07131a;box-shadow:0 0 12px #38d9ff44}.tutorial-guide.voice-active .tutorial-guide-label{border-color:#eef4f8}.raid-marker{display:flex;align-items:center;gap:6px;position:absolute;z-index:5;padding:7px 9px;border:2px solid #e63946;border-radius:8px;background:#260808;color:#ff7777;font-weight:bold;font-size:11px;box-shadow:0 0 12px #e63946;animation:markerPulse .7s steps(2,end) infinite}
+.tutorial-guide{position:fixed;z-index:20;display:none;pointer-events:none;align-items:center;gap:8px;color:#38d9ff;font-weight:bold;font-size:13px;text-transform:uppercase;text-shadow:0 0 8px #000}.tutorial-guide.active{display:flex}.tutorial-arrow{position:absolute;font-size:30px;line-height:1;filter:drop-shadow(0 0 5px #38d9ff);transform:translateY(-50%)}.tutorial-guide-label{padding:7px 10px;border:1px solid #38d9ff;border-radius:7px;background:#07131a;box-shadow:0 0 12px #38d9ff44}.tutorial-guide.voice-active .tutorial-guide-label{border-color:#eef4f8}.raid-marker{display:flex;align-items:center;gap:6px;position:absolute;z-index:5;padding:7px 9px;border:2px solid #e63946;border-radius:8px;background:#260808;color:#ff7777;font-weight:bold;font-size:11px;box-shadow:0 0 12px #e63946;animation:markerPulse .7s steps(2,end) infinite}
 .security-shield{display:flex;align-items:center;gap:6px;position:absolute;z-index:4;padding:7px 9px;border:2px solid #38d9ff;border-radius:8px;background:#071923;color:#8eeaff;font-weight:bold;font-size:11px;box-shadow:0 0 12px #38d9ff}
 @keyframes markerPulse{50%{transform:scale(1.08)}}
 
@@ -463,6 +463,9 @@ function updateTutorialGuide(){
  const narrow=window.innerWidth<700;
  label.textContent=["","BUILD THE OFFICE","BUILD THE EXPERIMENT ROOM","INSTALL THE POWER SYSTEM","HIRE THE SCIENTIST","HIRE SECURITY","RUN THE SYSTEMS TEST"][tutorialStep];
  guide.classList.add("active");
+ guide.style.flexDirection="row";
+ arrow.style.left="";
+ arrow.style.top="";
  const targetRect=target.getBoundingClientRect();
  const guideRect=guide.getBoundingClientRect();
  let x,y;
@@ -472,24 +475,33 @@ function updateTutorialGuide(){
   if(y>=8){
    arrow.textContent="↓";
    guide.style.flexDirection="column";
+   guide.style.width=guideRect.width+"px";
+   arrow.style.left=(targetRect.left+targetRect.width/2-x-15)+"px";
+   arrow.style.top=guideRect.height+"px";
   }else{
    y=Math.min(window.innerHeight-guideRect.height-8,targetRect.bottom+12);
    arrow.textContent="↑";
-   guide.style.flexDirection="column-reverse";
+   guide.style.flexDirection="column";
+   guide.style.width=guideRect.width+"px";
+   arrow.style.left=(targetRect.left+targetRect.width/2-x-15)+"px";
+   arrow.style.top="-2px";
   }
  }else{
   const leftX=targetRect.left-guideRect.width-16;
   const rightX=targetRect.right+16;
   if(leftX>=8){
    x=leftX;
+   y=Math.max(8,Math.min(window.innerHeight-guideRect.height-8,targetRect.top+(targetRect.height-guideRect.height)/2));
    arrow.textContent="➜";
-   guide.style.flexDirection="row-reverse";
+   arrow.style.left=(guideRect.width-2)+"px";
+   arrow.style.top=(guideRect.height/2)+"px";
   }else{
    x=Math.min(window.innerWidth-guideRect.width-8,rightX);
+   y=Math.max(8,Math.min(window.innerHeight-guideRect.height-8,targetRect.top+(targetRect.height-guideRect.height)/2));
    arrow.textContent="←";
-   guide.style.flexDirection="row";
+   arrow.style.left="-2px";
+   arrow.style.top=(guideRect.height/2)+"px";
   }
-  y=Math.max(8,Math.min(window.innerHeight-guideRect.height-8,targetRect.top+(targetRect.height-guideRect.height)/2));
  }
  guide.style.left=x+"px";
  guide.style.top=y+"px";
