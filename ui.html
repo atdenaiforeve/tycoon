@@ -312,7 +312,7 @@ function resetAllProgress(){
 loadProgress();
 
 
-const BUILD_TIME={office:5,experimentBuilding:8,power:10};
+const BUILD_TIME={office:5,experimentBuilding:7,power:10,scientist:3,securityStaff:3};
 
 function constructionDuration(type){return Math.max(2,Math.ceil(BUILD_TIME[type]/(1+constructionSpeedLevel*0.25)))}
 
@@ -654,9 +654,9 @@ function action(type){
  else if(type==="office"&&tutorialStep===1&&!state.office){startConstruction("office",200,ENERGY.office,()=>{state.office=true;completeStep(1)})}
  else if(type==="experimentBuilding"&&tutorialStep===2&&state.office&&!state.experimentRoom)startConstruction("experimentBuilding",400,ENERGY.experimentBuilding,()=>{state.experimentRoom=true;completeStep(2)})
  else if(type==="power"&&tutorialStep===3&&state.experimentRoom&&!state.power)startConstruction("power",500,0,()=>{state.power=true;energyCapacity+=ENERGY.powerCapacity;completeStep(3)})
- else if(type==="scientist"&&tutorialStep===4&&state.office&&state.power&&state.scientists<2&&spend(300)){state.scientists++;completeStep(4)}
- else if(type==="securityStaff"&&tutorialStep===5&&state.scientists>0&&state.security<1&&spend(250)){state.security=1;completeStep(5)}
- else if(type==="basicExperiment"&&tutorialStep===6&&state.experimentRoom&&state.power&&state.scientists>0&&state.security>0&&spend(350)&&!researchQueue){playTutorialVoice("experiment");researchQueue={type:"basic",finish:Date.now()+Math.ceil(15/(1+researchSpeedLevel*0.2))*1000}}
+ else if(type==="scientist"&&tutorialStep===4&&state.office&&state.power&&state.scientists<2){startConstruction("scientist",300,0,()=>{state.scientists++;completeStep(4)})}
+ else if(type==="securityStaff"&&tutorialStep===5&&state.scientists>0&&state.security<1){startConstruction("securityStaff",250,0,()=>{state.security=1;completeStep(5)})}
+ else if(type==="basicExperiment"&&tutorialStep===6&&state.experimentRoom&&state.power&&state.scientists>0&&state.security>0&&spend(350)&&!researchQueue){playTutorialVoice("experiment");researchQueue={type:"basic",finish:Date.now()+Math.ceil(5/(1+researchSpeedLevel*0.2))*1000}}
  updateSteps();
 }
 
@@ -684,7 +684,7 @@ document.querySelectorAll(".tab").forEach(tab=>tab.addEventListener("click",()=>
 setInterval(()=>{
  if(repairQueue&&Date.now()>=repairQueue.finish)finishRepair();
  if(constructionQueue&&Date.now()>=constructionQueue.finish){const done=constructionQueue.done;constructionQueue=null;done()}
- if(researchQueue){const left=Math.max(0,Math.ceil((researchQueue.finish-Date.now())/1000));document.getElementById("researchStatus").textContent="Scientist researching · "+left+"s";if(Date.now()>=researchQueue.finish){researchQueue=null;state.basicExperiment=true;income=5;tutorialStep=7;document.getElementById("researchStatus").textContent="Research complete · +5 RP/sec";updateSteps();playTutorialVoice("researchComplete").then(()=>playTutorialVoice("complete"));}}
+ if(researchQueue){const left=Math.max(0,Math.ceil((researchQueue.finish-Date.now())/1000));document.getElementById("researchStatus").textContent="Scientist researching · "+left+"s";if(Date.now()>=researchQueue.finish){researchQueue=null;state.basicExperiment=true;income=10;tutorialStep=7;document.getElementById("researchStatus").textContent="Research complete · +10 RP/sec";updateSteps();playTutorialVoice("researchComplete").then(()=>playTutorialVoice("complete"));}}
  else if(state.basicExperiment){document.getElementById("researchStatus").textContent="Research active · Scientist assigned";}
  if(state.basicExperiment){
   points+=income;
