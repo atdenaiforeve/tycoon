@@ -36,7 +36,7 @@ h2{margin:0 0 10px;font-size:clamp(19px,2.5vw,24px)}
 .tutorial strong{color:#38d9ff}.steps{display:grid;gap:5px;margin-top:8px;font-size:12px}.step.done{color:#7fdca8}.step.current{color:#fff}.step.locked{color:#667387}
 .assignment{margin-top:10px;padding:10px;border-left:3px solid #38d9ff;background:#0b1117;font-size:12px;color:#c5d0d8}
 .info{margin-top:16px;padding:14px;background:#090e13;border-left:3px solid #5b7180;border-radius:7px;color:#c5d0d8;line-height:1.5;font-size:clamp(13px,1.8vw,16px)}
-button{width:100%;padding:14px;margin:6px 0;border:1px solid #40515f;border-radius:9px;background:#1d2a34;color:#f4f8fa;font-size:clamp(14px,2vw,17px);font-weight:bold;cursor:pointer;min-height:62px;text-align:left}
+button{width:100%;padding:10px 12px;margin:6px 0;border:1px solid #40515f;border-radius:9px;background:#1d2a34;color:#f4f8fa;font-size:clamp(14px,2vw,17px);font-weight:bold;cursor:pointer;min-height:76px;text-align:left}.action-art{float:left;width:58px;height:52px;object-fit:contain;margin:0 12px 0 0}.button-copy{display:block;min-height:52px;line-height:1.25}
 button:hover{background:#263742}
 button:focus-visible{outline:2px solid #38d9ff;outline-offset:2px}
 button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
@@ -149,18 +149,18 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 </div>
 
 <div class="upgrade-list active" id="staff">
-<button id="scientist">SCIENTIST <span class="cost">300 RP</span><br><small>Level 1 Staff — unlocked after Building</small><div class="upgrade-count" id="scientistCount">Hired: 0</div></button>
-<button id="securityStaff">SECURITY <span class="cost">250 RP</span><br><small>Level 1 Staff — follows Scientist</small><div class="upgrade-count" id="securityCount">Hired: 0</div></button>
+<button id="scientist"><img class="action-art" src="assets/icons/staff/scientist.svg" alt=""><span class="button-copy">SCIENTIST <span class="cost">300 RP</span><br><small>Level 1 Staff — unlocked after Building</small><div class="upgrade-count" id="scientistCount">Hired: 0</div></span></button>
+<button id="securityStaff"><img class="action-art" src="assets/icons/staff/security.svg" alt=""><span class="button-copy">SECURITY <span class="cost">250 RP</span><br><small>Level 1 Staff — follows Scientist</small><div class="upgrade-count" id="securityCount">Hired: 0</div></span></button>
 </div>
 
 <div class="upgrade-list" id="building">
-<button id="office">OFFICE ROOM <span class="cost">200 RP</span><br><small>Level 1 Building — first purchase</small><div class="upgrade-count" id="officeBuildStatus">Ready to build</div></button>
-<button id="experimentBuilding">EXPERIMENT ROOM <span class="cost">400 RP</span><br><small>Level 1 Building — follows Office</small><div class="upgrade-count" id="experimentBuildStatus">Ready to build</div></button>
-<button id="power">POWER SYSTEM <span class="cost">500 RP</span><br><small>Level 1 Building — follows Experiment Room</small><div class="upgrade-count" id="powerBuildStatus">Ready to build</div></button>
+<button id="office"><img class="action-art" src="assets/icons/facility/office.svg" alt=""><span class="button-copy">OFFICE ROOM <span class="cost">200 RP</span><br><small>Level 1 Building — first purchase</small><div class="upgrade-count" id="officeBuildStatus">Ready to build</div></span></button>
+<button id="experimentBuilding"><img class="action-art" src="assets/icons/facility/experiment-room.svg" alt=""><span class="button-copy">EXPERIMENT ROOM <span class="cost">400 RP</span><br><small>Level 1 Building — follows Office</small><div class="upgrade-count" id="experimentBuildStatus">Ready to build</div></span></button>
+<button id="power"><img class="action-art" src="assets/icons/facility/power.svg" alt=""><span class="button-copy">POWER SYSTEM <span class="cost">500 RP</span><br><small>Level 1 Building — follows Experiment Room</small><div class="upgrade-count" id="powerBuildStatus">Ready to build</div></span></button>
 </div>
 
 <div class="upgrade-list" id="experiments">
-<button id="basicExperiment">FACILITY SYSTEMS TEST <span class="cost">350 RP</span><br><small>Level 1 Experiment — tests basic powered equipment and begins research</small><div class="upgrade-count" id="experimentCount">Experiments: 0</div><div class="upgrade-count" id="researchStatus">Scientist required</div></button>
+<button id="basicExperiment"><img class="action-art" src="assets/icons/experiments/systems-test.svg" alt=""><span class="button-copy">FACILITY SYSTEMS TEST <span class="cost">350 RP</span><br><small>Level 1 Experiment — tests basic powered equipment and begins research</small><div class="upgrade-count" id="experimentCount">Experiments: 0</div><div class="upgrade-count" id="researchStatus">Scientist required</div></span></button>
 </div>
 
 <div class="upgrade-list" id="settings">
