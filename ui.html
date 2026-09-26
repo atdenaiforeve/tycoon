@@ -37,7 +37,9 @@ h2{margin:0 0 10px;font-size:clamp(19px,2.5vw,24px)}
 .assignment{margin-top:10px;padding:10px;border-left:3px solid #38d9ff;background:#0b1117;font-size:12px;color:#c5d0d8}
 .info{margin-top:16px;padding:14px;background:#090e13;border-left:3px solid #5b7180;border-radius:7px;color:#c5d0d8;line-height:1.5;font-size:clamp(13px,1.8vw,16px)}
 button{width:100%;padding:14px;margin:6px 0;border:1px solid #40515f;border-radius:9px;background:#1d2a34;color:#f4f8fa;font-size:clamp(14px,2vw,17px);font-weight:bold;cursor:pointer;min-height:62px;text-align:left}
-button:hover{background:#263742}\nbutton:focus-visible{outline:2px solid #38d9ff;outline-offset:2px}\nbutton{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+button:hover{background:#263742}
+button:focus-visible{outline:2px solid #38d9ff;outline-offset:2px}
+button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 button:disabled{background:#151d24;color:#65727d;cursor:not-allowed}.super-research{margin-top:18px;padding-top:14px;border-top:1px solid #33424f}.tree-node{padding:12px;margin:8px 0;border:1px solid #40515f;border-radius:8px;background:#0b1117}.tree-node small{color:#9eabb6}.tree-node button{min-height:42px;padding:8px;margin-top:8px;font-size:12px}.locked-node{opacity:.55}.hidden-node{display:none}button.tutorial-locked{position:relative;padding-right:48px}button.tutorial-locked::after{content:"🔒";position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:16px;opacity:.8}
 button small{font-size:.75em;font-weight:normal;color:#aab6bf}
 .cost{float:right;color:#38d9ff}
@@ -54,7 +56,9 @@ button small{font-size:.75em;font-weight:normal;color:#aab6bf}
  main{padding-left:10px;padding-right:10px}.panel{padding:14px}
  .map{min-height:340px;padding:10px}.map-grid{transform:scale(.78);transform-origin:top left;width:560px}
 }
-@media(max-width:360px){.stats{grid-template-columns:1fr}.stat:last-child{grid-column:auto}}\n@media(hover:none){button:hover{background:#1d2a34}}\n@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
+@media(max-width:360px){.stats{grid-template-columns:1fr}.stat:last-child{grid-column:auto}}
+@media(hover:none){button:hover{background:#1d2a34}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
 
 .raid-active{animation:raidFlash .7s steps(2,end) infinite;border-color:#e63946!important}
 @keyframes raidFlash{0%,100%{background:#101820}50%{background:#3a0b0b}}
@@ -270,7 +274,8 @@ function startRaid(){
  if(raidTimerEl) raidTimerEl.textContent=raidTimer;
  raidTimerId=setInterval(()=>{
   raidTimer--;
-  const timerEl=document.getElementById("raidTimer");\n  if(timerEl) timerEl.textContent=Math.max(0,raidTimer);
+  const timerEl=document.getElementById("raidTimer");
+  if(timerEl) timerEl.textContent=Math.max(0,raidTimer);
   if(raidTimer<=0){
    clearInterval(raidTimerId); raidTimerId=null;
    const defense=securityPower();
@@ -288,7 +293,9 @@ function startRaid(){
   }
  },1000);
 }
-function safeClassToggle(el,cls,on){if(el)el.classList.toggle(cls,on)}\n\nfunction updateSteps(){
+function safeClassToggle(el,cls,on){if(el)el.classList.toggle(cls,on)}
+
+function updateSteps(){
  const ids=["stepOffice","stepExperimentRoom","stepPower","stepScientist","stepSecurity","stepExperiment"];
  ids.forEach((id,i)=>{
   const el=document.getElementById(id);
