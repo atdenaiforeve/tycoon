@@ -166,6 +166,7 @@ function updateSteps(){
  });
 
  const tutorialComplete=tutorialStep>6;
+ const lockableButtons=["office","experimentBuilding","power","scientist","securityStaff","basicExperiment","researchBuilding","advancedExperiment"];
  statusEl.textContent=tutorialComplete?"OPERATIONAL":"TUTORIAL";
 
  document.getElementById("officeRoom").className="room office"+(state.office?"":" locked");
@@ -189,6 +190,14 @@ function updateSteps(){
  document.getElementById("securityStaff").disabled=tutorialComplete?(!state.office||points<250||state.scientists<1||state.security>=1):(tutorialStep!==5||!state.office||state.scientists<1||points<250||state.security>=1);
 
  document.getElementById("basicExperiment").disabled=tutorialComplete?(!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment):(tutorialStep!==6||!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment);
+
+ if(tutorialComplete){
+  lockableButtons.forEach(id=>{
+   const button=document.getElementById(id);
+   button.classList.remove("tutorial-locked");
+   button.title="";
+  });
+ }
 
  const tutorialLocks={
   office:tutorialStep!==1,
