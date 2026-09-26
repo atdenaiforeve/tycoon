@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BLACKSITE-01 | Facility UI | Build 003</title>
+<title>BLACKSITE-01 | Facility UI | Build 004</title>
 <style>
+
 
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;font-family:Arial,sans-serif;background:#080c10;color:#eef4f8}
@@ -60,140 +61,161 @@ button small{font-size:.75em;font-weight:normal;color:#aab6bf}
  .modules{grid-template-columns:1fr}
 }
 
+
+body{overflow-x:hidden}
+.category-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.tab{min-height:44px;padding:8px;margin:0;text-align:center;font-size:12px}
+.tab.active{border-color:#38d9ff;background:#182c37}
+.upgrade-list{display:none}
+.upgrade-list.active{display:block}
+.map{position:relative;min-height:390px;border:2px solid #40515f;border-radius:10px;background:#0a1015;padding:20px;overflow:auto}
+.map-grid{position:relative;min-width:560px;min-height:340px}
+.room{position:absolute;border:2px solid #526674;border-radius:7px;background:#18242d;padding:12px;min-width:130px;min-height:70px;box-shadow:0 0 0 1px #0a1015}
+.room small{display:block;color:#8e9ba7;margin-top:7px;font-size:10px}
+.room.office{left:20px;top:120px}.room.security{left:205px;top:120px}.room.experiment{left:390px;top:120px}
+.room.power{left:205px;top:230px}.room.research{left:390px;top:230px}
+.corridor{position:absolute;background:#263742;height:14px}
+.corridor.one{left:150px;top:151px;width:55px}.corridor.two{left:335px;top:151px;width:55px}
+.corridor.three{left:268px;top:190px;width:14px;height:40px}.corridor.four{left:455px;top:190px;width:14px;height:40px}
+.room.locked{opacity:.35;border-style:dashed}
+.tutorial{padding:12px;margin-bottom:14px;background:#090e13;border:1px solid #40515f;border-radius:8px}
+.tutorial strong{color:#38d9ff}.steps{display:grid;gap:5px;margin-top:8px;font-size:12px}.step.done{color:#7fdca8}.step.current{color:#fff}.step.locked{color:#667387}
+.assignment{margin-top:10px;padding:10px;border-left:3px solid #38d9ff;background:#0b1117;font-size:12px;color:#c5d0d8}
+@media(max-width:520px){.map{min-height:340px;padding:10px}.map-grid{transform:scale(.78);transform-origin:top left;width:560px}}
 </style>
 </head>
-
+<body>
 <header>
 <h1>BLACKSITE-01</h1>
 <div class="subtitle">Nordic Facility Construction Division</div>
-<div class="build">SYSTEM BUILD 003 — MODULAR FACILITY</div>
+<div class="build">SYSTEM BUILD 004 — FACILITY OPERATIONS</div>
 </header>
 
 <section class="stats">
-<div class="stat"><div class="label">Research Points</div><div class="value" id="points">1,000 RP</div></div>
+<div class="stat"><div class="label">Research Points</div><div class="value" id="points">2,000 RP</div></div>
 <div class="stat"><div class="label">Research / sec</div><div class="value" id="income">0 RP / sec</div></div>
-<div class="stat"><div class="label">Facility Modules</div><div class="value" id="buildings">0</div></div>
+<div class="stat"><div class="label">Facility Status</div><div class="value" id="status">SETUP</div></div>
 </section>
 
 <main>
 <section class="panel">
-<h2>BLACKSITE-01 Facility</h2>
-<div class="note">Every purchase physically adds another system to the facility. No empty plots — build the Blacksite itself.</div>
+<h2>BLACKSITE-01 Facility Map</h2>
+<div class="note">The site is constructed room by room. New buildings extend the connected facility instead of creating an infinite grid of upgrade boxes.</div>
 
-<div class="facility">
-<div class="core">
-<div class="facility-label">UNDERGROUND SECTOR A // ACTIVE CONSTRUCTION</div>
-<div class="system-line" id="systemLine"></div>
-<div class="modules" id="modules">
-<div class="empty-core" id="emptyCore">FACILITY CORE ONLINE<br><small>Purchase an upgrade to begin construction.</small></div>
-</div>
+<div class="tutorial">
+<strong id="tutorialTitle">TUTORIAL — ESTABLISH THE FACILITY</strong>
+<div class="steps">
+<div class="step current" id="stepOffice">1. Build an Office</div>
+<div class="step locked" id="stepScientist">2. Hire a Scientist</div>
+<div class="step locked" id="stepSecurity">3. Hire Security</div>
+<div class="step locked" id="stepExperimentRoom">4. Build an Experiment Room</div>
+<div class="step locked" id="stepExperiment">5. Start an Experiment</div>
 </div>
 </div>
 
-<div class="info" id="info">Construction standing by. Select a system from the build menu.</div>
+<div class="map">
+<div class="map-grid">
+<div class="corridor one"></div><div class="corridor two"></div><div class="corridor three"></div><div class="corridor four"></div>
+<div class="room office locked" id="officeRoom">OFFICE<small>Awaiting construction</small></div>
+<div class="room security locked" id="securityRoom">SECURITY<small>Awaiting staff</small></div>
+<div class="room experiment locked" id="experimentRoom">EXPERIMENT ROOM<small>Locked</small></div>
+<div class="room power locked" id="powerRoom">POWER<small>Available later</small></div>
+<div class="room research locked" id="researchRoom">RESEARCH WING<small>Requires progress</small></div>
+</div>
+</div>
+<div class="assignment" id="assignment">Facility setup required. Begin by constructing the office.</div>
+<div class="info" id="info">Tutorial active. Complete each required step to unlock the next.</div>
 </section>
 
 <aside class="panel">
-<h2>Build & Upgrade</h2>
-<div class="note">Upgrades stack. Buying another upgrade adds another physical module and increases production.</div>
+<h2>Operations</h2>
+<div class="category-tabs">
+<button class="tab active" data-tab="staff">STAFF</button>
+<button class="tab" data-tab="building">BUILDING</button>
+<button class="tab" data-tab="experiments">EXPERIMENTS</button>
+</div>
 
-<button id="generator">POWER SYSTEM <span class="cost">500 RP</span><br><small>Adds a generator module · +8 RP / sec</small><div class="upgrade-count" id="generatorCount">Built: 0</div></button>
-<button id="security">SECURITY SYSTEM <span class="cost">750 RP</span><br><small>Adds a checkpoint module · +14 RP / sec</small><div class="upgrade-count" id="securityCount">Built: 0</div></button>
-<button id="research">RESEARCH WING <span class="cost">1,200 RP</span><br><small>Adds a research module · +28 RP / sec</small><div class="upgrade-count" id="researchCount">Built: 0</div></button>
-<button id="containment">CONTAINMENT WING <span class="cost">2,000 RP</span><br><small>Adds a containment module · +50 RP / sec</small><div class="upgrade-count" id="containmentCount">Built: 0</div></button>
-<button id="upgrade">FACILITY EXPANSION <span class="cost">1,000 RP</span><br><small>Improves every existing module by 25%</small><div class="upgrade-count" id="upgradeCount">Level: 0</div></button>
+<div class="upgrade-list active" id="staff">
+<button id="scientist">SCIENTIST <span class="cost">300 RP</span><br><small>Assigns a researcher to the facility</small><div class="upgrade-count" id="scientistCount">Hired: 0</div></button>
+<button id="securityStaff">SECURITY <span class="cost">250 RP</span><br><small>Provides facility protection</small><div class="upgrade-count" id="securityCount">Hired: 0</div></button>
+</div>
+
+<div class="upgrade-list" id="building">
+<button id="office">OFFICE ROOM <span class="cost">200 RP</span><br><small>Required for staff operations</small></button>
+<button id="experimentBuilding">EXPERIMENT ROOM <span class="cost">400 RP</span><br><small>Required to run experiments</small></button>
+<button id="power">POWER SYSTEM <span class="cost">500 RP</span><br><small>Extends the underground facility</small></button>
+<button id="researchBuilding">RESEARCH WING <span class="cost">1,200 RP</span><br><small>Expands advanced research space</small></button>
+</div>
+
+<div class="upgrade-list" id="experiments">
+<button id="basicExperiment">BASIC NORDIC ANALYSIS <span class="cost">350 RP</span><br><small>Requires Scientist + Experiment Room · produces research</small><div class="upgrade-count" id="experimentCount">Experiments: 0</div></button>
+<button id="advancedExperiment">SIGNAL ANALYSIS <span class="cost">1,000 RP</span><br><small>Requires Research Wing + 2 Scientists</small></button>
+</div>
 </aside>
 </main>
 
 <script>
-let points=1000;
+let points=2000;
 let income=0;
-let multiplier=1;
-let expansionLevel=0;
+let tutorialStep=1;
+const state={office:false,scientists:0,security:0,experimentRoom:false,power:false,researchWing:false,basicExperiment:false,advancedExperiment:false};
 
-const prices={generator:500,security:750,research:1200,containment:2000};
-const gains={generator:8,security:14,research:28,containment:50};
-const names={generator:"Power System",security:"Security System",research:"Research Wing",containment:"Containment Wing"};
-const moduleNames={generator:"GENERATOR MODULE",security:"SECURITY CHECKPOINT",research:"RESEARCH LAB",containment:"CONTAINMENT CHAMBER"};
+const pointsEl=document.getElementById("points"), incomeEl=document.getElementById("income"), statusEl=document.getElementById("status");
+const info=document.getElementById("info"), assignment=document.getElementById("assignment");
 
-const counts={generator:0,security:0,research:0,containment:0};
-
-const pointsEl=document.getElementById("points");
-const incomeEl=document.getElementById("income");
-const buildingsEl=document.getElementById("buildings");
-const modules=document.getElementById("modules");
-const emptyCore=document.getElementById("emptyCore");
-const info=document.getElementById("info");
-const systemLine=document.getElementById("systemLine");
-
-function totalModules(){
- return counts.generator+counts.security+counts.research+counts.containment;
-}
-
-function update(){
- const total=totalModules();
+function updateSteps(){
+ const ids=["stepOffice","stepScientist","stepSecurity","stepExperimentRoom","stepExperiment"];
+ ids.forEach((id,i)=>{
+  const el=document.getElementById(id);
+  el.className="step "+(i<tutorialStep-1?"done":i===tutorialStep-1?"current":"locked");
+ });
+ statusEl.textContent=state.basicExperiment?"OPERATIONAL":tutorialStep>5?"READY":"SETUP";
+ document.getElementById("officeRoom").className="room office"+(state.office?"":" locked");
+ document.getElementById("securityRoom").className="room security"+(state.security?"":" locked");
+ document.getElementById("experimentRoom").className="room experiment"+(state.experimentRoom?"":" locked");
+ document.getElementById("powerRoom").className="room power"+(state.power?"":" locked");
+ document.getElementById("researchRoom").className="room research"+(state.researchWing?"":" locked");
+ document.getElementById("officeRoom").innerHTML=state.office?"OFFICE<small>STAFF OPERATIONS</small>":"OFFICE<small>Awaiting construction</small>";
+ document.getElementById("securityRoom").innerHTML=state.security?"SECURITY<small>"+state.security+" STAFF · ACTIVE</small>":"SECURITY<small>Awaiting staff</small>";
+ document.getElementById("experimentRoom").innerHTML=state.experimentRoom?"EXPERIMENT ROOM<small>"+(state.basicExperiment?"EXPERIMENT ACTIVE":"READY")+"</small>":"EXPERIMENT ROOM<small>Locked</small>";
+ document.getElementById("powerRoom").innerHTML=state.power?"POWER<small>GENERATOR ONLINE</small>":"POWER<small>Available later</small>";
+ document.getElementById("researchRoom").innerHTML=state.researchWing?"RESEARCH WING<small>ADVANCED RESEARCH</small>":"RESEARCH WING<small>Requires progress</small>";
+ document.getElementById("scientist").disabled=!state.office||points<300||state.scientists>=2;
+ document.getElementById("securityStaff").disabled=!state.office||points<250||state.security>=1;
+ document.getElementById("experimentBuilding").disabled=!state.office||state.scientists<1||state.security<1||points<400||state.experimentRoom;
+ document.getElementById("office").disabled=state.office||points<200;
+ document.getElementById("basicExperiment").disabled=!state.experimentRoom||state.scientists<1||points<350||state.basicExperiment;
+ document.getElementById("power").disabled=!state.experimentRoom||points<500||state.power;
+ document.getElementById("researchBuilding").disabled=!state.power||points<1200||state.researchWing;
+ document.getElementById("advancedExperiment").disabled=!state.researchWing||state.scientists<2||points<1000||state.advancedExperiment;
+ document.getElementById("scientistCount").textContent="Hired: "+state.scientists;
+ document.getElementById("securityCount").textContent="Hired: "+state.security;
+ document.getElementById("experimentCount").textContent="Experiments: "+(state.basicExperiment?1:0)+(state.advancedExperiment?1:0);
  pointsEl.textContent=Math.floor(points).toLocaleString()+" RP";
- incomeEl.textContent=Math.floor(income*multiplier)+" RP / sec";
- buildingsEl.textContent=total;
-
- for(const type of Object.keys(prices)){
-  document.getElementById(type).disabled=points<prices[type];
-  document.getElementById(type+"Count").textContent="Built: "+counts[type];
- }
-
- document.getElementById("upgrade").disabled=points<1000||total===0;
- document.getElementById("upgradeCount").textContent="Level: "+expansionLevel;
- systemLine.className="system-line"+(total>0?" active":"");
+ incomeEl.textContent=Math.floor(income)+" RP / sec";
+ assignment.textContent=state.basicExperiment?"Scientist assigned to experiment. Research is being generated.":state.experimentRoom?"Assign a scientist to the experiment by starting an experiment.":state.scientists?"Scientist ready. Security and an experiment room are required.":state.office?"Office operational. Hire the scientist next.":"Facility setup required. Begin by constructing the office.";
 }
-
-function addModule(type){
- const module=document.createElement("div");
- module.className="module new";
- module.innerHTML="<div class='module-name'>"+moduleNames[type]+"</div><div class='module-level'>UNIT "+String(counts[type]).padStart(2,"0")+" · ONLINE</div>";
- modules.appendChild(module);
+function spend(cost){if(points<cost)return false;points-=cost;return true}
+function completeStep(n){if(tutorialStep===n)tutorialStep++}
+function action(type){
+ if(type==="office"&&!state.office&&spend(200)){state.office=true;completeStep(1);info.textContent="Office constructed. Staff can now be assigned to Blacksite-01."}
+ else if(type==="scientist"&&state.office&&state.scientists<2&&spend(300)){state.scientists++;completeStep(2);info.textContent="Scientist hired and assigned to the office."}
+ else if(type==="securityStaff"&&state.office&&state.security<1&&spend(250)){state.security=1;completeStep(3);info.textContent="Security staff assigned. The facility is now protected."}
+ else if(type==="experimentBuilding"&&state.office&&state.scientists>0&&state.security>0&&spend(400)){state.experimentRoom=true;completeStep(4);info.textContent="Experiment room constructed and connected to the facility."}
+ else if(type==="basicExperiment"&&state.experimentRoom&&state.scientists>0&&spend(350)){state.basicExperiment=true;income=5;completeStep(5);info.textContent="Basic Nordic Analysis started. The scientist and experiment are now producing research together."}
+ else if(type==="power"&&state.experimentRoom&&spend(500)){state.power=true;income+=3;info.textContent="Power system constructed. Facility power is online."}
+ else if(type==="researchBuilding"&&state.power&&spend(1200)){state.researchWing=true;income+=5;info.textContent="Research Wing constructed. Advanced experiments are now possible."}
+ else if(type==="advancedExperiment"&&state.researchWing&&state.scientists>=2&&spend(1000)){state.advancedExperiment=true;income+=12;info.textContent="Signal Analysis started with two scientists."}
+ updateSteps();
 }
-
-function build(type){
- if(points<prices[type])return;
-
- points-=prices[type];
- counts[type]++;
- income+=gains[type];
- addModule(type);
-
- if(emptyCore)emptyCore.remove();
-
- info.textContent=names[type]+" constructed. New module added to the live facility. Production increased by "+gains[type]+" RP per second.";
- update();
-}
-
-generator.addEventListener("click",()=>build("generator"));
-security.addEventListener("click",()=>build("security"));
-research.addEventListener("click",()=>build("research"));
-containment.addEventListener("click",()=>build("containment"));
-
-upgrade.addEventListener("click",()=>{
- if(points<1000||totalModules()===0)return;
-
- points-=1000;
- expansionLevel++;
- multiplier*=1.25;
-
- const expansion=document.createElement("div");
- expansion.className="module new";
- expansion.innerHTML="<div class='module-name'>FACILITY EXPANSION</div><div class='module-level'>LEVEL "+expansionLevel+" · ALL SYSTEMS +25%</div>";
- modules.appendChild(expansion);
-
- info.textContent="Facility expansion "+expansionLevel+" completed. Every existing and future module now produces 25% more RP.";
- update();
-});
-
-setInterval(()=>{
- points+=income*multiplier;
- update();
-},1000);
-
-update();
+["office","scientist","securityStaff","experimentBuilding","basicExperiment","power","researchBuilding","advancedExperiment"].forEach(id=>document.getElementById(id).addEventListener("click",()=>action(id)));
+document.querySelectorAll(".tab").forEach(tab=>tab.addEventListener("click",()=>{
+ document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));tab.classList.add("active");
+ document.querySelectorAll(".upgrade-list").forEach(l=>l.classList.remove("active"));
+ document.getElementById(tab.dataset.tab).classList.add("active");
+}));
+setInterval(()=>{if(state.basicExperiment)points+=income;updateSteps()},1000);
+updateSteps();
 </script>
-
+</body>
 </html>
