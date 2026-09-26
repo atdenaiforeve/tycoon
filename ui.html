@@ -89,6 +89,7 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 </div>
 </div>
 <audio id="tutorialVoice" preload="auto"></audio>
+<script src="assets/audio/ambience/blacksite-ambience.js"></script>
 <div class="raid-banner" id="raidBanner">RAID IN PROGRESS · <span id="raidTimer">12</span>s</div>
 <header>
 <h1>BLACKSITE-01</h1>
@@ -691,6 +692,7 @@ document.getElementById("startSystem").addEventListener("click",async()=>{
  systemStarted=true;
  const overlay=document.getElementById("startOverlay");
  if(overlay)overlay.style.display="none";
+ if(window.BLACKSITE_AMBIENCE)BLACKSITE_AMBIENCE.start();
  await playTutorialVoice("intro");
  updateSteps();
 });
