@@ -222,6 +222,7 @@ const DEFAULT_STATE={
  researchWing:false, basicExperiment:false, advancedExperiment:false,
  constructionSpeed:false, expansion:false
 };
+let state={...DEFAULT_STATE};
 function saveProgress(){
  try{
   const save={version:1,points,income,tutorialStep,energyUsed,energyCapacity,superResearch,raidRisk,governmentCover,facilityLevel,constructionSpeedLevel,researchSpeedLevel,securityTrainingLevel,securityEquipmentLevel,state:{...state},constructionQueue,researchQueue,repairQueue};
