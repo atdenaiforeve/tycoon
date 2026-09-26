@@ -76,7 +76,7 @@ button small{font-size:.75em;font-weight:normal;color:#aab6bf}
 <h2>BLACKSITE-01 Facility Map</h2>
 <div class="note">Level 1 begins with basic facility infrastructure. Buildings use energy capacity. Staff and experiments do not consume energy.</div>
 
-<div class="tutorial">
+<div class="tutorial" id="tutorialPanel">
 <strong>TUTORIAL — LEVEL 1 FACILITY INITIALIZATION</strong>
 <div class="steps">
 <div class="step current" id="stepOffice">1. BUILDING — Office Room — 200 RP · 3 ENERGY</div>
@@ -196,6 +196,7 @@ function updateSteps(){
 
  const tutorialComplete=tutorialStep>6;
  const constructionBusy=!!constructionQueue;
+ document.getElementById("tutorialPanel").style.display=tutorialComplete?"none":"block";
  document.getElementById("superResearchPanel").style.display=tutorialComplete?"block":"none";
  const lockableButtons=["office","experimentBuilding","power","scientist","securityStaff","basicExperiment"];
  statusEl.textContent=tutorialComplete?"OPERATIONAL":"TUTORIAL";
