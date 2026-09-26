@@ -36,7 +36,7 @@ h2{margin:0 0 10px;font-size:clamp(19px,2.5vw,24px)}
 .info{margin-top:16px;padding:14px;background:#090e13;border-left:3px solid #5b7180;border-radius:7px;color:#c5d0d8;line-height:1.5;font-size:clamp(13px,1.8vw,16px)}
 button{width:100%;padding:14px;margin:6px 0;border:1px solid #40515f;border-radius:9px;background:#1d2a34;color:#f4f8fa;font-size:clamp(14px,2vw,17px);font-weight:bold;cursor:pointer;min-height:62px;text-align:left}
 button:hover{background:#263742}
-button:disabled{background:#151d24;color:#65727d;cursor:not-allowed}
+button:disabled{background:#151d24;color:#65727d;cursor:not-allowed}button.tutorial-locked{position:relative;padding-right:48px}button.tutorial-locked::after{content:"🔒";position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:16px;opacity:.8}
 button small{font-size:.75em;font-weight:normal;color:#aab6bf}
 .cost{float:right;color:#38d9ff}
 .energy-cost{color:#8edfff}
@@ -59,7 +59,7 @@ button small{font-size:.75em;font-weight:normal;color:#aab6bf}
 <header>
 <h1>BLACKSITE-01</h1>
 <div class="subtitle">Nordic Facility Construction Division</div>
-<div class="build">SYSTEM BUILD 009 — LEVEL 1 FACILITY TUTORIAL</div>
+<div class="build">SYSTEM BUILD 010 — LEVEL 1 FACILITY TUTORIAL</div>
 </header>
 
 <section class="stats">
@@ -189,6 +189,24 @@ function updateSteps(){
  document.getElementById("securityStaff").disabled=tutorialComplete?(!state.office||points<250||state.scientists<1||state.security>=1):(tutorialStep!==5||!state.office||state.scientists<1||points<250||state.security>=1);
 
  document.getElementById("basicExperiment").disabled=tutorialComplete?(!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment):(tutorialStep!==6||!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment);
+
+ const tutorialLocks={
+  office:tutorialStep!==1,
+  experimentBuilding:tutorialStep!==2,
+  power:tutorialStep!==3,
+  scientist:tutorialStep!==4,
+  securityStaff:tutorialStep!==5,
+  basicExperiment:tutorialStep!==6,
+  researchBuilding:!tutorialComplete,
+  advancedExperiment:!tutorialComplete
+ };
+ Object.entries(tutorialLocks).forEach(([id,locked])=>{
+  const button=document.getElementById(id);
+  button.classList.toggle("tutorial-locked",locked);
+  button.title=locked?"Locked — complete the current tutorial step first.":"";
+ });
+ document.getElementById("researchBuilding").disabled=!tutorialComplete;
+ document.getElementById("advancedExperiment").disabled=!tutorialComplete;
 
  document.getElementById("scientistCount").textContent="Hired: "+state.scientists;
  document.getElementById("securityCount").textContent="Hired: "+state.security;
