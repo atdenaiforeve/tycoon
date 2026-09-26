@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#080c10">
-<title>BLACKSITE-01 | Facility UI | Build 018</title>
+<title>BLACKSITE-01 | Facility UI | Build 020</title>
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:#080c10;color:#eef4f8}
@@ -71,14 +71,14 @@ button small{font-size:.75em;font-weight:normal;color:#aab6bf}
 .security-shield{display:flex;align-items:center;gap:6px;position:absolute;z-index:4;padding:7px 9px;border:2px solid #38d9ff;border-radius:8px;background:#071923;color:#8eeaff;font-weight:bold;font-size:11px;box-shadow:0 0 12px #38d9ff}
 @keyframes markerPulse{50%{transform:scale(1.08)}}
 
-</style>
+ .save-controls{margin-top:18px;padding-top:14px;border-top:1px solid #33424f}.save-controls button{border-color:#6b3030;background:#1c1114}.save-controls button:hover{background:#2a1519}.save-controls .upgrade-count{margin-top:8px}\n</style>
 </head>
 <body>
 <div class="raid-banner" id="raidBanner">RAID IN PROGRESS · <span id="raidTimer">12</span>s</div>
 <header>
 <h1>BLACKSITE-01</h1>
 <div class="subtitle">Nordic Facility Construction Division</div>
-<div class="build">SYSTEM BUILD 019 — ASSET ICONS</div>
+<div class="build">SYSTEM BUILD 020 — LOCAL SAVE</div>
 </header>
 
 <section class="stats">
@@ -161,6 +161,10 @@ button small{font-size:.75em;font-weight:normal;color:#aab6bf}
 <div class="tree-node locked-node" id="srSecurityEquipment">SECURITY EQUIPMENT<br><small>Undisclosed — requires Security Training</small><button id="buySecurityEquipment">RESEARCH</button><div class="upgrade-count" id="securityEquipmentCount">Level: 0 / 3</div></div>
 </div>
 </div>
+<div class="save-controls">
+<button id="resetProgress" type="button">RESET ALL PROGRESS<br><small>Clears the saved facility, research, staff, upgrades and RP.</small></button>
+<div class="upgrade-count" id="saveStatus">Progress auto-saves in this browser.</div>
+</div>
 </aside>
 </main>
 
@@ -185,18 +189,74 @@ let raidTimer=0;
 let raidTimerId=null;
 let repairQueue=null;
 
-const state={
- office:false,
- scientists:0,
- security:0,
- experimentRoom:false,
- power:false,
- researchWing:false,
- basicExperiment:false,
- advancedExperiment:false,
- constructionSpeed:false,
- expansion:false
+
+
+const SAVE_KEY="blacksite01_tycoon_save_v1";
+const DEFAULT_STATE={
+ office:false, scientists:0, security:0, experimentRoom:false, power:false,
+ researchWing:false, basicExperiment:false, advancedExperiment:false,
+ constructionSpeed:false, expansion:false
 };
+function saveProgress(){
+ try{
+  const save={version:1,points,income,tutorialStep,energyUsed,energyCapacity,superResearch,raidRisk,governmentCover,facilityLevel,constructionSpeedLevel,researchSpeedLevel,securityTrainingLevel,securityEquipmentLevel,state:{...state},constructionQueue,researchQueue,repairQueue};
+  localStorage.setItem(SAVE_KEY,JSON.stringify(save));
+  const el=document.getElementById("saveStatus");
+  if(el)el.textContent="Progress saved locally · "+new Date().toLocaleTimeString();
+ }catch(e){
+  const el=document.getElementById("saveStatus");
+  if(el)el.textContent="Local save unavailable in this browser."; 
+ }
+}
+function loadProgress(){
+ try{
+  const raw=localStorage.getItem(SAVE_KEY);
+  if(!raw)return;
+  const save=JSON.parse(raw);
+  if(!save||save.version!==1)return;
+  if(Number.isFinite(save.points))points=save.points;
+  if(Number.isFinite(save.income))income=save.income;
+  if(Number.isFinite(save.tutorialStep))tutorialStep=save.tutorialStep;
+  if(Number.isFinite(save.energyUsed))energyUsed=save.energyUsed;
+  if(Number.isFinite(save.energyCapacity))energyCapacity=save.energyCapacity;
+  if(Number.isFinite(save.superResearch))superResearch=save.superResearch;
+  if(Number.isFinite(save.raidRisk))raidRisk=save.raidRisk;
+  if(typeof save.governmentCover==="boolean")governmentCover=save.governmentCover;
+  if(Number.isFinite(save.facilityLevel))facilityLevel=save.facilityLevel;
+  if(Number.isFinite(save.constructionSpeedLevel))constructionSpeedLevel=save.constructionSpeedLevel;
+  if(Number.isFinite(save.researchSpeedLevel))researchSpeedLevel=save.researchSpeedLevel;
+  if(Number.isFinite(save.securityTrainingLevel))securityTrainingLevel=save.securityTrainingLevel;
+  if(Number.isFinite(save.securityEquipmentLevel))securityEquipmentLevel=save.securityEquipmentLevel;
+  if(save.state&&typeof save.state==="object")Object.assign(state,DEFAULT_STATE,save.state);
+  constructionQueue=save.constructionQueue||null;
+  researchQueue=save.researchQueue||null;
+  repairQueue=save.repairQueue||null;
+  const el=document.getElementById("saveStatus");
+  if(el)el.textContent="Saved progress loaded from this browser.";
+ }catch(e){
+  localStorage.removeItem(SAVE_KEY);
+ }
+}
+function resetAllProgress(){
+ if(!confirm("Reset ALL BLACKSITE-01 progress? This cannot be undone."))return;
+ localStorage.removeItem(SAVE_KEY);
+ points=2000; income=0; tutorialStep=1; energyUsed=0; energyCapacity=8;
+ superResearch=0; raidRisk=0; governmentCover=false; facilityLevel=1;
+ constructionSpeedLevel=0; constructionQueue=null; researchQueue=null; researchSpeedLevel=0;
+ securityTrainingLevel=0; securityEquipmentLevel=0; raidActive=false; raidTimer=0; repairQueue=null;
+ if(raidTimerId){clearInterval(raidTimerId);raidTimerId=null;}
+ Object.assign(state,DEFAULT_STATE);
+ document.body.classList.remove("raid-active");
+ const banner=document.getElementById("raidBanner");
+ if(banner)banner.className="raid-banner";
+ clearRaidMarkers();
+ const el=document.getElementById("saveStatus");
+ if(el)el.textContent="All progress reset. Starting a new facility."; 
+ updateSteps();
+ saveProgress();
+}
+loadProgress();
+
 
 const BUILD_TIME={office:5,experimentBuilding:8,power:10};
 
@@ -436,7 +496,7 @@ function action(type){
  updateSteps();
 }
 
-["office","scientist","securityStaff","experimentBuilding","basicExperiment","power","buyResearchSpeed","buyConstruction","buyFacility","buyGovernment","buyExpansion","buyAdvanced","buySecurityTraining","buySecurityEquipment"].forEach(id=>document.getElementById(id).addEventListener("click",()=>action(id)));
+document.getElementById("resetProgress").addEventListener("click",resetAllProgress);\n\n["office","scientist","securityStaff","experimentBuilding","basicExperiment","power","buyResearchSpeed","buyConstruction","buyFacility","buyGovernment","buyExpansion","buyAdvanced","buySecurityTraining","buySecurityEquipment"].forEach(id=>document.getElementById(id).addEventListener("click",()=>action(id)));
 
 document.querySelectorAll(".tab").forEach(tab=>tab.addEventListener("click",()=>{
  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
