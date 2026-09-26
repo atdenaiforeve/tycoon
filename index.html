@@ -2,56 +2,195 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Tycoon</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BLACKSITE-01 | Nordic Facility Tycoon</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Arial,sans-serif;background:#10151c;color:#f5f7fa}body{overflow-x:hidden}
-header{padding:clamp(16px,3vw,28px);background:#1b2430;border-bottom:2px solid #394858}h1{margin:0;font-size:clamp(26px,4vw,38px)}.subtitle{margin-top:6px;color:#b8c2ce;font-size:clamp(14px,2vw,17px)}
-.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:clamp(14px,3vw,22px)}.stat{background:#202b38;border-radius:14px;padding:clamp(12px,2vw,18px);min-width:0}.label{font-size:clamp(11px,1.5vw,14px);color:#aeb9c5;text-transform:uppercase}.value{font-size:clamp(21px,3vw,29px);font-weight:bold;margin-top:6px;white-space:nowrap}
-main{display:grid;grid-template-columns:minmax(0,1fr) minmax(270px,330px);gap:20px;padding:0 clamp(14px,3vw,22px) 22px}.panel{background:#1b2430;border:1px solid #394858;border-radius:14px;padding:clamp(14px,2.5vw,22px);min-width:0}h2{margin:0 0 16px;font-size:clamp(19px,2.5vw,24px)}
-.grid{display:grid;grid-template-columns:repeat(4,minmax(70px,1fr));gap:10px}.plot{aspect-ratio:1;background:#263341;border:2px dashed #536477;border-radius:10px;display:flex;align-items:center;justify-content:center;text-align:center;color:#aeb9c5;font-weight:bold;font-size:clamp(12px,1.6vw,16px);padding:5px}.plot.built{border-style:solid;background:#304052;color:white}
-button{width:100%;padding:clamp(13px,2vw,16px);margin:6px 0;border:0;border-radius:10px;background:#2d8cff;color:white;font-size:clamp(15px,2vw,18px);font-weight:bold;cursor:pointer;min-height:58px}button small{font-size:.75em;font-weight:normal}button:disabled{background:#46515c;color:#adb6bf;cursor:not-allowed}.info{margin-top:18px;padding:14px;background:#111820;border-radius:10px;color:#cbd4dd;line-height:1.5;font-size:clamp(14px,1.8vw,16px)}
-@media(max-width:800px){main{grid-template-columns:1fr}}@media(max-width:520px){header{padding:16px}.stats{grid-template-columns:1fr 1fr}.stat:last-child{grid-column:1/-1}main{padding-left:10px;padding-right:10px}.panel{padding:14px}.grid{grid-template-columns:repeat(2,minmax(100px,1fr));gap:8px}.plot{min-height:105px}}@media(max-width:360px){.stats{grid-template-columns:1fr}.stat:last-child{grid-column:auto}.grid{grid-template-columns:repeat(2,minmax(90px,1fr))}.plot{min-height:90px}}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Arial,sans-serif;background:#090d12;color:#eef4f8}
+body{overflow-x:hidden}
+header{padding:clamp(16px,3vw,28px);background:#101820;border-bottom:2px solid #33424f}
+h1{margin:0;font-size:clamp(24px,4vw,38px);letter-spacing:1px}
+.subtitle{margin-top:6px;color:#9eabb6;font-size:clamp(13px,2vw,17px)}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:clamp(14px,3vw,22px)}
+.stat{background:#151e27;border:1px solid #2c3945;border-radius:12px;padding:clamp(12px,2vw,18px)}
+.label{font-size:clamp(10px,1.5vw,14px);color:#8e9ba7;text-transform:uppercase}.value{font-size:clamp(20px,3vw,29px);font-weight:bold;margin-top:6px;white-space:nowrap}
+main{display:grid;grid-template-columns:minmax(0,1fr) minmax(270px,340px);gap:20px;padding:0 clamp(12px,3vw,22px) 22px}
+.panel{background:#101820;border:1px solid #2c3945;border-radius:12px;padding:clamp(14px,2.5vw,22px);min-width:0}
+h2{margin:0 0 16px;font-size:clamp(19px,2.5vw,24px)}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(70px,1fr));gap:9px}
+.plot{aspect-ratio:1;background:#17212a;border:2px dashed #42515d;border-radius:9px;display:flex;align-items:center;justify-content:center;text-align:center;color:#7f8d98;font-weight:bold;font-size:clamp(11px,1.6vw,16px);padding:5px}
+.plot.built{border-style:solid;background:#26333d;color:#f3f7fa}
+button{width:100%;padding:clamp(13px,2vw,16px);margin:6px 0;border:1px solid #40515f;border-radius:9px;background:#1d2a34;color:#f4f8fa;font-size:clamp(14px,2vw,17px);font-weight:bold;cursor:pointer;min-height:60px;text-align:left}
+button:hover{background:#263742}
+button:disabled{background:#151d24;color:#65727d;cursor:not-allowed}
+button small{font-size:.75em;font-weight:normal;color:#aab6bf}
+.info{margin-top:18px;padding:14px;background:#090e13;border-left:3px solid #5b7180;border-radius:7px;color:#c5d0d8;line-height:1.5;font-size:clamp(13px,1.8vw,16px)}
+.section-note{color:#8e9ba7;font-size:13px;margin:-8px 0 12px}
+@media(max-width:800px){main{grid-template-columns:1fr}}
+@media(max-width:520px){
+ header{padding:16px}
+ .stats{grid-template-columns:1fr 1fr}
+ .stat:last-child{grid-column:1/-1}
+ main{padding-left:10px;padding-right:10px}
+ .panel{padding:14px}
+ .grid{grid-template-columns:repeat(2,minmax(100px,1fr));gap:8px}
+ .plot{min-height:105px}
+}
+@media(max-width:360px){
+ .stats{grid-template-columns:1fr}
+ .stat:last-child{grid-column:auto}
+ .grid{grid-template-columns:repeat(2,minmax(90px,1fr))}
+ .plot{min-height:90px}
+}
 </style>
 </head>
 <body>
-<header><h1>🏗️ Tycoon</h1><div class="subtitle">Build your business and make it grow.</div></header>
+<header>
+<h1>BLACKSITE-01</h1>
+<div class="subtitle">Nordic Facility Construction Division</div>
+</header>
+
 <section class="stats">
 <div class="stat"><div class="label">Research Points</div><div class="value" id="points">1,000 RP</div></div>
-<div class="stat"><div class="label">Points / sec</div><div class="value" id="income">0 RP / sec</div></div>
-<div class="stat"><div class="label">Buildings</div><div class="value" id="buildings">0</div></div>
+<div class="stat"><div class="label">Research / sec</div><div class="value" id="income">0 RP / sec</div></div>
+<div class="stat"><div class="label">Facility Rooms</div><div class="value" id="buildings">0</div></div>
 </section>
+
 <main>
-<section class="panel"><h2>🏗️ Your Land</h2><div class="grid" id="grid"></div><div class="info" id="info">Start by buying a building on the right.</div></section>
-<aside class="panel"><h2>🛒 Build</h2>
-<button id="factory">🏭 Factory — 500 RP<br><small>Generates 10 RP / sec</small></button>
-<button id="shop">🏪 Shop — 750 RP<br><small>Generates 16 RP / sec</small></button>
-<button id="lab">🔬 Research Lab — 1,200 RP<br><small>Generates 30 RP / sec</small></button>
-<button id="upgrade">⬆️ Upgrade Income — 1,000 RP<br><small>Increase all income by 25%</small></button>
+<section class="panel">
+<h2>Facility Layout</h2>
+<div class="section-note">Expand the underground Blacksite one room at a time.</div>
+<div class="grid" id="grid"></div>
+<div class="info" id="info">Construction standing by. Select a facility room from the build menu.</div>
+</section>
+
+<aside class="panel">
+<h2>Construct</h2>
+
+<button id="generator">
+POWER GENERATOR — 500 RP<br>
+<small>Generates 8 RP / sec</small>
+</button>
+
+<button id="security">
+SECURITY CHECKPOINT — 750 RP<br>
+<small>Generates 14 RP / sec</small>
+</button>
+
+<button id="research">
+RESEARCH LAB — 1,200 RP<br>
+<small>Generates 28 RP / sec</small>
+</button>
+
+<button id="containment">
+CONTAINMENT CHAMBER — 2,000 RP<br>
+<small>Generates 50 RP / sec</small>
+</button>
+
+<button id="upgrade">
+FACILITY UPGRADE — 1,000 RP<br>
+<small>Increase all research generation by 25%</small>
+</button>
 </aside>
 </main>
+
 <script>
-let points=1000,income=0,buildings=0,multiplier=1,plots=0;
-const prices={factory:500,shop:750,lab:1200},gains={factory:10,shop:16,lab:30};
-const grid=document.getElementById("grid"),pointsEl=document.getElementById("points"),incomeEl=document.getElementById("income"),buildingsEl=document.getElementById("buildings"),info=document.getElementById("info");
-for(let i=0;i<16;i++){const p=document.createElement("div");p.className="plot";p.textContent="Empty";grid.appendChild(p)}
+let points=1000;
+let income=0;
+let buildings=0;
+let multiplier=1;
+let plots=0;
+
+const prices={
+ generator:500,
+ security:750,
+ research:1200,
+ containment:2000
+};
+
+const gains={
+ generator:8,
+ security:14,
+ research:28,
+ containment:50
+};
+
+const names={
+ generator:"Power Generator",
+ security:"Security Checkpoint",
+ research:"Research Lab",
+ containment:"Containment Chamber"
+};
+
+const icons={
+ generator:"⚡ GENERATOR",
+ security:"SECURITY",
+ research:"RESEARCH",
+ containment:"CONTAINMENT"
+};
+
+const grid=document.getElementById("grid");
+const pointsEl=document.getElementById("points");
+const incomeEl=document.getElementById("income");
+const buildingsEl=document.getElementById("buildings");
+const info=document.getElementById("info");
+
+for(let i=0;i<16;i++){
+ const p=document.createElement("div");
+ p.className="plot";
+ p.textContent="EMPTY";
+ grid.appendChild(p);
+}
+
 const plotElements=[...document.querySelectorAll(".plot")];
+
 function update(){
  pointsEl.textContent=Math.floor(points).toLocaleString()+" RP";
  incomeEl.textContent=Math.floor(income*multiplier)+" RP / sec";
  buildingsEl.textContent=buildings;
- for(const type of Object.keys(prices))document.getElementById(type).disabled=points<prices[type]||plots>=16;
+
+ for(const type of Object.keys(prices)){
+  document.getElementById(type).disabled=points<prices[type]||plots>=16;
+ }
+
  document.getElementById("upgrade").disabled=points<1000||buildings===0;
 }
+
 function build(type){
  if(points<prices[type]||plots>=16)return;
- points-=prices[type];income+=gains[type];buildings++;
- const p=plotElements[plots++];p.className="plot built";p.textContent=type==="factory"?"🏭 Factory":type==="shop"?"🏪 Shop":"🔬 Lab";
- info.textContent="You built a "+type+". It is now generating research points!";update();
+
+ points-=prices[type];
+ income+=gains[type];
+ buildings++;
+
+ const p=plotElements[plots++];
+ p.className="plot built";
+ p.textContent=icons[type];
+
+ info.textContent=names[type]+" constructed. The facility is now generating "+gains[type]+" RP per second.";
+ update();
 }
-factory.onclick=()=>build("factory");shop.onclick=()=>build("shop");lab.onclick=()=>build("lab");
-upgrade.onclick=()=>{if(points<1000||buildings===0)return;points-=1000;multiplier*=1.25;info.textContent="Income upgraded! All buildings now generate 25% more research points.";update()};
-setInterval(()=>{points+=income*multiplier;update()},1000);update();
+
+generator.onclick=()=>build("generator");
+security.onclick=()=>build("security");
+research.onclick=()=>build("research");
+containment.onclick=()=>build("containment");
+
+upgrade.onclick=()=>{
+ if(points<1000||buildings===0)return;
+
+ points-=1000;
+ multiplier*=1.25;
+ info.textContent="Facility systems upgraded. All rooms now generate 25% more research points.";
+ update();
+};
+
+setInterval(()=>{
+ points+=income*multiplier;
+ update();
+},1000);
+
+update();
 </script>
 </body>
 </html>
