@@ -59,7 +59,7 @@ button small{font-size:.75em;font-weight:normal;color:#aab6bf}
 <header>
 <h1>BLACKSITE-01</h1>
 <div class="subtitle">Nordic Facility Construction Division</div>
-<div class="build">SYSTEM BUILD 008 — LEVEL 1 FACILITY TUTORIAL</div>
+<div class="build">SYSTEM BUILD 009 — LEVEL 1 FACILITY TUTORIAL</div>
 </header>
 
 <section class="stats">
@@ -117,6 +117,8 @@ button small{font-size:.75em;font-weight:normal;color:#aab6bf}
 <button id="office">OFFICE ROOM <span class="cost">200 RP</span><br><small>Level 1 Building — first purchase</small></button>
 <button id="experimentBuilding">EXPERIMENT ROOM <span class="cost">400 RP</span><br><small>Level 1 Building — follows Office</small></button>
 <button id="power">POWER SYSTEM <span class="cost">500 RP</span><br><small>Level 1 Building — follows Experiment Room</small></button>
+<button id="researchBuilding">EXPANSION <span class="cost">1,200 RP</span><br><small>Level 2 Building — undisclosed</small></button>
+<button id="advancedExperiment">ADVANCED EXPERIMENT <span class="cost">1,000 RP</span><br><small>Level 2 — undisclosed</small></button>
 </div>
 
 <div class="upgrade-list" id="experiments">
@@ -140,6 +142,7 @@ const state={
  power:false,
  researchWing:false,
  basicExperiment:false,
+ advancedExperiment:false,
  advancedExperiment:false
 };
 
@@ -169,11 +172,14 @@ function updateSteps(){
  document.getElementById("securityRoom").className="room security"+(state.security?"":" locked");
  document.getElementById("experimentRoom").className="room experiment"+(state.experimentRoom?"":" locked");
  document.getElementById("powerRoom").className="room power"+(state.power?"":" locked");
+ document.getElementById("researchRoom").style.display=state.researchWing?"block":"none";
+ document.getElementById("researchRoom").className="room research";
 
  document.getElementById("officeRoom").innerHTML=state.office?"OFFICE<small>STAFF OPERATIONS</small>":"OFFICE<small>Awaiting construction</small>";
  document.getElementById("securityRoom").innerHTML=state.security?"SECURITY<small>"+state.security+" STAFF · ACTIVE</small>":"SECURITY<small>Awaiting staff</small>";
  document.getElementById("experimentRoom").innerHTML=state.experimentRoom?"EXPERIMENT ROOM<small>"+(state.basicExperiment?"SYSTEMS TEST ACTIVE":"READY")+"</small>":"EXPERIMENT ROOM<small>Locked</small>";
  document.getElementById("powerRoom").innerHTML=state.power?"POWER<small>GENERATOR ONLINE · +15 CAPACITY</small>":"POWER<small>Locked until tutorial</small>";
+ document.getElementById("researchRoom").innerHTML="RESEARCH WING<small>ACTIVE</small>";
 
  document.getElementById("office").disabled=tutorialComplete?state.office:(tutorialStep!==1||state.office||points<200||!hasEnergy(ENERGY.office));
  document.getElementById("experimentBuilding").disabled=tutorialComplete?(!state.office||points<400||state.experimentRoom||!hasEnergy(ENERGY.experimentBuilding)):(tutorialStep!==2||!state.office||points<400||state.experimentRoom||!hasEnergy(ENERGY.experimentBuilding));
@@ -217,7 +223,7 @@ function action(type){
   updateSteps();
 }
 
-["office","scientist","securityStaff","experimentBuilding","basicExperiment","power"].forEach(id=>document.getElementById(id).addEventListener("click",()=>action(id)));
+["office","scientist","securityStaff","experimentBuilding","basicExperiment","power","researchBuilding","advancedExperiment"].forEach(id=>document.getElementById(id).addEventListener("click",()=>action(id)));
 
 document.querySelectorAll(".tab").forEach(tab=>tab.addEventListener("click",()=>{
  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
