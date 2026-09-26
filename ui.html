@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#080c10">
-<title>BLACKSITE-01 | Facility UI | Build 021</title>
+<title>BLACKSITE-01 | Facility UI | Build 024</title>
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:#080c10;color:#eef4f8}
@@ -79,7 +79,7 @@ button small{font-size:.75em;font-weight:normal;color:#aab6bf}
 <header>
 <h1>BLACKSITE-01</h1>
 <div class="subtitle">Nordic Facility Construction Division</div>
-<div class="build">SYSTEM BUILD 021 — SETTINGS</div>
+<div class="build">SYSTEM BUILD 024 — SETTINGS</div>
 </header>
 
 <section class="stats">
@@ -204,15 +204,15 @@ let tutorialVoiceLast="";
 let tutorialVoiceToken=0;
 
 const tutorialVoice={
- intro:"https://www.aidocmaker.com/g0/audio?name=ce4871e2686440b0817d86c51fb8a993",
- office:"https://www.aidocmaker.com/g0/audio?name=aa3070987cf54b538c93c6c2f8c1af6e2",
- experimentRoom:"https://www.aidocmaker.com/g0/audio?name=bf78fa6a5e3f4db192f08485f222f939",
- power:"https://www.aidocmaker.com/g0/audio?name=b50aa1d0312e427d8744a9d478aa7163",
- scientist:"https://www.aidocmaker.com/g0/audio?name=c6781f5941ff481d9f2836dffc49106e9",
- security:"https://www.aidocmaker.com/g0/audio?name=f3e9c79c6b8845dfadcadf4789a91d1a",
- experiment:"https://www.aidocmaker.com/g0/audio?name=c2dffa9fdf7746089028e74d4fe62e5f",
- researchComplete:"https://www.aidocmaker.com/g0/audio?name=c850e5c1e1cf4f2995794635ddc10bb5",
- complete:"https://www.aidocmaker.com/g0/audio?name=5d08c08ee1ff45c280bb3bc727d68efc"
+ intro:"assets/audio/tutorial/Blacksite-01 Briefing.mp3",
+ office:"assets/audio/tutorial/Build The Office.mp3",
+ experimentRoom:"assets/audio/tutorial/Build Experiment Room.mp3",
+ power:"assets/audio/tutorial/Power System Installation.mp3",
+ scientist:"assets/audio/tutorial/Hire Scientist Guide.mp3",
+ security:"assets/audio/tutorial/Hiring Security Staff.mp3",
+ experiment:"assets/audio/tutorial/Facility Systems Test.mp3",
+ researchComplete:"assets/audio/tutorial/Facility Systems Test (1).mp3",
+ complete:"assets/audio/tutorial/Blacksite-01 Ops Briefing.mp3"
 };
 let tutorialVoiceEnabled=true;
 
@@ -636,7 +636,7 @@ document.querySelectorAll(".tab").forEach(tab=>tab.addEventListener("click",()=>
 setInterval(()=>{
  if(repairQueue&&Date.now()>=repairQueue.finish)finishRepair();
  if(constructionQueue&&Date.now()>=constructionQueue.finish){const done=constructionQueue.done;constructionQueue=null;done()}
- if(researchQueue){const left=Math.max(0,Math.ceil((researchQueue.finish-Date.now())/1000));document.getElementById("researchStatus").textContent="Scientist researching · "+left+"s";if(Date.now()>=researchQueue.finish){researchQueue=null;state.basicExperiment=true;income=5;document.getElementById("researchStatus").textContent="Research complete · +5 RP/sec";playTutorialVoice("researchComplete").then(()=>{});}}
+ if(researchQueue){const left=Math.max(0,Math.ceil((researchQueue.finish-Date.now())/1000));document.getElementById("researchStatus").textContent="Scientist researching · "+left+"s";if(Date.now()>=researchQueue.finish){researchQueue=null;state.basicExperiment=true;income=5;document.getElementById("researchStatus").textContent="Research complete · +5 RP/sec";playTutorialVoice("researchComplete").then(()=>playTutorialVoice("complete"));}}
  else if(state.basicExperiment){document.getElementById("researchStatus").textContent="Research active · Scientist assigned";}
  if(state.basicExperiment){
   points+=income;
