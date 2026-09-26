@@ -58,7 +58,12 @@ button small{font-size:.75em;font-weight:normal;color:#aab6bf}
 }
 @media(max-width:360px){.stats{grid-template-columns:1fr}.stat:last-child{grid-column:auto}}
 @media(hover:none){button:hover{background:#1d2a34}}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}}\n@media(max-height:620px) and (min-width:801px){header{padding:12px 18px}.stats{padding:10px 18px;gap:8px}.stat{padding:9px 12px}.value{font-size:20px}main{gap:12px;padding:0 18px 14px}.panel{padding:14px}.map{min-height:300px}.map-grid{min-height:280px}}
+@media(max-width:700px){.category-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:420px){.category-tabs .tab{font-size:11px}button{min-height:56px}}
+body.ui-compact .stats{gap:8px}body.ui-compact main{gap:12px}body.ui-compact .panel{padding:14px}body.ui-compact .map{min-height:300px}
+body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{padding-top:8px;padding-bottom:8px}body.ui-short .stat{padding:8px 10px}body.ui-short .value{font-size:20px}body.ui-short .map{min-height:280px}
+
 
 .raid-active{animation:raidFlash .7s steps(2,end) infinite;border-color:#e63946!important}
 @keyframes raidFlash{0%,100%{background:#101820}50%{background:#3a0b0b}}
@@ -450,6 +455,18 @@ function playTutorialVoice(key){
  }
  return Promise.resolve(true);
 }
+function scanUIDimensions(){
+ const w=window.innerWidth||document.documentElement.clientWidth||0;
+ const h=window.innerHeight||document.documentElement.clientHeight||0;
+ document.body.classList.toggle("ui-compact",w<1000||h<700);
+ document.body.classList.toggle("ui-short",h<620);
+ document.documentElement.style.setProperty("--ui-width",w+"px");
+ document.documentElement.style.setProperty("--ui-height",h+"px");
+ const main=document.querySelector("main");
+ if(main){const rect=main.getBoundingClientRect();document.documentElement.style.setProperty("--main-width",Math.round(rect.width)+"px");}
+ updateTutorialGuide();
+}
+
 function updateTutorialGuide(){
  const guide=document.getElementById("tutorialGuide");
  const label=document.getElementById("tutorialGuideLabel");
@@ -506,8 +523,16 @@ function updateTutorialGuide(){
  guide.style.left=x+"px";
  guide.style.top=y+"px";
 }
-window.addEventListener("resize",updateTutorialGuide);
+let uiResizeObserver=null;
+window.addEventListener("resize",scanUIDimensions,{passive:true});
+window.addEventListener("orientationchange",scanUIDimensions,{passive:true});
 window.addEventListener("scroll",updateTutorialGuide,{passive:true});
+if("ResizeObserver" in window){
+ uiResizeObserver=new ResizeObserver(()=>scanUIDimensions());
+ uiResizeObserver.observe(document.documentElement);
+ const main=document.querySelector("main"); if(main)uiResizeObserver.observe(main);
+ const aside=document.querySelector("aside"); if(aside)uiResizeObserver.observe(aside);
+}
 function updateSteps(){
  const ids=["stepOffice","stepExperimentRoom","stepPower","stepScientist","stepSecurity","stepExperiment"];
  ids.forEach((id,i)=>{
@@ -694,6 +719,7 @@ setInterval(()=>{
  updateSteps();
  if(Date.now()%5000<1000)saveProgress();
 },1000);
+scanUIDimensions();
 updateSteps();
 saveProgress();
 </script>
