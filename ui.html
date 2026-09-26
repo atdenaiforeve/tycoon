@@ -469,13 +469,26 @@ function updateTutorialGuide(){
  if(narrow){
   x=Math.max(8,Math.min(window.innerWidth-guideRect.width-8,targetRect.left+(targetRect.width-guideRect.width)/2));
   y=targetRect.top-guideRect.height-12;
-  if(y<8)y=Math.min(window.innerHeight-guideRect.height-8,targetRect.bottom+12);
-  arrow.textContent=y<targetRect.top?"↓":"↑";
+  if(y>=8){
+   arrow.textContent="↓";
+   guide.style.flexDirection="column";
+  }else{
+   y=Math.min(window.innerHeight-guideRect.height-8,targetRect.bottom+12);
+   arrow.textContent="↑";
+   guide.style.flexDirection="column-reverse";
+  }
  }else{
   const leftX=targetRect.left-guideRect.width-16;
   const rightX=targetRect.right+16;
-  if(leftX>=8){x=leftX;arrow.textContent="➜";}
-  else{x=Math.min(window.innerWidth-guideRect.width-8,rightX);arrow.textContent="←";}
+  if(leftX>=8){
+   x=leftX;
+   arrow.textContent="➜";
+   guide.style.flexDirection="row-reverse";
+  }else{
+   x=Math.min(window.innerWidth-guideRect.width-8,rightX);
+   arrow.textContent="←";
+   guide.style.flexDirection="row";
+  }
   y=Math.max(8,Math.min(window.innerHeight-guideRect.height-8,targetRect.top+(targetRect.height-guideRect.height)/2));
  }
  guide.style.left=x+"px";
