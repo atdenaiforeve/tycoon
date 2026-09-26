@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>BLACKSITE-01 | Nordic Facility Tycoon</title>
+<meta name="description" content="BLACKSITE-01 Nordic Facility Tycoon">
+<title>BLACKSITE-01 | Nordic Facility Tycoon | Build 002</title>
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;font-family:Arial,sans-serif;background:#090d12;color:#eef4f8}
@@ -11,6 +12,7 @@ body{overflow-x:hidden}
 header{padding:clamp(16px,3vw,28px);background:#101820;border-bottom:2px solid #33424f}
 h1{margin:0;font-size:clamp(24px,4vw,38px);letter-spacing:1px}
 .subtitle{margin-top:6px;color:#9eabb6;font-size:clamp(13px,2vw,17px)}
+.build{margin-top:8px;color:#38d9ff;font-size:12px;font-family:monospace;letter-spacing:1px}
 .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:clamp(14px,3vw,22px)}
 .stat{background:#151e27;border:1px solid #2c3945;border-radius:12px;padding:clamp(12px,2vw,18px)}
 .label{font-size:clamp(10px,1.5vw,14px);color:#8e9ba7;text-transform:uppercase}.value{font-size:clamp(20px,3vw,29px);font-weight:bold;margin-top:6px;white-space:nowrap}
@@ -48,6 +50,7 @@ button small{font-size:.75em;font-weight:normal;color:#aab6bf}
 <header>
 <h1>BLACKSITE-01</h1>
 <div class="subtitle">Nordic Facility Construction Division</div>
+<div class="build">SYSTEM BUILD 002 — LIVE UI TEST</div>
 </header>
 
 <section class="stats">
@@ -66,68 +69,20 @@ button small{font-size:.75em;font-weight:normal;color:#aab6bf}
 
 <aside class="panel">
 <h2>Construct</h2>
-
-<button id="generator">
-POWER GENERATOR — 500 RP<br>
-<small>Generates 8 RP / sec</small>
-</button>
-
-<button id="security">
-SECURITY CHECKPOINT — 750 RP<br>
-<small>Generates 14 RP / sec</small>
-</button>
-
-<button id="research">
-RESEARCH LAB — 1,200 RP<br>
-<small>Generates 28 RP / sec</small>
-</button>
-
-<button id="containment">
-CONTAINMENT CHAMBER — 2,000 RP<br>
-<small>Generates 50 RP / sec</small>
-</button>
-
-<button id="upgrade">
-FACILITY UPGRADE — 1,000 RP<br>
-<small>Increase all research generation by 25%</small>
-</button>
+<button id="generator">POWER GENERATOR — 500 RP<br><small>Generates 8 RP / sec</small></button>
+<button id="security">SECURITY CHECKPOINT — 750 RP<br><small>Generates 14 RP / sec</small></button>
+<button id="research">RESEARCH LAB — 1,200 RP<br><small>Generates 28 RP / sec</small></button>
+<button id="containment">CONTAINMENT CHAMBER — 2,000 RP<br><small>Generates 50 RP / sec</small></button>
+<button id="upgrade">FACILITY UPGRADE — 1,000 RP<br><small>Increase all research generation by 25%</small></button>
 </aside>
 </main>
 
 <script>
-let points=1000;
-let income=0;
-let buildings=0;
-let multiplier=1;
-let plots=0;
-
-const prices={
- generator:500,
- security:750,
- research:1200,
- containment:2000
-};
-
-const gains={
- generator:8,
- security:14,
- research:28,
- containment:50
-};
-
-const names={
- generator:"Power Generator",
- security:"Security Checkpoint",
- research:"Research Lab",
- containment:"Containment Chamber"
-};
-
-const icons={
- generator:"⚡ GENERATOR",
- security:"SECURITY",
- research:"RESEARCH",
- containment:"CONTAINMENT"
-};
+let points=1000,income=0,buildings=0,multiplier=1,plots=0;
+const prices={generator:500,security:750,research:1200,containment:2000};
+const gains={generator:8,security:14,research:28,containment:50};
+const names={generator:"Power Generator",security:"Security Checkpoint",research:"Research Lab",containment:"Containment Chamber"};
+const icons={generator:"⚡ GENERATOR",security:"SECURITY",research:"RESEARCH",containment:"CONTAINMENT"};
 
 const grid=document.getElementById("grid");
 const pointsEl=document.getElementById("points");
@@ -141,32 +96,26 @@ for(let i=0;i<16;i++){
  p.textContent="EMPTY";
  grid.appendChild(p);
 }
-
 const plotElements=[...document.querySelectorAll(".plot")];
 
 function update(){
  pointsEl.textContent=Math.floor(points).toLocaleString()+" RP";
  incomeEl.textContent=Math.floor(income*multiplier)+" RP / sec";
  buildingsEl.textContent=buildings;
-
  for(const type of Object.keys(prices)){
   document.getElementById(type).disabled=points<prices[type]||plots>=16;
  }
-
  document.getElementById("upgrade").disabled=points<1000||buildings===0;
 }
 
 function build(type){
  if(points<prices[type]||plots>=16)return;
-
  points-=prices[type];
  income+=gains[type];
  buildings++;
-
  const p=plotElements[plots++];
  p.className="plot built";
  p.textContent=icons[type];
-
  info.textContent=names[type]+" constructed. The facility is now generating "+gains[type]+" RP per second.";
  update();
 }
@@ -178,7 +127,6 @@ containment.onclick=()=>build("containment");
 
 upgrade.onclick=()=>{
  if(points<1000||buildings===0)return;
-
  points-=1000;
  multiplier*=1.25;
  info.textContent="Facility systems upgraded. All rooms now generate 25% more research points.";
