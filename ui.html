@@ -123,7 +123,7 @@ button small{font-size:.75em;font-weight:normal;color:#aab6bf}
 </div>
 
 <div class="upgrade-list" id="experiments">
-<button id="basicExperiment">FACILITY SYSTEMS TEST <span class="cost">350 RP</span><br><small>Level 1 Experiment — tests basic powered equipment and begins research</small><div class="upgrade-count" id="experimentCount">Experiments: 0</div></button>
+<button id="basicExperiment">FACILITY SYSTEMS TEST <span class="cost">350 RP</span><br><small>Level 1 Experiment — tests basic powered equipment and begins research</small><div class="upgrade-count" id="experimentCount">Experiments: 0</div><div class="upgrade-count" id="researchStatus">Scientist required</div></button>
 </div>
 
 <div class="upgrade-list" id="upgrades">
@@ -135,6 +135,7 @@ button small{font-size:.75em;font-weight:normal;color:#aab6bf}
 <div class="tree-node locked-node" id="srGovernment">GOVERNMENT COVER<br><small>5 SRP — reduces raid-risk increases from experiments</small><button id="buyGovernment">RESEARCH</button></div>
 <div class="tree-node locked-node" id="srExpansion">UNDISCLOSED EXPANSION<br><small>Requires Facility Level 2</small><button id="buyExpansion">RESEARCH</button></div>
 <div class="tree-node hidden-node" id="srAdvanced">UNDISCLOSED RESEARCH SYSTEM<br><small>Revealed after expansion</small><button id="buyAdvanced">RESEARCH</button></div>
+<div class="tree-node locked-node" id="srResearchSpeed">RESEARCH SPEED<br><small>2 SRP — scientists complete research faster</small><button id="buyResearchSpeed">RESEARCH</button></div>
 <div class="tree-node hidden-node" id="srShade">GOVERNMENT SHADE<br><small>Undisclosed until discovered</small></div>
 </div>
 </div>
@@ -153,6 +154,8 @@ let governmentCover=false;
 let facilityLevel=1;
 let constructionSpeedLevel=0;
 let constructionQueue=null;
+let researchQueue=null;
+let researchSpeedLevel=0;
 
 const state={
  office:false,
@@ -219,7 +222,7 @@ function updateSteps(){
  document.getElementById("securityRoom").innerHTML=state.security?"SECURITY<small>"+state.security+" STAFF · ACTIVE</small>":"SECURITY<small>Awaiting staff</small>";
  document.getElementById("experimentRoom").innerHTML=state.experimentRoom?"EXPERIMENT ROOM<small>"+(state.basicExperiment?"SYSTEMS TEST ACTIVE":"READY")+"</small>":"EXPERIMENT ROOM<small>Locked</small>";
  document.getElementById("powerRoom").innerHTML=state.power?"POWER<small>GENERATOR ONLINE · +15 CAPACITY</small>":"POWER<small>Locked until tutorial</small>";
- document.getElementById("researchRoom").innerHTML="RESEARCH WING<small>ACTIVE</small>";
+ document.getElementById("researchRoom").innerHTML="RESEARCH WING<small>"+(researchQueue?"RESEARCH IN PROGRESS":"ACTIVE")+"</small>";
 
  document.getElementById("office").disabled=constructionBusy|| (tutorialComplete?state.office:(tutorialStep!==1||state.office||points<200||!hasEnergy(ENERGY.office)));
  document.getElementById("experimentBuilding").disabled=constructionBusy|| (tutorialComplete?(!state.office||points<400||state.experimentRoom||!hasEnergy(ENERGY.experimentBuilding)):(tutorialStep!==2||!state.office||points<400||state.experimentRoom||!hasEnergy(ENERGY.experimentBuilding)));
@@ -228,7 +231,7 @@ function updateSteps(){
  document.getElementById("scientist").disabled=tutorialComplete?(!state.office||points<300||state.scientists>=2):(tutorialStep!==4||!state.office||!state.power||points<300||state.scientists>=2);
  document.getElementById("securityStaff").disabled=tutorialComplete?(!state.office||points<250||state.scientists<1||state.security>=1):(tutorialStep!==5||!state.office||state.scientists<1||points<250||state.security>=1);
 
- document.getElementById("basicExperiment").disabled=tutorialComplete?(!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment):(tutorialStep!==6||!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment);
+ document.getElementById("basicExperiment").disabled=tutorialComplete?(!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment||researchQueue):(tutorialStep!==6||!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment||researchQueue);
 
  if(tutorialComplete){
   lockableButtons.forEach(id=>{
@@ -268,6 +271,8 @@ function updateSteps(){
  document.getElementById("buyGovernment").disabled=!tutorialComplete||governmentCover||superResearch<5||!state.constructionSpeed;
  document.getElementById("buyExpansion").disabled=!tutorialComplete||!state.expansion&&facilityLevel<2?true:(!state.expansion&&superResearch<5);
  document.getElementById("buyAdvanced").disabled=!tutorialComplete||!state.expansion||state.advancedExperiment||superResearch<8;
+ document.getElementById("buyResearchSpeed").disabled=!tutorialComplete||researchSpeedLevel>=5||superResearch<(researchSpeedLevel+1)*2;
+ document.getElementById("srResearchSpeed").className="tree-node "+(state.basicExperiment?"":"locked-node");
  document.getElementById("srFacility").className="tree-node "+(state.constructionSpeed?"":"locked-node");
  document.getElementById("srGovernment").className="tree-node "+(state.constructionSpeed?"":"locked-node");
  document.getElementById("srExpansion").className="tree-node "+(facilityLevel>=2?"":"locked-node");
@@ -304,12 +309,13 @@ function action(type){
  else if(type==="buyGovernment"&&tutorialStep>6&&state.constructionSpeed&&!governmentCover&&superResearch>=5){superResearch-=5;governmentCover=true}
  else if(type==="buyExpansion"&&tutorialStep>6&&facilityLevel>=2&&!state.expansion&&superResearch>=5){superResearch-=5;state.expansion=true;state.researchWing=true}
  else if(type==="buyAdvanced"&&tutorialStep>6&&state.expansion&&!state.advancedExperiment&&superResearch>=8){superResearch-=8;state.advancedExperiment=true}
+ else if(type==="buyResearchSpeed"&&tutorialStep>6&&state.basicExperiment&&researchSpeedLevel<5&&superResearch>=(researchSpeedLevel+1)*2){superResearch-=(researchSpeedLevel+1)*2;researchSpeedLevel++}
  else if(type==="office"&&tutorialStep===1&&!state.office)startConstruction("office",200,ENERGY.office,()=>{state.office=true;completeStep(1)})
  else if(type==="experimentBuilding"&&tutorialStep===2&&state.office&&!state.experimentRoom)startConstruction("experimentBuilding",400,ENERGY.experimentBuilding,()=>{state.experimentRoom=true;completeStep(2)})
  else if(type==="power"&&tutorialStep===3&&state.experimentRoom&&!state.power)startConstruction("power",500,0,()=>{state.power=true;energyCapacity+=ENERGY.powerCapacity;completeStep(3)})
  else if(type==="scientist"&&tutorialStep===4&&state.office&&state.power&&state.scientists<2&&spend(300)){state.scientists++;completeStep(4)}
  else if(type==="securityStaff"&&tutorialStep===5&&state.scientists>0&&state.security<1&&spend(250)){state.security=1;completeStep(5)}
- else if(type==="basicExperiment"&&tutorialStep===6&&state.experimentRoom&&state.power&&state.scientists>0&&state.security>0&&spend(350)){state.basicExperiment=true;income=5;completeStep(6)}
+ else if(type==="basicExperiment"&&tutorialStep===6&&state.experimentRoom&&state.power&&state.scientists>0&&state.security>0&&spend(350)&&!researchQueue){researchQueue={type:"basic",finish:Date.now()+Math.ceil(15/(1+researchSpeedLevel*0.2))*1000};completeStep(6)}
  updateSteps();
 }
 
@@ -324,6 +330,8 @@ document.querySelectorAll(".tab").forEach(tab=>tab.addEventListener("click",()=>
 
 setInterval(()=>{
  if(constructionQueue&&Date.now()>=constructionQueue.finish){const done=constructionQueue.done;constructionQueue=null;done()}
+ if(researchQueue){const left=Math.max(0,Math.ceil((researchQueue.finish-Date.now())/1000));document.getElementById("researchStatus").textContent="Scientist researching · "+left+"s";if(Date.now()>=researchQueue.finish){researchQueue=null;state.basicExperiment=true;income=5;document.getElementById("researchStatus").textContent="Research complete · +5 RP/sec";}}
+ else if(state.basicExperiment){document.getElementById("researchStatus").textContent="Research active · Scientist assigned";}
  if(state.basicExperiment){
   points+=income;
   superResearch+=0.02;
