@@ -1,2 +1,144 @@
-# tycoon
-a tycoon gamr
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tycoon</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#10151c;color:#f5f7fa}
+header{padding:22px;background:#1b2430;border-bottom:2px solid #394858}
+h1{margin:0;font-size:32px}.subtitle{margin-top:5px;color:#b8c2ce}
+.stats{display:flex;gap:14px;flex-wrap:wrap;padding:20px}
+.stat{flex:1;min-width:160px;background:#202b38;border-radius:14px;padding:16px}
+.label{font-size:13px;color:#aeb9c5;text-transform:uppercase}.value{font-size:27px;font-weight:bold;margin-top:6px}
+main{display:grid;grid-template-columns:1fr 330px;gap:20px;padding:0 20px 20px}
+.panel{background:#1b2430;border:1px solid #394858;border-radius:14px;padding:20px}
+h2{margin:0 0 16px}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.plot{aspect-ratio:1;background:#263341;border:2px dashed #536477;border-radius:10px;display:flex;align-items:center;justify-content:center;text-align:center;color:#aeb9c5;font-weight:bold}
+.plot.built{border-style:solid;background:#304052;color:white}
+button{width:100%;padding:15px;margin:6px 0;border:0;border-radius:10px;background:#2d8cff;color:white;font-size:17px;font-weight:bold;cursor:pointer}
+button:disabled{background:#46515c;color:#adb6bf;cursor:not-allowed}
+.info{margin-top:18px;padding:14px;background:#111820;border-radius:10px;color:#cbd4dd;line-height:1.5}
+@media(max-width:800px){main{grid-template-columns:1fr}}
+@media(max-width:500px){.grid{grid-template-columns:repeat(2,1fr)}main,.stats{padding-left:12px;padding-right:12px}header{padding:18px}}
+</style>
+</head>
+<body>
+<header>
+<h1>🏗️ Tycoon</h1>
+<div class="subtitle">Build your business and make it grow.</div>
+</header>
+
+<section class="stats">
+<div class="stat"><div class="label">Cash</div><div class="value" id="cash">$1,000</div></div>
+<div class="stat"><div class="label">Income</div><div class="value" id="income">$0 / sec</div></div>
+<div class="stat"><div class="label">Buildings</div><div class="value" id="buildings">0</div></div>
+</section>
+
+<main>
+<section class="panel">
+<h2>🏗️ Your Land</h2>
+<div class="grid" id="grid"></div>
+<div class="info" id="info">Start by buying a building on the right.</div>
+</section>
+
+<aside class="panel">
+<h2>🛒 Build</h2>
+
+<button id="factory">
+🏭 Factory — $500<br>
+<small>Earns $10 / sec</small>
+</button>
+
+<button id="shop">
+🏪 Shop — $750<br>
+<small>Earns $16 / sec</small>
+</button>
+
+<button id="lab">
+🔬 Research Lab — $1,200<br>
+<small>Earns $30 / sec</small>
+</button>
+
+<button id="upgrade">
+⬆️ Upgrade Income — $1,000<br>
+<small>Increase all income by 25%</small>
+</button>
+</aside>
+</main>
+
+<script>
+let cash=1000;
+let income=0;
+let buildings=0;
+let multiplier=1;
+let plots=0;
+
+const prices={factory:500,shop:750,lab:1200};
+const gains={factory:10,shop:16,lab:30};
+
+const grid=document.getElementById("grid");
+const cashEl=document.getElementById("cash");
+const incomeEl=document.getElementById("income");
+const buildingsEl=document.getElementById("buildings");
+const info=document.getElementById("info");
+
+for(let i=0;i<16;i++){
+ const p=document.createElement("div");
+ p.className="plot";
+ p.textContent="Empty";
+ grid.appendChild(p);
+}
+
+const plotElements=[...document.querySelectorAll(".plot")];
+
+function update(){
+ cashEl.textContent="$"+Math.floor(cash).toLocaleString();
+ incomeEl.textContent="$"+Math.floor(income*multiplier)+" / sec";
+ buildingsEl.textContent=buildings;
+
+ for(const type of Object.keys(prices)){
+  document.getElementById(type).disabled=cash<prices[type]||plots>=16;
+ }
+
+ document.getElementById("upgrade").disabled=cash<1000||buildings===0;
+}
+
+function build(type){
+ if(cash<prices[type]||plots>=16)return;
+
+ cash-=prices[type];
+ income+=gains[type];
+ buildings++;
+
+ const p=plotElements[plots++];
+ p.className="plot built";
+ p.textContent=type==="factory"?"🏭 Factory":type==="shop"?"🏪 Shop":"🔬 Lab";
+
+ info.textContent="You built a "+type+". It is now generating money!";
+ update();
+}
+
+factory.onclick=()=>build("factory");
+shop.onclick=()=>build("shop");
+lab.onclick=()=>build("lab");
+
+upgrade.onclick=()=>{
+ if(cash<1000||buildings===0)return;
+ cash-=1000;
+ multiplier*=1.25;
+ info.textContent="Income upgraded! All buildings now earn 25% more.";
+ update();
+};
+
+setInterval(()=>{
+ cash+=income*multiplier;
+ update();
+},1000);
+
+update();
+</script>
+</body>
+</html>
