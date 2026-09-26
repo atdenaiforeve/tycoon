@@ -48,7 +48,7 @@ button small{font-size:.75em;font-weight:normal;color:#aab6bf}
 .category-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
 .tab{min-height:44px;padding:8px;margin:0;text-align:center;font-size:12px}
 .tab.active{border-color:#38d9ff;background:#182c37}
-.upgrade-list{display:none}.upgrade-list.active{display:block}.construction-active{border-color:#38d9ff!important;background:#12232c!important}
+.upgrade-list{display:none;width:100%;box-sizing:border-box}.upgrade-list.active{display:block;width:100%;box-sizing:border-box}.super-research{width:100%;box-sizing:border-box}.construction-active{border-color:#38d9ff!important;background:#12232c!important}
 @media(max-width:900px){.stats{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:800px){main{grid-template-columns:1fr}.map{min-height:380px}}
 @media(max-width:520px){
@@ -455,6 +455,30 @@ function playTutorialVoice(key){
  }
  return Promise.resolve(true);
 }
+function repositionOperations(){
+ const aside=document.querySelector("aside");
+ const tabs=document.querySelector(".category-tabs");
+ const activeList=document.querySelector(".upgrade-list.active");
+ if(!aside||!tabs||!activeList)return;
+ const width=Math.max(0,Math.floor(aside.clientWidth));
+ document.documentElement.style.setProperty("--operations-width",width+"px");
+ activeList.style.width=width+"px";
+ activeList.style.maxWidth=width+"px";
+ activeList.style.marginLeft="0px";
+ activeList.style.marginRight="0px";
+ tabs.style.width=width+"px";
+ tabs.style.maxWidth=width+"px";
+ tabs.style.marginLeft="0px";
+ tabs.style.marginRight="0px";
+ const tree=activeList.querySelector(".super-research");
+ if(tree){
+  tree.style.width=width+"px";
+  tree.style.maxWidth=width+"px";
+  tree.style.marginLeft="0px";
+  tree.style.marginRight="0px";
+ }
+}
+
 function scanUIDimensions(){
  const w=window.innerWidth||document.documentElement.clientWidth||0;
  const h=window.innerHeight||document.documentElement.clientHeight||0;
@@ -464,6 +488,7 @@ function scanUIDimensions(){
  document.documentElement.style.setProperty("--ui-height",h+"px");
  const main=document.querySelector("main");
  if(main){const rect=main.getBoundingClientRect();document.documentElement.style.setProperty("--main-width",Math.round(rect.width)+"px");}
+ repositionOperations();
  updateTutorialGuide();
 }
 
@@ -701,6 +726,7 @@ document.querySelectorAll(".tab").forEach(tab=>tab.addEventListener("click",()=>
  tab.classList.add("active");
  document.querySelectorAll(".upgrade-list").forEach(l=>l.classList.remove("active"));
  document.getElementById(tab.dataset.tab).classList.add("active");
+ repositionOperations();
 }));
 
 setInterval(()=>{
@@ -720,6 +746,7 @@ setInterval(()=>{
  if(Date.now()%5000<1000)saveProgress();
 },1000);
 scanUIDimensions();
+repositionOperations();
 updateSteps();
 saveProgress();
 </script>
