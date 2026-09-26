@@ -502,51 +502,75 @@ function updateTutorialGuide(){
  if(tutorialStep>6||!targetId){guide.classList.remove("active");return;}
  const target=document.getElementById(targetId);
  if(!target){guide.classList.remove("active");return;}
- const narrow=window.innerWidth<700;
- label.textContent=["","BUILD THE OFFICE","BUILD THE EXPERIMENT ROOM","INSTALL THE POWER SYSTEM","HIRE THE SCIENTIST","HIRE SECURITY","RUN THE SYSTEMS TEST"][tutorialStep];
+
+ const labels=["","BUILD THE OFFICE","BUILD THE EXPERIMENT ROOM","INSTALL THE POWER SYSTEM","HIRE THE SCIENTIST","HIRE SECURITY","RUN THE SYSTEMS TEST"];
+ label.textContent=labels[tutorialStep]||"";
  guide.classList.add("active");
  guide.style.flexDirection="row";
+ guide.style.width="";
+ guide.style.left="8px";
+ guide.style.top="8px";
  arrow.style.left="";
  arrow.style.top="";
+
  const targetRect=target.getBoundingClientRect();
  const guideRect=guide.getBoundingClientRect();
- let x,y;
- if(narrow){
-  x=Math.max(8,Math.min(window.innerWidth-guideRect.width-8,targetRect.left+(targetRect.width-guideRect.width)/2));
-  y=targetRect.top-guideRect.height-12;
-  if(y>=8){
-   arrow.textContent="↓";
-   guide.style.flexDirection="column";
-   guide.style.width=guideRect.width+"px";
-   arrow.style.left=(targetRect.left+targetRect.width/2-x-15)+"px";
-   arrow.style.top=guideRect.height+"px";
-  }else{
-   y=Math.min(window.innerHeight-guideRect.height-8,targetRect.bottom+12);
-   arrow.textContent="↑";
-   guide.style.flexDirection="column";
-   guide.style.width=guideRect.width+"px";
-   arrow.style.left=(targetRect.left+targetRect.width/2-x-15)+"px";
-   arrow.style.top="-2px";
-  }
- }else{
-  const leftX=targetRect.left-guideRect.width-16;
-  const rightX=targetRect.right+16;
-  if(leftX>=8){
-   x=leftX;
-   y=Math.max(8,Math.min(window.innerHeight-guideRect.height-8,targetRect.top+(targetRect.height-guideRect.height)/2));
-   arrow.textContent="➜";
-   arrow.style.left=(guideRect.width-2)+"px";
-   arrow.style.top=(guideRect.height/2)+"px";
-  }else{
-   x=Math.min(window.innerWidth-guideRect.width-8,rightX);
-   y=Math.max(8,Math.min(window.innerHeight-guideRect.height-8,targetRect.top+(targetRect.height-guideRect.height)/2));
-   arrow.textContent="←";
-   arrow.style.left="-2px";
-   arrow.style.top=(guideRect.height/2)+"px";
-  }
+ const viewportW=window.innerWidth;
+ const viewportH=window.innerHeight;
+ const gap=14;
+ const pad=8;
+ const narrow=viewportW<700;
+
+ const blockers=[...document.querySelectorAll("button[id]")].map(el=>({
+  id:el.id,
+  rect:el.getBoundingClientRect()
+ })).filter(item=>item.id!==targetId&&item.rect.width>0&&item.rect.height>0);
+
+ function overlaps(a,b){
+  return a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top;
  }
+ function insideViewport(r){
+  return r.left>=pad&&r.top>=pad&&r.right<=viewportW-pad&&r.bottom<=viewportH-pad;
+ }
+ function makeCandidate(side){
+  let x=targetRect.left+(targetRect.width-guideRect.width)/2;
+  let y=targetRect.top+(targetRect.height-guideRect.height)/2;
+  let direction="➜";
+  if(side==="left"){x=targetRect.left-guideRect.width-gap;direction="➜";}
+  if(side==="right"){x=targetRect.right+gap;direction="←";}
+  if(side==="top"){y=targetRect.top-guideRect.height-gap;direction="↓";}
+  if(side==="bottom"){y=targetRect.bottom+gap;direction="↑";}
+  x=Math.round(x);y=Math.round(y);
+  return {x,y,direction,rect:{left:x,top:y,right:x+guideRect.width,bottom:y+guideRect.height}};
+ }
+ function score(candidate){
+  let s=Math.hypot(candidate.x-(targetRect.left+targetRect.width/2),candidate.y-(targetRect.top+targetRect.height/2));
+  blockers.forEach(b=>{if(overlaps(candidate.rect,b.rect))s+=100000;});
+  if(!insideViewport(candidate.rect))s+=50000;
+  return s;
+ }
+
+ const sides=narrow?["top","bottom","right","left"]:["left","right","top","bottom"];
+ const candidates=sides.map(makeCandidate);
+ candidates.sort((a,b)=>score(a)-score(b));
+ const chosen=candidates[0];
+
+ let x=Math.max(pad,Math.min(viewportW-guideRect.width-pad,chosen.x));
+ let y=Math.max(pad,Math.min(viewportH-guideRect.height-pad,chosen.y));
  guide.style.left=x+"px";
  guide.style.top=y+"px";
+
+ if(chosen.direction==="↓"||chosen.direction==="↑"){
+  guide.style.flexDirection="column";
+  guide.style.width=guideRect.width+"px";
+  arrow.style.left=(targetRect.left+targetRect.width/2-x-15)+"px";
+  arrow.style.top=chosen.direction==="↓"?guideRect.height+"px":"-2px";
+ }else{
+  guide.style.flexDirection="row";
+  arrow.style.left=chosen.direction==="➜"?(guideRect.width-2)+"px":"-2px";
+  arrow.style.top=(guideRect.height/2)+"px";
+ }
+ arrow.textContent=chosen.direction;
 }
 let uiResizeObserver=null;
 window.addEventListener("resize",scanUIDimensions,{passive:true});
