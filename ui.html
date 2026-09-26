@@ -88,7 +88,7 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 <button id="startSystem" type="button" style="text-align:center">▶ START SYSTEM</button>
 </div>
 </div>
-<audio id="tutorialVoice" preload="auto"></audio>
+<audio id="tutorialVoice" preload="auto"></audio>\n<audio id="facilityAmbience" src="assets/audio/ambience/blacksite-ambience.mp3" preload="auto" loop></audio>
 <script src="assets/audio/ambience/blacksite-ambience.js"></script>
 <div class="raid-banner" id="raidBanner">RAID IN PROGRESS · <span id="raidTimer">12</span>s</div>
 <header>
@@ -715,7 +715,7 @@ setInterval(()=>{
  if(constructionQueue&&Date.now()>=constructionQueue.finish){const done=constructionQueue.done;constructionQueue=null;done()}
  updateExperimentComfort();
  if(securityFatigue>0)securityFatigue=Math.max(0,securityFatigue-0.0005);
- if(researchQueue){const left=Math.max(0,Math.ceil((researchQueue.finish-Date.now())/1000));document.getElementById("researchStatus").textContent="Scientist researching · "+left+"s";if(Date.now()>=researchQueue.finish){researchQueue=null;state.basicExperiment=true;income=10;tutorialStep=7;document.getElementById("researchStatus").textContent="Research complete · +10 RP/sec";updateSteps();playTutorialVoice("researchComplete").then(()=>playTutorialVoice("complete"));}}
+ if(researchQueue){const left=Math.max(0,Math.ceil((researchQueue.finish-Date.now())/1000));document.getElementById("researchStatus").textContent="Scientist researching · "+left+"s";if(Date.now()>=researchQueue.finish){researchQueue=null;state.basicExperiment=true;income=10;tutorialStep=7;document.getElementById("researchStatus").textContent="Research complete · +10 RP/sec";updateSteps();playTutorialVoice("researchComplete").then(()=>playTutorialVoice("complete")).then(()=>{if(window.BLACKSITE_AMBIENCE)BLACKSITE_AMBIENCE.start();});}}
  else if(state.basicExperiment){document.getElementById("researchStatus").textContent="Research active · Scientist assigned";}
  if(state.basicExperiment){
   points+=income;
