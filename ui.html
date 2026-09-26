@@ -25,7 +25,7 @@ h2{margin:0 0 10px;font-size:clamp(19px,2.5vw,24px)}
 .room{position:absolute;border:2px solid #526674;border-radius:7px;background:#18242d;padding:12px;min-width:130px;min-height:70px;box-shadow:0 0 0 1px #0a1015}
 .room small{display:block;color:#8e9ba7;margin-top:7px;font-size:10px}
 .room.office{left:20px;top:120px}.room.security{left:205px;top:120px}.room.experiment{left:390px;top:120px}
-.room.power{left:205px;top:230px}.room.research{left:390px;top:230px}
+.room.power{left:205px;top:230px}
 .corridor{position:absolute;background:#263742;height:14px}
 .corridor.one{left:150px;top:151px;width:55px}.corridor.two{left:335px;top:151px;width:55px}
 .corridor.three{left:268px;top:190px;width:14px;height:40px}.corridor.four{left:455px;top:190px;width:14px;height:40px}
@@ -59,7 +59,7 @@ button small{font-size:.75em;font-weight:normal;color:#aab6bf}
 <header>
 <h1>BLACKSITE-01</h1>
 <div class="subtitle">Nordic Facility Construction Division</div>
-<div class="build">SYSTEM BUILD 007 — LEVEL 1 FACILITY TUTORIAL</div>
+<div class="build">SYSTEM BUILD 008 — LEVEL 1 FACILITY TUTORIAL</div>
 </header>
 
 <section class="stats">
@@ -114,15 +114,13 @@ button small{font-size:.75em;font-weight:normal;color:#aab6bf}
 </div>
 
 <div class="upgrade-list" id="building">
-<button id="office">OFFICE ROOM <span class="cost">200 RP</span><br><small>Level 1 Building — first purchase · <span class="energy-cost">3 ENERGY</span></small></button>
-<button id="experimentBuilding">EXPERIMENT ROOM <span class="cost">400 RP</span><br><small>Level 1 Building — follows Office · <span class="energy-cost">5 ENERGY</span></small></button>
-<button id="power">POWER SYSTEM <span class="cost">500 RP</span><br><small>Level 1 Building — adds <span class="energy-cost">15 ENERGY capacity</span></small></button>
-<button id="researchBuilding">RESEARCH WING <span class="cost">1,200 RP</span><br><small>Level 2 — <span class="energy-cost">10 ENERGY</span> · locked until later</small></button>
+<button id="office">OFFICE ROOM <span class="cost">200 RP</span><br><small>Level 1 Building — first purchase</small></button>
+<button id="experimentBuilding">EXPERIMENT ROOM <span class="cost">400 RP</span><br><small>Level 1 Building — follows Office</small></button>
+<button id="power">POWER SYSTEM <span class="cost">500 RP</span><br><small>Level 1 Building — follows Experiment Room</small></button>
 </div>
 
 <div class="upgrade-list" id="experiments">
 <button id="basicExperiment">FACILITY SYSTEMS TEST <span class="cost">350 RP</span><br><small>Level 1 Experiment — tests basic powered equipment and begins research</small><div class="upgrade-count" id="experimentCount">Experiments: 0</div></button>
-<button id="advancedExperiment">NORDIC SIGNAL ANALYSIS <span class="cost">1,000 RP</span><br><small>Level 2 — requires Research Wing + 2 Scientists</small></button>
 </div>
 </aside>
 </main>
@@ -148,8 +146,7 @@ const state={
 const ENERGY={
  office:3,
  experimentBuilding:5,
- powerCapacity:15,
- researchBuilding:10
+ powerCapacity:15
 };
 
 const pointsEl=document.getElementById("points"),incomeEl=document.getElementById("income"),statusEl=document.getElementById("status");
@@ -172,13 +169,11 @@ function updateSteps(){
  document.getElementById("securityRoom").className="room security"+(state.security?"":" locked");
  document.getElementById("experimentRoom").className="room experiment"+(state.experimentRoom?"":" locked");
  document.getElementById("powerRoom").className="room power"+(state.power?"":" locked");
- document.getElementById("researchRoom").className="room research"+(state.researchWing?"":" locked");
 
  document.getElementById("officeRoom").innerHTML=state.office?"OFFICE<small>STAFF OPERATIONS</small>":"OFFICE<small>Awaiting construction</small>";
  document.getElementById("securityRoom").innerHTML=state.security?"SECURITY<small>"+state.security+" STAFF · ACTIVE</small>":"SECURITY<small>Awaiting staff</small>";
  document.getElementById("experimentRoom").innerHTML=state.experimentRoom?"EXPERIMENT ROOM<small>"+(state.basicExperiment?"SYSTEMS TEST ACTIVE":"READY")+"</small>":"EXPERIMENT ROOM<small>Locked</small>";
  document.getElementById("powerRoom").innerHTML=state.power?"POWER<small>GENERATOR ONLINE · +15 CAPACITY</small>":"POWER<small>Locked until tutorial</small>";
- document.getElementById("researchRoom").innerHTML=state.researchWing?"RESEARCH WING<small>ADVANCED RESEARCH</small>":"RESEARCH WING<small>Level 2</small>";
 
  document.getElementById("office").disabled=tutorialComplete?state.office:(tutorialStep!==1||state.office||points<200||!hasEnergy(ENERGY.office));
  document.getElementById("experimentBuilding").disabled=tutorialComplete?(!state.office||points<400||state.experimentRoom||!hasEnergy(ENERGY.experimentBuilding)):(tutorialStep!==2||!state.office||points<400||state.experimentRoom||!hasEnergy(ENERGY.experimentBuilding));
@@ -188,12 +183,10 @@ function updateSteps(){
  document.getElementById("securityStaff").disabled=tutorialComplete?(!state.office||points<250||state.scientists<1||state.security>=1):(tutorialStep!==5||!state.office||state.scientists<1||points<250||state.security>=1);
 
  document.getElementById("basicExperiment").disabled=tutorialComplete?(!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment):(tutorialStep!==6||!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment);
- document.getElementById("researchBuilding").disabled=!tutorialComplete||!state.power||points<1200||state.researchWing||!hasEnergy(ENERGY.researchBuilding);
- document.getElementById("advancedExperiment").disabled=!tutorialComplete||!state.researchWing||state.scientists<2||points<1000||state.advancedExperiment;
 
  document.getElementById("scientistCount").textContent="Hired: "+state.scientists;
  document.getElementById("securityCount").textContent="Hired: "+state.security;
- document.getElementById("experimentCount").textContent="Experiments: "+(state.basicExperiment?1:0)+(state.advancedExperiment?1:0);
+ document.getElementById("experimentCount").textContent="Experiments: "+(state.basicExperiment?1:0);
  pointsEl.textContent=Math.floor(points).toLocaleString()+" RP";
  incomeEl.textContent=Math.floor(income)+" RP / sec";
  energyEl.textContent=energyUsed+" / "+energyCapacity;
@@ -221,12 +214,10 @@ function action(type){
  else if(type==="scientist"&&tutorialStep===4&&state.office&&state.power&&state.scientists<2&&spend(300)){state.scientists++;completeStep(4)}
  else if(type==="securityStaff"&&tutorialStep===5&&state.scientists>0&&state.security<1&&spend(250)){state.security=1;completeStep(5)}
  else if(type==="basicExperiment"&&tutorialStep===6&&state.experimentRoom&&state.power&&state.scientists>0&&state.security>0&&spend(350)){state.basicExperiment=true;income=5;completeStep(6)}
- else if(tutorialStep>6&&type==="researchBuilding"&&state.power&&!state.researchWing&&spend(1200)&&useEnergy(ENERGY.researchBuilding)){state.researchWing=true;income+=5}
- else if(tutorialStep>6&&type==="advancedExperiment"&&state.researchWing&&state.scientists>=2&&spend(1000)){state.advancedExperiment=true;income+=12}
- updateSteps();
+  updateSteps();
 }
 
-["office","scientist","securityStaff","experimentBuilding","basicExperiment","power","researchBuilding","advancedExperiment"].forEach(id=>document.getElementById(id).addEventListener("click",()=>action(id)));
+["office","scientist","securityStaff","experimentBuilding","basicExperiment","power"].forEach(id=>document.getElementById(id).addEventListener("click",()=>action(id)));
 
 document.querySelectorAll(".tab").forEach(tab=>tab.addEventListener("click",()=>{
  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
