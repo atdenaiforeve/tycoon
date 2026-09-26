@@ -53,13 +53,21 @@ button small{font-size:.75em;font-weight:normal;color:#aab6bf}
  .map{min-height:340px;padding:10px}.map-grid{transform:scale(.78);transform-origin:top left;width:560px}
 }
 @media(max-width:360px){.stats{grid-template-columns:1fr}.stat:last-child{grid-column:auto}}
-</style>
+
+.raid-active{animation:raidFlash .7s steps(2,end) infinite;border-color:#e63946!important}
+@keyframes raidFlash{0%,100%{background:#101820}50%{background:#3a0b0b}}
+.raid-banner{display:none;margin:0 clamp(12px,3vw,22px) 14px;padding:14px;border:2px solid #e63946;border-radius:10px;background:#2a0808;color:#ff6b6b;font-weight:bold;text-align:center;letter-spacing:1px}
+.raid-banner.active{display:block;animation:raidFlash .7s steps(2,end) infinite}
+.recovery{display:none;margin-top:14px;padding:14px;border:1px solid #8b3a3a;border-radius:8px;background:#170b0b;color:#f0caca}
+.recovery.active{display:block}
+.damage-mark{border-color:#e63946!important;box-shadow:0 0 12px #5c1717!important}
+
 </head>
 <body>
 <header>
 <h1>BLACKSITE-01</h1>
 <div class="subtitle">Nordic Facility Construction Division</div>
-<div class="build">SYSTEM BUILD 013 — LEVEL 1 FACILITY TUTORIAL</div>
+<div class="build">SYSTEM BUILD 016 — RAID & SECURITY SYSTEM</div>
 </header>
 
 <section class="stats">
@@ -100,6 +108,7 @@ button small{font-size:.75em;font-weight:normal;color:#aab6bf}
 </div>
 <div class="assignment" id="assignment">Build the Office first.</div>
 <div class="info" id="info">Tutorial active. Only the current step can be purchased.</div>
+<div class="recovery" id="recoveryPanel"></div>
 </section>
 
 <aside class="panel">
@@ -137,6 +146,8 @@ button small{font-size:.75em;font-weight:normal;color:#aab6bf}
 <div class="tree-node hidden-node" id="srAdvanced">UNDISCLOSED RESEARCH SYSTEM<br><small>Revealed after expansion</small><button id="buyAdvanced">RESEARCH</button></div>
 <div class="tree-node locked-node" id="srResearchSpeed">RESEARCH SPEED<br><small>2 SRP — scientists complete research faster</small><button id="buyResearchSpeed">RESEARCH</button></div>
 <div class="tree-node hidden-node" id="srShade">GOVERNMENT SHADE<br><small>Undisclosed until discovered</small></div>
+<div class="tree-node locked-node" id="srSecurityTraining">SECURITY TRAINING<br><small>2 SRP — improves security defense during raids</small><button id="buySecurityTraining">RESEARCH</button><div class="upgrade-count" id="securityTrainingCount">Level: 0 / 5</div></div>
+<div class="tree-node locked-node" id="srSecurityEquipment">SECURITY EQUIPMENT<br><small>Undisclosed — requires Security Training</small><button id="buySecurityEquipment">RESEARCH</button><div class="upgrade-count" id="securityEquipmentCount">Level: 0 / 3</div></div>
 </div>
 </div>
 </aside>
@@ -156,6 +167,12 @@ let constructionSpeedLevel=0;
 let constructionQueue=null;
 let researchQueue=null;
 let researchSpeedLevel=0;
+let securityTrainingLevel=0;
+let securityEquipmentLevel=0;
+let raidActive=false;
+let raidTimer=0;
+let raidTimerId=null;
+let repairQueue=null;
 
 const state={
  office:false,
@@ -187,6 +204,65 @@ const srpEl=document.getElementById("srp"),raidRiskEl=document.getElementById("r
 function hasEnergy(cost){return energyUsed+cost<=energyCapacity}
 function useEnergy(cost){if(!hasEnergy(cost))return false;energyUsed+=cost;return true}
 
+
+function securityPower(){
+ return state.security*(1+securityTrainingLevel*0.5+securityEquipmentLevel*0.75);
+}
+function damageFacility(){
+ const available=Math.floor(points);
+ const repairCost=Math.max(0,Math.floor(available*0.8));
+ points-=repairCost;
+ state.office=false;
+ state.experimentRoom=false;
+ state.power=false;
+ energyUsed=0;
+ income=0;
+ state.basicExperiment=false;
+ researchQueue=null;
+ repairQueue={finish:Date.now()+Math.max(5,Math.ceil(8-repairCost/10000))*1000};
+ const panel=document.getElementById("recoveryPanel");
+ panel.className="recovery active";
+ panel.innerHTML="<strong>RECOVERY PROTOCOL</strong><br>Facility damage detected. Research systems have been secured.<br><br>Repair allocation: "+repairCost.toLocaleString()+" RP · "+(available-repairCost).toLocaleString()+" RP retained<br>Repairs are guaranteed affordable by the recovery scan.<br><br><span id=\"repairStatus\">Emergency repairs underway...</span>";
+}
+function finishRepair(){
+ repairQueue=null;
+ state.office=true;
+ state.experimentRoom=true;
+ state.power=true;
+ energyCapacity=23;
+ energyUsed=8;
+ const panel=document.getElementById("recoveryPanel");
+ panel.innerHTML="<strong>RECOVERY COMPLETE</strong><br>All damaged systems restored. The facility is operational again.<br><br>Research can be restarted from the Experiments tab.";
+ panel.className="recovery active";
+}
+function startRaid(){
+ if(raidActive||!state.basicExperiment||state.security<1)return;
+ raidActive=true;
+ raidTimer=12;
+ const banner=document.getElementById("raidBanner");
+ banner.className="raid-banner active";
+ document.body.classList.add("raid-active");
+ document.getElementById("raidTimer").textContent=raidTimer;
+ raidTimerId=setInterval(()=>{
+  raidTimer--;
+  document.getElementById("raidTimer").textContent=Math.max(0,raidTimer);
+  if(raidTimer<=0){
+   clearInterval(raidTimerId); raidTimerId=null;
+   const defense=securityPower();
+   const required=2+((state.advancedExperiment?1:0)*2);
+   raidActive=false;
+   banner.className="raid-banner";
+   document.body.classList.remove("raid-active");
+   if(defense<required){
+    damageFacility();
+    document.getElementById("info").textContent="Raid lost. Recovery protocol prevented an unrecoverable repair bill.";
+   }else{
+    document.getElementById("info").textContent="Raid repelled. Security held the facility.";
+   }
+   updateSteps();
+  }
+ },1000);
+}
 function updateSteps(){
  const ids=["stepOffice","stepExperimentRoom","stepPower","stepScientist","stepSecurity","stepExperiment"];
  ids.forEach((id,i)=>{
@@ -194,7 +270,7 @@ function updateSteps(){
   el.className="step "+(i<tutorialStep-1?"done":i===tutorialStep-1?"current":"locked");
  });
 
- const tutorialComplete=tutorialStep>6;
+ const tutorialComplete=tutorialStep>6;\n const recovering=!!repairQueue;
  const constructionBusy=!!constructionQueue;
  document.getElementById("tutorialPanel").style.display=tutorialComplete?"none":"block";
  document.getElementById("superResearchPanel").style.display=tutorialComplete?"block":"none";
@@ -225,14 +301,14 @@ function updateSteps(){
  document.getElementById("powerRoom").innerHTML=state.power?"POWER<small>GENERATOR ONLINE · +15 CAPACITY</small>":"POWER<small>Locked until tutorial</small>";
  document.getElementById("researchRoom").innerHTML="RESEARCH WING<small>"+(researchQueue?"RESEARCH IN PROGRESS":"ACTIVE")+"</small>";
 
- document.getElementById("office").disabled=constructionBusy|| (tutorialComplete?state.office:(tutorialStep!==1||state.office||points<200||!hasEnergy(ENERGY.office)));
- document.getElementById("experimentBuilding").disabled=constructionBusy|| (tutorialComplete?(!state.office||points<400||state.experimentRoom||!hasEnergy(ENERGY.experimentBuilding)):(tutorialStep!==2||!state.office||points<400||state.experimentRoom||!hasEnergy(ENERGY.experimentBuilding)));
- document.getElementById("power").disabled=constructionBusy|| (tutorialComplete?(!state.experimentRoom||points<500||state.power):(tutorialStep!==3||!state.experimentRoom||points<500||state.power));
+ document.getElementById("office").disabled=recovering||constructionBusy|| (tutorialComplete?state.office:(tutorialStep!==1||state.office||points<200||!hasEnergy(ENERGY.office)));
+ document.getElementById("experimentBuilding").disabled=recovering||constructionBusy|| (tutorialComplete?(!state.office||points<400||state.experimentRoom||!hasEnergy(ENERGY.experimentBuilding)):(tutorialStep!==2||!state.office||points<400||state.experimentRoom||!hasEnergy(ENERGY.experimentBuilding)));
+ document.getElementById("power").disabled=recovering||constructionBusy|| (tutorialComplete?(!state.experimentRoom||points<500||state.power):(tutorialStep!==3||!state.experimentRoom||points<500||state.power));
 
- document.getElementById("scientist").disabled=tutorialComplete?(!state.office||points<300||state.scientists>=2):(tutorialStep!==4||!state.office||!state.power||points<300||state.scientists>=2);
- document.getElementById("securityStaff").disabled=tutorialComplete?(!state.office||points<250||state.scientists<1||state.security>=1):(tutorialStep!==5||!state.office||state.scientists<1||points<250||state.security>=1);
+ document.getElementById("scientist").disabled=recovering||tutorialComplete?(!state.office||points<300||state.scientists>=2):(tutorialStep!==4||!state.office||!state.power||points<300||state.scientists>=2);
+ document.getElementById("securityStaff").disabled=recovering||tutorialComplete?(!state.office||points<250||state.scientists<1||state.security>=1):(tutorialStep!==5||!state.office||state.scientists<1||points<250||state.security>=1);
 
- document.getElementById("basicExperiment").disabled=tutorialComplete?(!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment||researchQueue):(tutorialStep!==6||!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment||researchQueue);
+ document.getElementById("basicExperiment").disabled=recovering||tutorialComplete?(!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment||researchQueue):(tutorialStep!==6||!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment||researchQueue);
 
  if(tutorialComplete){
   lockableButtons.forEach(id=>{
@@ -272,7 +348,13 @@ function updateSteps(){
  document.getElementById("buyGovernment").disabled=!tutorialComplete||governmentCover||superResearch<5||!state.constructionSpeed;
  document.getElementById("buyExpansion").disabled=!tutorialComplete||!state.expansion&&facilityLevel<2?true:(!state.expansion&&superResearch<5);
  document.getElementById("buyAdvanced").disabled=!tutorialComplete||!state.expansion||state.advancedExperiment||superResearch<8;
- document.getElementById("buyResearchSpeed").disabled=!tutorialComplete||researchSpeedLevel>=5||superResearch<(researchSpeedLevel+1)*2;
+ document.getElementById("buyResearchSpeed").disabled=!tutorialComplete||!state.basicExperiment||researchSpeedLevel>=5||superResearch<(researchSpeedLevel+1)*2;
+ document.getElementById("buySecurityTraining").disabled=!tutorialComplete||securityTrainingLevel>=5||superResearch<2;
+ document.getElementById("buySecurityEquipment").disabled=!tutorialComplete||securityTrainingLevel<1||securityEquipmentLevel>=3||superResearch<3;
+ document.getElementById("srSecurityTraining").className="tree-node "+(state.basicExperiment?"":"locked-node");
+ document.getElementById("srSecurityEquipment").className="tree-node "+(securityTrainingLevel>0?"":"locked-node");
+ document.getElementById("securityTrainingCount").textContent="Level: "+securityTrainingLevel+" / 5";
+ document.getElementById("securityEquipmentCount").textContent="Level: "+securityEquipmentLevel+" / 3";
  document.getElementById("srResearchSpeed").className="tree-node "+(state.basicExperiment?"":"locked-node");
  document.getElementById("srFacility").className="tree-node "+(state.constructionSpeed?"":"locked-node");
  document.getElementById("srGovernment").className="tree-node "+(state.constructionSpeed?"":"locked-node");
@@ -310,6 +392,8 @@ function action(type){
  else if(type==="buyGovernment"&&tutorialStep>6&&state.constructionSpeed&&!governmentCover&&superResearch>=5){superResearch-=5;governmentCover=true}
  else if(type==="buyExpansion"&&tutorialStep>6&&facilityLevel>=2&&!state.expansion&&superResearch>=5){superResearch-=5;state.expansion=true;state.researchWing=true}
  else if(type==="buyAdvanced"&&tutorialStep>6&&state.expansion&&!state.advancedExperiment&&superResearch>=8){superResearch-=8;state.advancedExperiment=true}
+ else if(type==="buySecurityTraining"&&tutorialStep>6&&securityTrainingLevel<5&&superResearch>=2){superResearch-=2;securityTrainingLevel++}
+ else if(type==="buySecurityEquipment"&&tutorialStep>6&&securityTrainingLevel>0&&securityEquipmentLevel<3&&superResearch>=3){superResearch-=3;securityEquipmentLevel++}
  else if(type==="buyResearchSpeed"&&tutorialStep>6&&state.basicExperiment&&researchSpeedLevel<5&&superResearch>=(researchSpeedLevel+1)*2){superResearch-=(researchSpeedLevel+1)*2;researchSpeedLevel++}
  else if(type==="office"&&tutorialStep===1&&!state.office)startConstruction("office",200,ENERGY.office,()=>{state.office=true;completeStep(1)})
  else if(type==="experimentBuilding"&&tutorialStep===2&&state.office&&!state.experimentRoom)startConstruction("experimentBuilding",400,ENERGY.experimentBuilding,()=>{state.experimentRoom=true;completeStep(2)})
@@ -320,7 +404,7 @@ function action(type){
  updateSteps();
 }
 
-["office","scientist","securityStaff","experimentBuilding","basicExperiment","power","buyConstruction","buyFacility","buyGovernment","buyExpansion","buyAdvanced"].forEach(id=>document.getElementById(id).addEventListener("click",()=>action(id)));
+["office","scientist","securityStaff","experimentBuilding","basicExperiment","power","buyConstruction","buyFacility","buyGovernment","buyExpansion","buyAdvanced","buySecurityTraining","buySecurityEquipment"].forEach(id=>document.getElementById(id).addEventListener("click",()=>action(id)));
 
 document.querySelectorAll(".tab").forEach(tab=>tab.addEventListener("click",()=>{
  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
@@ -330,7 +414,7 @@ document.querySelectorAll(".tab").forEach(tab=>tab.addEventListener("click",()=>
 }));
 
 setInterval(()=>{
- if(constructionQueue&&Date.now()>=constructionQueue.finish){const done=constructionQueue.done;constructionQueue=null;done()}
+ if(repairQueue&&Date.now()>=repairQueue.finish)finishRepair();\n if(constructionQueue&&Date.now()>=constructionQueue.finish){const done=constructionQueue.done;constructionQueue=null;done()}
  if(researchQueue){const left=Math.max(0,Math.ceil((researchQueue.finish-Date.now())/1000));document.getElementById("researchStatus").textContent="Scientist researching · "+left+"s";if(Date.now()>=researchQueue.finish){researchQueue=null;state.basicExperiment=true;income=5;document.getElementById("researchStatus").textContent="Research complete · +5 RP/sec";}}
  else if(state.basicExperiment){document.getElementById("researchStatus").textContent="Research active · Scientist assigned";}
  if(state.basicExperiment){
@@ -339,6 +423,7 @@ setInterval(()=>{
   const experiments=(state.basicExperiment?1:0)+(state.advancedExperiment?1:0);
   const baseRisk=experiments*3;
   raidRisk=Math.max(0,baseRisk*(governmentCover?0.4:1)-state.security*2);
+  if(!raidActive && !repairQueue && Math.random()*100<raidRisk)startRaid();
  }
  updateSteps();
 },1000);
