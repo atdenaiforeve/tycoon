@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#080c10">
-<title>BLACKSITE-01 | Facility UI | Build 024</title>
+<title>BLACKSITE-01 | Facility UI | Build 025</title>
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:#080c10;color:#eef4f8}
@@ -72,7 +72,7 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 .recovery{display:none;margin-top:14px;padding:14px;border:1px solid #8b3a3a;border-radius:8px;background:#170b0b;color:#f0caca}
 .recovery.active{display:block}
 .damage-mark{border-color:#e63946!important;box-shadow:0 0 12px #5c1717!important}
-.tutorial-guide{position:fixed;z-index:20;display:none;pointer-events:none;align-items:center;gap:8px;color:#38d9ff;font-weight:bold;font-size:13px;text-transform:uppercase;text-shadow:0 0 8px #000}.tutorial-guide.active{display:flex}.tutorial-arrow{position:absolute;font-size:30px;line-height:1;filter:drop-shadow(0 0 5px #38d9ff);transform:translateY(-50%)}.tutorial-guide-label{padding:7px 10px;border:1px solid #38d9ff;border-radius:7px;background:#07131a;box-shadow:0 0 12px #38d9ff44}.tutorial-guide.voice-active .tutorial-guide-label{border-color:#eef4f8}.raid-marker{display:flex;align-items:center;gap:6px;position:absolute;z-index:5;padding:7px 9px;border:2px solid #e63946;border-radius:8px;background:#260808;color:#ff7777;font-weight:bold;font-size:11px;box-shadow:0 0 12px #e63946;animation:markerPulse .7s steps(2,end) infinite}
+.tutorial-guides{position:fixed;inset:0;z-index:20;pointer-events:none}.tutorial-guide{position:absolute;z-index:20;display:none;pointer-events:none;align-items:center;gap:8px;color:#38d9ff;font-weight:bold;font-size:13px;text-transform:uppercase;text-shadow:0 0 8px #000}.tutorial-guide.active{display:flex}.tutorial-arrow{position:absolute;font-size:30px;line-height:1;filter:drop-shadow(0 0 5px #38d9ff);transform:translateY(-50%)}.tutorial-guide-label{padding:7px 10px;border:1px solid #38d9ff;border-radius:7px;background:#07131a;box-shadow:0 0 12px #38d9ff44}.tutorial-guide.voice-active .tutorial-guide-label{border-color:#eef4f8}.raid-marker{display:flex;align-items:center;gap:6px;position:absolute;z-index:5;padding:7px 9px;border:2px solid #e63946;border-radius:8px;background:#260808;color:#ff7777;font-weight:bold;font-size:11px;box-shadow:0 0 12px #e63946;animation:markerPulse .7s steps(2,end) infinite}
 .security-shield{display:flex;align-items:center;gap:6px;position:absolute;z-index:4;padding:7px 9px;border:2px solid #38d9ff;border-radius:8px;background:#071923;color:#8eeaff;font-weight:bold;font-size:11px;box-shadow:0 0 12px #38d9ff}
 @keyframes markerPulse{50%{transform:scale(1.08)}}
 
@@ -93,7 +93,7 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 <header>
 <h1>BLACKSITE-01</h1>
 <div class="subtitle">Nordic Facility Construction Division</div>
-<div class="build">SYSTEM BUILD 024 — SETTINGS</div>
+<div class="build">SYSTEM BUILD 025 — SETTINGS</div>
 </header>
 
 <section class="stats">
@@ -105,7 +105,7 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 <div class="stat"><div class="label">Raid Risk</div><div class="value" id="raidRisk">0%</div></div>
 </section>
 
-<div class="tutorial-guide" id="tutorialGuide" aria-live="polite"><span class="tutorial-arrow" id="tutorialArrow">➜</span><span class="tutorial-guide-label" id="tutorialGuideLabel">BUILD THE OFFICE</span></div>
+<div class="tutorial-guides" id="tutorialGuides" aria-live="polite"><div class="tutorial-guide" id="tutorialGuide"><span class="tutorial-arrow" id="tutorialArrow">➜</span><span class="tutorial-guide-label" id="tutorialGuideLabel">BUILD THE OFFICE</span></div></div>
 <main>
 <section class="panel">
 <h2>BLACKSITE-01 Facility Map</h2>
@@ -217,6 +217,19 @@ let repairQueue=null;
 let tutorialVoicePlaying=false;
 let tutorialVoiceLast="";
 let tutorialVoiceToken=0;
+
+const tutorialActions={
+  1:{buttonId:"office",complete:()=>state.office},
+  2:{buttonId:"experimentBuilding",complete:()=>state.experimentRoom},
+  3:{buttonId:"power",complete:()=>state.power},
+  4:{buttonId:"scientist",complete:()=>state.scientists>0},
+  5:{buttonId:"securityStaff",complete:()=>state.security>0},
+  6:{buttonId:"basicExperiment",complete:()=>!!researchQueue||state.basicExperiment}
+};
+function tutorialActionComplete(step=tutorialStep){
+ const action=tutorialActions[step];
+ return !!(action&&typeof action.complete==="function"&&action.complete());
+}
 
 const tutorialVoice={
  intro:"assets/audio/tutorial/Blacksite-01 Briefing.mp3",
@@ -493,84 +506,69 @@ function scanUIDimensions(){
 }
 
 function updateTutorialGuide(){
- const guide=document.getElementById("tutorialGuide");
- const label=document.getElementById("tutorialGuideLabel");
- const arrow=document.getElementById("tutorialArrow");
- if(!guide||!label||!arrow)return;
- const targets={1:"office",2:"experimentBuilding",3:"power",4:"scientist",5:"securityStaff",6:"basicExperiment"};
- const targetId=targets[tutorialStep];
- if(tutorialStep>6||!targetId){guide.classList.remove("active");return;}
- const target=document.getElementById(targetId);
- if(!target){guide.classList.remove("active");return;}
-
- const labels=["","BUILD THE OFFICE","BUILD THE EXPERIMENT ROOM","INSTALL THE POWER SYSTEM","HIRE THE SCIENTIST","HIRE SECURITY","RUN THE SYSTEMS TEST"];
- label.textContent=labels[tutorialStep]||"";
- guide.classList.add("active");
- guide.style.flexDirection="row";
- guide.style.width="";
- guide.style.left="8px";
- guide.style.top="8px";
- arrow.style.left="";
- arrow.style.top="";
-
- const targetRect=target.getBoundingClientRect();
- const guideRect=guide.getBoundingClientRect();
- const viewportW=window.innerWidth;
- const viewportH=window.innerHeight;
- const gap=14;
- const pad=8;
- const narrow=viewportW<700;
-
- const blockers=[...document.querySelectorAll("button[id]")].map(el=>({
-  id:el.id,
-  rect:el.getBoundingClientRect()
- })).filter(item=>item.id!==targetId&&item.rect.width>0&&item.rect.height>0);
-
- function overlaps(a,b){
-  return a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top;
- }
- function insideViewport(r){
-  return r.left>=pad&&r.top>=pad&&r.right<=viewportW-pad&&r.bottom<=viewportH-pad;
- }
- function makeCandidate(side){
-  let x=targetRect.left+(targetRect.width-guideRect.width)/2;
-  let y=targetRect.top+(targetRect.height-guideRect.height)/2;
-  let direction="➜";
-  if(side==="left"){x=targetRect.left-guideRect.width-gap;direction="➜";}
-  if(side==="right"){x=targetRect.right+gap;direction="←";}
-  if(side==="top"){y=targetRect.top-guideRect.height-gap;direction="↓";}
-  if(side==="bottom"){y=targetRect.bottom+gap;direction="↑";}
-  x=Math.round(x);y=Math.round(y);
-  return {x,y,direction,rect:{left:x,top:y,right:x+guideRect.width,bottom:y+guideRect.height}};
- }
- function score(candidate){
-  let s=Math.hypot(candidate.x-(targetRect.left+targetRect.width/2),candidate.y-(targetRect.top+targetRect.height/2));
-  blockers.forEach(b=>{if(overlaps(candidate.rect,b.rect))s+=100000;});
-  if(!insideViewport(candidate.rect))s+=50000;
-  return s;
- }
-
- const sides=narrow?["top","bottom","right","left"]:["left","right","top","bottom"];
- const candidates=sides.map(makeCandidate);
- candidates.sort((a,b)=>score(a)-score(b));
- const chosen=candidates[0];
-
- let x=Math.max(pad,Math.min(viewportW-guideRect.width-pad,chosen.x));
- let y=Math.max(pad,Math.min(viewportH-guideRect.height-pad,chosen.y));
- guide.style.left=x+"px";
- guide.style.top=y+"px";
-
- if(chosen.direction==="↓"||chosen.direction==="↑"){
-  guide.style.flexDirection="column";
-  guide.style.width=guideRect.width+"px";
-  arrow.style.left=(targetRect.left+targetRect.width/2-x-15)+"px";
-  arrow.style.top=chosen.direction==="↓"?guideRect.height+"px":"-2px";
- }else{
+ const container=document.getElementById("tutorialGuides");
+ if(!container)return;
+ const configs=tutorialStep>6?[]:[{
+  targetId:(tutorialActions[tutorialStep]||{}).buttonId,
+  label:(["","BUILD THE OFFICE","BUILD THE EXPERIMENT ROOM","INSTALL THE POWER SYSTEM","HIRE THE SCIENTIST","HIRE SECURITY","RUN THE SYSTEMS TEST"])[tutorialStep]||""
+ }];
+ while(container.children.length>configs.length)container.removeChild(container.lastElementChild);
+ configs.forEach((cfg,index)=>{
+  let guide=container.children[index];
+  if(!guide){
+   guide=document.createElement("div");
+   guide.className="tutorial-guide";
+   guide.innerHTML='<span class="tutorial-arrow">➜</span><span class="tutorial-guide-label"></span>';
+   container.appendChild(guide);
+  }
+  const arrow=guide.querySelector(".tutorial-arrow");
+  const label=guide.querySelector(".tutorial-guide-label");
+  const targetId=cfg.targetId;
+  const target=targetId?document.getElementById(targetId):null;
+  if(!target){guide.classList.remove("active");return;}
+  label.textContent=cfg.label;
+  guide.classList.add("active");
   guide.style.flexDirection="row";
-  arrow.style.left=chosen.direction==="➜"?(guideRect.width-2)+"px":"-2px";
-  arrow.style.top=(guideRect.height/2)+"px";
- }
- arrow.textContent=chosen.direction;
+  guide.style.width="";
+  guide.style.left="8px";
+  guide.style.top="8px";
+  arrow.style.left="";
+  arrow.style.top="";
+  const targetRect=target.getBoundingClientRect();
+  const guideRect=guide.getBoundingClientRect();
+  const viewportW=window.innerWidth,viewportH=window.innerHeight,gap=14,pad=8,narrow=viewportW<700;
+  const blockers=[...document.querySelectorAll("button[id]")].map(el=>({id:el.id,rect:el.getBoundingClientRect()})).filter(item=>item.id!==targetId&&item.rect.width>0&&item.rect.height>0);
+  const overlaps=(a,b)=>a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top;
+  const insideViewport=r=>r.left>=pad&&r.top>=pad&&r.right<=viewportW-pad&&r.bottom<=viewportH-pad;
+  function makeCandidate(side){
+   let x=targetRect.left+(targetRect.width-guideRect.width)/2,y=targetRect.top+(targetRect.height-guideRect.height)/2,direction="➜";
+   if(side==="left"){x=targetRect.left-guideRect.width-gap;direction="➜";}
+   if(side==="right"){x=targetRect.right+gap;direction="←";}
+   if(side==="top"){y=targetRect.top-guideRect.height-gap;direction="↓";}
+   if(side==="bottom"){y=targetRect.bottom+gap;direction="↑";}
+   x=Math.round(x);y=Math.round(y);
+   return{x,y,direction,rect:{left:x,top:y,right:x+guideRect.width,bottom:y+guideRect.height}};
+  }
+  function score(candidate){
+   let s=Math.hypot(candidate.x-(targetRect.left+targetRect.width/2),candidate.y-(targetRect.top+targetRect.height/2));
+   blockers.forEach(b=>{if(overlaps(candidate.rect,b.rect))s+=100000;});
+   if(!insideViewport(candidate.rect))s+=50000;
+   return s;
+  }
+  const chosen=(narrow?["top","bottom","right","left"]:["left","right","top","bottom"]).map(makeCandidate).sort((a,b)=>score(a)-score(b))[0];
+  let x=Math.max(pad,Math.min(viewportW-guideRect.width-pad,chosen.x)),y=Math.max(pad,Math.min(viewportH-guideRect.height-pad,chosen.y));
+  guide.style.left=x+"px";guide.style.top=y+"px";
+  if(chosen.direction==="↓"||chosen.direction==="↑"){
+   guide.style.flexDirection="column";guide.style.width=guideRect.width+"px";
+   arrow.style.left=(targetRect.left+targetRect.width/2-x-15)+"px";
+   arrow.style.top=chosen.direction==="↓"?guideRect.height+"px":"-2px";
+  }else{
+   guide.style.flexDirection="row";
+   arrow.style.left=chosen.direction==="➜"?(guideRect.width-2)+"px":"-2px";
+   arrow.style.top=(guideRect.height/2)+"px";
+  }
+  arrow.textContent=chosen.direction;
+ });
 }
 let uiResizeObserver=null;
 window.addEventListener("resize",scanUIDimensions,{passive:true});
@@ -699,11 +697,14 @@ function updateSteps(){
 
 function spend(cost){if(points<cost)return false;points-=cost;return true}
 function completeStep(n){
+ if(tutorialStep===n&&!tutorialActionComplete(n))return false;
  if(tutorialStep===n){
   tutorialStep++;
   const voiceKeys={1:"office",2:"experimentRoom",3:"power",4:"scientist",5:"security",6:"experiment"};
   if(voiceKeys[n])playTutorialVoice(voiceKeys[n]);
+  return true;
  }
+ return false;
 }
 
 function startConstruction(type,cost,energyCost,done){
