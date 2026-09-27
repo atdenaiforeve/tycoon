@@ -40,7 +40,7 @@ button{width:100%;padding:10px 12px;margin:6px 0;border:1px solid #40515f;border
 button:hover{background:#263742}
 button:focus-visible{outline:2px solid #38d9ff;outline-offset:2px}
 button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-button:disabled{background:#151d24;color:#65727d;cursor:not-allowed}.voice-locked{opacity:.62!important}.super-research{margin-top:18px;padding-top:14px;border-top:1px solid #33424f}.tree-node{padding:12px;margin:8px 0;border:1px solid #40515f;border-radius:8px;background:#0b1117}.tree-node small{color:#9eabb6}.tree-node button{min-height:42px;padding:8px;margin-top:8px;font-size:12px}.locked-node{opacity:.55}.hidden-node{display:none}button.tutorial-locked{position:relative;padding-right:48px}button.tutorial-locked::after{content:"";position:absolute;right:14px;top:50%;width:18px;height:18px;transform:translateY(-50%);background:url("assets/icons/ui/lock.svg") center/contain no-repeat;opacity:.9}
+button:disabled{background:#151d24;color:#65727d;cursor:not-allowed}.super-research{margin-top:18px;padding-top:14px;border-top:1px solid #33424f}.tree-node{padding:12px;margin:8px 0;border:1px solid #40515f;border-radius:8px;background:#0b1117}.tree-node small{color:#9eabb6}.tree-node button{min-height:42px;padding:8px;margin-top:8px;font-size:12px}.locked-node{opacity:.55}.hidden-node{display:none}button.tutorial-locked{position:relative;padding-right:48px}button.tutorial-locked::after{content:"";position:absolute;right:14px;top:50%;width:18px;height:18px;transform:translateY(-50%);background:url("assets/icons/ui/lock.svg") center/contain no-repeat;opacity:.9}
 button small{font-size:.75em;font-weight:normal;color:#aab6bf}
 .cost{float:right;color:#38d9ff}
 .energy-cost{color:#8edfff}
@@ -302,16 +302,6 @@ const tutorialMessages={
 };
 let systemStarted=false;
 
-function setTutorialButtonsLocked(locked){
- const ids=["office","experimentBuilding","power","scientist","securityStaff","basicExperiment"];
- ids.forEach(id=>{
-  const button=document.getElementById(id);
-  if(!button)return;
-  button.dataset.voiceLocked=locked?"1":"0";
-  button.setAttribute("aria-disabled",locked?"true":"false");
-  button.classList.toggle("voice-locked",locked);
- });
-}
 
 function showTutorialMessage(key){
  const guide=document.getElementById("tutorialGuide");
@@ -326,7 +316,6 @@ function showTutorialMessage(key){
  guide.classList.add("active");
  next.disabled=true;
  next.textContent="NEXT";
- setTutorialButtonsLocked(true);
  textEl.textContent="";
  let i=0;
  const typeNext=()=>{
@@ -343,7 +332,6 @@ function showTutorialMessage(key){
     tutorialGuideReady=false;
     next.disabled=true;
     guide.classList.remove("active");
-    setTutorialButtonsLocked(false);
     if(typeof tutorialGuideAdvanceNext==="function"){
       const fn=tutorialGuideAdvanceNext;
       tutorialGuideAdvanceNext=null;
@@ -548,40 +536,6 @@ function setTutorialButtonsLocked(locked){
   button.dataset.voiceLocked=locked?"1":"0";
   button.setAttribute("aria-disabled",locked?"true":"false");
   button.classList.toggle("voice-locked",locked);
- });
-}
-function 
- const url=tutorialVoice[key];
- const audio=document.getElementById("tutorialVoice");
- if(!url||!audio)return Promise.resolve(false);
- if(tutorialGuideTyping||tutorialGuideReady){
-  if(tutorialVoiceLast===key)return Promise.resolve(false);
-  audio.pause();
-  tutorialVoiceToken++;
- }
- tutorialVoiceLast=key;
- tutorialVoicePlaying=true;
- const token=++tutorialVoiceToken;
- setTutorialButtonsLocked(true);
- return new Promise(resolve=>{
-  let settled=false;
-  const finish=(played)=>{
-   if(settled||token!==tutorialVoiceToken)return;
-   settled=true;
-   tutorialVoicePlaying=false;
-   tutorialVoiceLast="";
-   audio.onended=null;
-   audio.onerror=null;
-   setTutorialButtonsLocked(false);
-   updateSteps();
-   resolve(played);
-  };
-  audio.onended=()=>finish(true);
-  audio.onerror=()=>finish(false);
-  audio.src=url;
-  audio.currentTime=0;
-  const playPromise=audio.play();
-  if(playPromise&&typeof playPromise.catch==="function")playPromise.catch(()=>finish(false));
  });
 }
 function repositionOperations(){
