@@ -456,40 +456,32 @@ function playTutorialVoice(key){
  if(tutorialVoicePlaying){
   if(tutorialVoiceLast===key)return Promise.resolve(false);
   audio.pause();
+  tutorialVoiceToken++;
  }
  tutorialVoiceLast=key;
  tutorialVoicePlaying=true;
  const token=++tutorialVoiceToken;
  setTutorialButtonsLocked(true);
- audio.onended=()=>{
-  if(token!==tutorialVoiceToken)return;
-  tutorialVoicePlaying=false;
-  tutorialVoiceLast="";
-  audio.onended=null;
-  updateSteps();
- };
- audio.onerror=()=>{
-  if(token!==tutorialVoiceToken)return;
-  tutorialVoicePlaying=false;
-  tutorialVoiceLast="";
-  audio.onended=null;
-  updateSteps();
- };
- audio.src=url;
- audio.currentTime=0;
- const playPromise=audio.play();
- if(playPromise&&typeof playPromise.catch==="function"){
-  return playPromise.then(()=>true).catch(()=>{
-   if(token===tutorialVoiceToken){
-    tutorialVoicePlaying=false;
-    tutorialVoiceLast="";
-    audio.onended=null;
-    updateSteps();
-   }
-   return false;
-  });
- }
- return Promise.resolve(true);
+ return new Promise(resolve=>{
+  let settled=false;
+  const finish=(played)=>{
+   if(settled||token!==tutorialVoiceToken)return;
+   settled=true;
+   tutorialVoicePlaying=false;
+   tutorialVoiceLast="";
+   audio.onended=null;
+   audio.onerror=null;
+   setTutorialButtonsLocked(false);
+   updateSteps();
+   resolve(played);
+  };
+  audio.onended=()=>finish(true);
+  audio.onerror=()=>finish(false);
+  audio.src=url;
+  audio.currentTime=0;
+  const playPromise=audio.play();
+  if(playPromise&&typeof playPromise.catch==="function")playPromise.catch(()=>finish(false));
+ });
 }
 function repositionOperations(){
  const aside=document.querySelector("aside");
@@ -654,14 +646,13 @@ function updateSteps(){
 
 function spend(cost){if(points<cost)return false;points-=cost;return true}
 function completeStep(n){
- if(tutorialStep===n&&!tutorialActionComplete(n))return false;
- if(tutorialStep===n){
-  tutorialStep++;
-  const voiceKeys={1:"office",2:"experimentRoom",3:"power",4:"scientist",5:"security",6:"experiment"};
-  if(voiceKeys[n])playTutorialVoice(voiceKeys[n]);
-  return true;
- }
- return false;
+ if(tutorialStep!==n||!tutorialActionComplete(n))return false;
+ tutorialStep++;
+ updateSteps();
+ const voiceKeys={2:"experimentRoom",3:"power",4:"scientist",5:"security",6:"experiment"};
+ const nextVoice=voiceKeys[tutorialStep];
+ if(nextVoice)playTutorialVoice(nextVoice);
+ return true;
 }
 
 function startConstruction(type,cost,energyCost,done){
@@ -686,7 +677,7 @@ function action(type){
  else if(type==="power"&&tutorialStep===3&&state.experimentRoom&&!state.power)startConstruction("power",500,0,()=>{state.power=true;energyCapacity+=ENERGY.powerCapacity;completeStep(3)})
  else if(type==="scientist"&&tutorialStep===4&&state.office&&state.power&&state.scientists<2){startConstruction("scientist",300,0,()=>{state.scientists++;completeStep(4)})}
  else if(type==="securityStaff"&&tutorialStep===5&&state.scientists>0&&state.security<1){startConstruction("securityStaff",250,0,()=>{state.security=1;completeStep(5)})}
- else if(type==="basicExperiment"&&tutorialStep===6&&state.experimentRoom&&state.power&&state.scientists>0&&state.security>0&&spend(350)&&!researchQueue){playTutorialVoice("experiment");researchQueue={type:"basic",finish:Date.now()+Math.ceil(5/(1+researchSpeedLevel*0.2))*1000}}
+ else if(type==="basicExperiment"&&tutorialStep===6&&state.experimentRoom&&state.power&&state.scientists>0&&state.security>0&&spend(350)&&!researchQueue){researchQueue={type:"basic",finish:Date.now()+Math.ceil(5/(1+researchSpeedLevel*0.2))*1000}}
  updateSteps();
 }
 
@@ -696,6 +687,7 @@ document.getElementById("startSystem").addEventListener("click",async()=>{
  if(overlay)overlay.style.display="none";
  await playTutorialVoice("intro");
  updateSteps();
+ await playTutorialVoice("office");
 });
 
 document.getElementById("saveProgress").addEventListener("click",saveProgress);
