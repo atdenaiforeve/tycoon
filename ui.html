@@ -78,18 +78,48 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 @keyframes markerPulse{50%{transform:scale(1.08)}}
 
  .save-controls{margin-top:18px;padding-top:14px;border-top:1px solid #33424f}.save-controls button{border-color:#6b3030;background:#1c1114}.save-controls button:hover{background:#2a1519}.save-controls .upgrade-count{margin-top:8px}
+
+/* Corporate tutorial character */
+.tutorial-guide{position:fixed;left:18px;bottom:18px;z-index:90;display:none;align-items:flex-end;gap:12px;max-width:min(560px,calc(100vw - 36px));pointer-events:none}
+.tutorial-guide.active{display:flex}
+.tutorial-guide-character{width:92px;height:112px;flex:0 0 92px;position:relative;filter:drop-shadow(0 8px 16px #0008)}
+.tutorial-guide-character .head{position:absolute;left:27px;top:4px;width:39px;height:39px;border-radius:50%;background:#d7a77f;border:2px solid #18232c}
+.tutorial-guide-character .hair{position:absolute;left:29px;top:3px;width:35px;height:14px;border-radius:18px 18px 8px 8px;background:#26323a}
+.tutorial-guide-character .body{position:absolute;left:17px;top:40px;width:59px;height:62px;border-radius:13px 13px 8px 8px;background:#172432;border:2px solid #304454}
+.tutorial-guide-character .shirt{position:absolute;left:35px;top:43px;width:23px;height:29px;background:#f2f5f7;clip-path:polygon(18% 0,82% 0,100% 100%,0 100%)}
+.tutorial-guide-character .tie{position:absolute;left:44px;top:43px;width:7px;height:31px;background:#38d9ff;clip-path:polygon(50% 0,100% 18%,72% 100%,28% 100%,0 18%)}
+.tutorial-guide-character .arm{position:absolute;top:55px;width:17px;height:45px;border-radius:10px;background:#172432;border:2px solid #304454}
+.tutorial-guide-character .arm.left{left:8px;transform:rotate(12deg)}.tutorial-guide-character .arm.right{right:8px;transform:rotate(-12deg)}
+.tutorial-guide-character .tablet{position:absolute;right:1px;top:67px;width:27px;height:34px;border-radius:4px;background:#263b4b;border:2px solid #38d9ff;transform:rotate(-8deg)}
+.tutorial-guide-character .leg{position:absolute;top:98px;width:20px;height:14px;border-radius:5px;background:#101820}.tutorial-guide-character .leg.left{left:26px}.tutorial-guide-character .leg.right{right:26px}
+.tutorial-guide-bubble{pointer-events:auto;background:#101820;border:2px solid #38d9ff;border-radius:14px;padding:14px 15px;min-width:230px;box-shadow:0 8px 30px #0009}
+.tutorial-guide-bubble .guide-title{font-size:11px;color:#38d9ff;font-family:monospace;letter-spacing:1px;margin-bottom:7px}
+.tutorial-guide-bubble .guide-text{min-height:48px;font-size:15px;line-height:1.4;color:#f1f6f9}
+.tutorial-guide-bubble .guide-next{margin:10px 0 0;width:auto;min-width:105px;min-height:38px;padding:7px 13px;text-align:center;font-size:13px}
+.tutorial-guide-bubble .guide-next:disabled{opacity:.45}
+@media(max-width:520px){.tutorial-guide{left:8px;bottom:8px;max-width:calc(100vw - 16px);gap:6px}.tutorial-guide-character{width:66px;height:82px;flex-basis:66px;transform:scale(.75);transform-origin:bottom left;margin-right:-18px}.tutorial-guide-bubble{padding:11px 12px}.tutorial-guide-bubble .guide-text{font-size:13px;min-height:44px}}
 </style>
 </head>
 <body>
+<div class="tutorial-guide" id="tutorialGuide" aria-live="polite">
+  <div class="tutorial-guide-character" aria-hidden="true">
+    <div class="head"></div><div class="hair"></div><div class="body"></div><div class="shirt"></div><div class="tie"></div>
+    <div class="arm left"></div><div class="arm right"></div><div class="tablet"></div><div class="leg left"></div><div class="leg right"></div>
+  </div>
+  <div class="tutorial-guide-bubble">
+    <div class="guide-title">FACILITY OPERATIONS</div>
+    <div class="guide-text" id="guideText"></div>
+    <button class="guide-next" id="guideNext" type="button" disabled>NEXT</button>
+  </div>
+</div>
 <div id="startOverlay" style="position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:#080c10ee;padding:20px">
 <div style="width:min(520px,100%);padding:28px;background:#101820;border:2px solid #40515f;border-radius:12px;text-align:center">
 <div style="color:#38d9ff;font-family:monospace;font-size:12px;letter-spacing:2px;margin-bottom:10px">BLACKSITE-01 SYSTEM BOOT</div>
 <h2 style="margin:0 0 10px">FACILITY INITIALIZATION</h2>
-<div style="color:#9eabb6;font-size:13px;line-height:1.5;margin-bottom:18px">Press start to enable facility audio and begin the operational briefing.</div>
+<div style="color:#9eabb6;font-size:13px;line-height:1.5;margin-bottom:18px">Press start to begin the facility tutorial.</div>
 <button id="startSystem" type="button" style="text-align:center">▶ START SYSTEM</button>
 </div>
 </div>
-<audio id="tutorialVoice" preload="auto"></audio>
 <audio id="facilityAmbience" src="assets/audio/ambiance/blacksite-ambience.mp3" preload="auto" loop></audio>
 <script src="assets/audio/ambiance/blacksite-ambience.js"></script>
 <div class="raid-banner" id="raidBanner">RAID IN PROGRESS · <span id="raidTimer">12</span>s</div>
@@ -219,9 +249,10 @@ let raidActive=false;
 let raidTimer=0;
 let raidTimerId=null;
 let repairQueue=null;
-let tutorialVoicePlaying=false;
-let tutorialVoiceLast="";
-let tutorialVoiceToken=0;
+let tutorialGuideTyping=false;
+let tutorialGuideReady=false;
+let tutorialGuideToken=0;
+let tutorialGuideAdvance=null;
 let creatureComfort=70;
 let creatureEscaped=false;
 let creatureEscapeCause="";
@@ -242,20 +273,74 @@ function tutorialActionComplete(step=tutorialStep){
  return !!(action&&typeof action.complete==="function"&&action.complete());
 }
 
-const tutorialVoice={
- intro:"assets/audio/tutorial/Blacksite-01 Command Setup.mp3",
- office:"assets/audio/tutorial/Facility Command Center.mp3",
- experimentRoom:"assets/audio/tutorial/Experiment Room Setup.mp3",
- power:"assets/audio/tutorial/Power System Benefits.mp3",
- scientist:"assets/audio/tutorial/Hiring Research Scientist.mp3",
- security:"assets/audio/tutorial/Facility Security Needs.mp3",
- experiment:"assets/audio/tutorial/Level One Systems Test.mp3",
- researchComplete:"assets/audio/tutorial/Research Progress.mp3",
- complete:"assets/audio/tutorial/Facility Expansion Plan.mp3"
+const tutorialMessages={
+ intro:"Welcome to BLACKSITE-01. I’ll guide you through the first facility setup. You’ll need to complete each step before the next one unlocks.",
+ 1:"First, build the Office. It gives your facility a command center and starts the basic infrastructure.",
+ 2:"Good. Now build the Experiment Room. This is where the facility’s first systems test will take place.",
+ 3:"Next, install the Power System. It increases your energy capacity so the facility can support more infrastructure.",
+ 4:"The facility needs research staff. Hire a Scientist to begin running research operations.",
+ 5:"Research needs protection. Hire Security to keep the facility covered during operations.",
+ 6:"Everything is ready. Run the Facility Systems Test to begin your first research cycle.",
+ 7:"Level 1 is complete. The facility is operational. You’re in control from here."
 };
-let tutorialVoiceEnabled=true;
 let systemStarted=false;
 
+function setTutorialButtonsLocked(locked){
+ const ids=["office","experimentBuilding","power","scientist","securityStaff","basicExperiment"];
+ ids.forEach(id=>{
+  const button=document.getElementById(id);
+  if(!button)return;
+  button.dataset.voiceLocked=locked?"1":"0";
+  button.setAttribute("aria-disabled",locked?"true":"false");
+  button.classList.toggle("voice-locked",locked);
+ });
+}
+
+function showTutorialMessage(key){
+ const guide=document.getElementById("tutorialGuide");
+ const textEl=document.getElementById("guideText");
+ const next=document.getElementById("guideNext");
+ const message=tutorialMessages[key];
+ if(!guide||!textEl||!next||!message)return;
+ const token=++tutorialGuideToken;
+ tutorialGuideTyping=true;
+ tutorialGuideReady=false;
+ tutorialGuideAdvance=null;
+ guide.classList.add("active");
+ next.disabled=true;
+ next.textContent="NEXT";
+ setTutorialButtonsLocked(true);
+ textEl.textContent="";
+ let i=0;
+ const typeNext=()=>{
+  if(token!==tutorialGuideToken)return;
+  if(i<message.length){
+   textEl.textContent+=message[i++];
+   setTimeout(typeNext,Math.max(14,Math.min(38,42-(message.length>100?10:0))));
+  }else{
+   tutorialGuideTyping=false;
+   tutorialGuideReady=true;
+   next.disabled=false;
+   tutorialGuideAdvance=()=>{
+    if(tutorialGuideTyping)return;
+    tutorialGuideReady=false;
+    next.disabled=true;
+    guide.classList.remove("active");
+    setTutorialButtonsLocked(false);
+    if(typeof tutorialGuideAdvanceNext==="function"){
+      const fn=tutorialGuideAdvanceNext;
+      tutorialGuideAdvanceNext=null;
+      fn();
+    }
+   };
+  }
+ };
+ typeNext();
+}
+let tutorialGuideAdvanceNext=null;
+document.addEventListener("click",e=>{
+ if(e.target&&e.target.id==="guideNext"&&tutorialGuideAdvance) tutorialGuideAdvance();
+});
 const SAVE_KEY="blacksite01_tycoon_save_v1";
 const DEFAULT_STATE={
  office:false, scientists:0, security:0, experimentRoom:false, power:false,
@@ -448,12 +533,11 @@ function setTutorialButtonsLocked(locked){
   button.classList.toggle("voice-locked",locked);
  });
 }
-function playTutorialVoice(key){
- if(!tutorialVoiceEnabled||(!systemStarted&&key!=="intro"))return Promise.resolve(false);
+function 
  const url=tutorialVoice[key];
  const audio=document.getElementById("tutorialVoice");
  if(!url||!audio)return Promise.resolve(false);
- if(tutorialVoicePlaying){
+ if(tutorialGuideTyping||tutorialGuideReady){
   if(tutorialVoiceLast===key)return Promise.resolve(false);
   audio.pause();
   tutorialVoiceToken++;
@@ -568,14 +652,14 @@ function updateSteps(){
  document.getElementById("powerRoom").innerHTML=state.power?"POWER<small>GENERATOR ONLINE · +15 CAPACITY</small>":"POWER<small>Locked until tutorial</small>";
  document.getElementById("researchRoom").innerHTML="RESEARCH WING<small>"+(researchQueue?"RESEARCH IN PROGRESS":"ACTIVE")+"</small>";
 
- document.getElementById("office").disabled=tutorialVoicePlaying||recovering||constructionBusy|| (tutorialComplete?state.office:(tutorialStep!==1||state.office||points<200||!hasEnergy(ENERGY.office)));
- document.getElementById("experimentBuilding").disabled=tutorialVoicePlaying||recovering||constructionBusy|| (tutorialComplete?(!state.office||points<400||state.experimentRoom||!hasEnergy(ENERGY.experimentBuilding)):(tutorialStep!==2||!state.office||points<400||state.experimentRoom||!hasEnergy(ENERGY.experimentBuilding)));
- document.getElementById("power").disabled=tutorialVoicePlaying||recovering||constructionBusy|| (tutorialComplete?(!state.experimentRoom||points<500||state.power):(tutorialStep!==3||!state.experimentRoom||points<500||state.power));
+ document.getElementById("office").disabled=tutorialGuideTyping||tutorialGuideReady||recovering||constructionBusy|| (tutorialComplete?state.office:(tutorialStep!==1||state.office||points<200||!hasEnergy(ENERGY.office)));
+ document.getElementById("experimentBuilding").disabled=tutorialGuideTyping||tutorialGuideReady||recovering||constructionBusy|| (tutorialComplete?(!state.office||points<400||state.experimentRoom||!hasEnergy(ENERGY.experimentBuilding)):(tutorialStep!==2||!state.office||points<400||state.experimentRoom||!hasEnergy(ENERGY.experimentBuilding)));
+ document.getElementById("power").disabled=tutorialGuideTyping||tutorialGuideReady||recovering||constructionBusy|| (tutorialComplete?(!state.experimentRoom||points<500||state.power):(tutorialStep!==3||!state.experimentRoom||points<500||state.power));
 
- document.getElementById("scientist").disabled=tutorialVoicePlaying||recovering||tutorialComplete?(!state.office||points<300||state.scientists>=2):(tutorialStep!==4||!state.office||!state.power||points<300||state.scientists>=2);
- document.getElementById("securityStaff").disabled=tutorialVoicePlaying||recovering||tutorialComplete?(!state.office||points<250||state.scientists<1||state.security>=1):(tutorialStep!==5||!state.office||state.scientists<1||points<250||state.security>=1);
+ document.getElementById("scientist").disabled=tutorialGuideTyping||tutorialGuideReady||recovering||tutorialComplete?(!state.office||points<300||state.scientists>=2):(tutorialStep!==4||!state.office||!state.power||points<300||state.scientists>=2);
+ document.getElementById("securityStaff").disabled=tutorialGuideTyping||tutorialGuideReady||recovering||tutorialComplete?(!state.office||points<250||state.scientists<1||state.security>=1):(tutorialStep!==5||!state.office||state.scientists<1||points<250||state.security>=1);
 
- document.getElementById("basicExperiment").disabled=tutorialVoicePlaying||recovering||tutorialComplete?(!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment||researchQueue):(tutorialStep!==6||!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment||researchQueue);
+ document.getElementById("basicExperiment").disabled=tutorialGuideTyping||tutorialGuideReady||recovering||tutorialComplete?(!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment||researchQueue):(tutorialStep!==6||!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment||researchQueue);
 
  if(tutorialComplete){
   lockableButtons.forEach(id=>{
@@ -593,7 +677,7 @@ function updateSteps(){
   securityStaff:tutorialStep!==5,
   basicExperiment:tutorialStep!==6,
  };
- if(tutorialVoicePlaying){
+ if(tutorialGuideTyping||tutorialGuideReady){
   Object.keys(tutorialLocks).forEach(id=>tutorialLocks[id]=true);
  }
  Object.entries(tutorialLocks).forEach(([id,locked])=>{
@@ -649,12 +733,15 @@ function completeStep(n){
  if(tutorialStep!==n||!tutorialActionComplete(n))return false;
  tutorialStep++;
  updateSteps();
- const voiceKeys={2:"experimentRoom",3:"power",4:"scientist",5:"security",6:"experiment"};
- const nextVoice=voiceKeys[tutorialStep];
- if(nextVoice)playTutorialVoice(nextVoice);
+ const nextMessage=tutorialMessages[tutorialStep];
+ if(nextMessage){
+  tutorialGuideAdvanceNext=()=>updateSteps();
+  showTutorialMessage(tutorialStep);
+ }else{
+  updateSteps();
+ }
  return true;
 }
-
 function startConstruction(type,cost,energyCost,done){
  if(constructionQueue||points<cost||(energyCost&&!hasEnergy(energyCost)))return;
  points-=cost;
@@ -681,13 +768,12 @@ function action(type){
  updateSteps();
 }
 
-document.getElementById("startSystem").addEventListener("click",async()=>{
+document.getElementById("startSystem").addEventListener("click",()=>{
  systemStarted=true;
  const overlay=document.getElementById("startOverlay");
  if(overlay)overlay.style.display="none";
- await playTutorialVoice("intro");
- updateSteps();
- await playTutorialVoice("office");
+ tutorialGuideAdvanceNext=()=>updateSteps();
+ showTutorialMessage("intro");
 });
 
 document.getElementById("saveProgress").addEventListener("click",saveProgress);
@@ -708,7 +794,7 @@ setInterval(()=>{
  if(constructionQueue&&Date.now()>=constructionQueue.finish){const done=constructionQueue.done;constructionQueue=null;done()}
  updateExperimentComfort();
  if(securityFatigue>0)securityFatigue=Math.max(0,securityFatigue-0.0005);
- if(researchQueue){const left=Math.max(0,Math.ceil((researchQueue.finish-Date.now())/1000));document.getElementById("researchStatus").textContent="Scientist researching · "+left+"s";if(Date.now()>=researchQueue.finish){researchQueue=null;state.basicExperiment=true;income=10;tutorialStep=7;document.getElementById("researchStatus").textContent="Research complete · +10 RP/sec";updateSteps();playTutorialVoice("researchComplete").then(()=>playTutorialVoice("complete")).then(()=>{if(window.BLACKSITE_AMBIENCE)BLACKSITE_AMBIENCE.start();});}}
+ if(researchQueue){const left=Math.max(0,Math.ceil((researchQueue.finish-Date.now())/1000));document.getElementById("researchStatus").textContent="Scientist researching · "+left+"s";if(Date.now()>=researchQueue.finish){researchQueue=null;state.basicExperiment=true;income=10;tutorialStep=7;document.getElementById("researchStatus").textContent="Research complete · +10 RP/sec";updateSteps();tutorialGuideAdvanceNext=()=>{updateSteps();if(window.BLACKSITE_AMBIENCE)BLACKSITE_AMBIENCE.start();};showTutorialMessage(7);}}
  else if(state.basicExperiment){document.getElementById("researchStatus").textContent="Research active · Scientist assigned";}
  if(state.basicExperiment){
   points+=income;
