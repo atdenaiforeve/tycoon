@@ -77,7 +77,9 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 .security-shield{display:flex;align-items:center;gap:6px;position:absolute;z-index:4;padding:7px 9px;border:2px solid #38d9ff;border-radius:8px;background:#071923;color:#8eeaff;font-weight:bold;font-size:11px;box-shadow:0 0 12px #38d9ff}
 @keyframes markerPulse{50%{transform:scale(1.08)}}
 
- .save-controls{margin-top:18px;padding-top:14px;border-top:1px solid #33424f}.save-controls button{border-color:#6b3030;background:#1c1114}.save-controls button:hover{background:#2a1519}.save-controls .upgrade-count{margin-top:8px}
+ 
+.update-banner{margin:0 0 14px;padding:14px;border:1px solid #40515f;border-radius:10px;background:#0b1117;display:grid;gap:4px}.update-banner span{font:11px monospace;letter-spacing:1px;color:#38d9ff}.update-banner strong{font-size:20px}.update-banner small{color:#9eabb6}.upgrade-branches{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.upgrade-branch{min-width:0;padding:10px;border:1px solid #33424f;border-radius:10px;background:#0a1015}.upgrade-branch h3{margin:2px 0 4px;font-size:13px;letter-spacing:1px}.branch-subtitle{min-height:34px;color:#8e9ba7;font-size:11px;line-height:1.35;margin-bottom:8px}.upgrade-branch .tree-node{margin:8px 0}.upgrade-branch .tree-node button{min-height:42px}.security-branch{border-top:3px solid #e63946}.research-branch{border-top:3px solid #38d9ff}.infrastructure-branch{border-top:3px solid #8edfff}@media(max-width:900px){.upgrade-branches{grid-template-columns:1fr}.branch-subtitle{min-height:0}}
+.save-controls{margin-top:18px;padding-top:14px;border-top:1px solid #33424f}.save-controls button{border-color:#6b3030;background:#1c1114}.save-controls button:hover{background:#2a1519}.save-controls .upgrade-count{margin-top:8px}
 
 /* Corporate tutorial character */
 .tutorial-guide{position:fixed;left:18px;bottom:18px;z-index:90;display:none;align-items:flex-end;gap:12px;max-width:min(560px,calc(100vw - 36px));pointer-events:none}
@@ -212,17 +214,32 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 
 <div class="upgrade-list" id="upgrades">
 <div class="super-research" id="superResearchPanel">
-<h2>SUPER RESEARCH TREE</h2>
-<div class="note">Permanent progression. New construction, facility levels and future additions are discovered here. Nothing beyond the current level is revealed on the facility map.</div>
-<div class="tree-node unlocked-node" id="srConstruction">CONSTRUCTION SPEED<br><small>1 SRP — reduces construction time</small><button id="buyConstruction">RESEARCH</button></div>
-<div class="tree-node locked-node" id="srFacility">FACILITY LEVEL<br><small>3 SRP — advances the facility to the next level</small><button id="buyFacility">RESEARCH</button></div>
-<div class="tree-node locked-node" id="srGovernment">GOVERNMENT COVER<br><small>5 SRP — reduces raid-risk increases from experiments</small><button id="buyGovernment">RESEARCH</button></div>
-<div class="tree-node locked-node" id="srExpansion">UNDISCLOSED EXPANSION<br><small>Requires Facility Level 2</small><button id="buyExpansion">RESEARCH</button></div>
-<div class="tree-node hidden-node" id="srAdvanced">UNDISCLOSED RESEARCH SYSTEM<br><small>Revealed after expansion</small><button id="buyAdvanced">RESEARCH</button></div>
-<div class="tree-node locked-node" id="srResearchSpeed">RESEARCH SPEED<br><small>2 SRP — scientists complete research faster</small><button id="buyResearchSpeed">RESEARCH</button></div>
-<div class="tree-node hidden-node" id="srShade">GOVERNMENT SHADE<br><small>Undisclosed until discovered</small></div>
-<div class="tree-node locked-node" id="srSecurityTraining">SECURITY TRAINING<br><small>2 SRP — improves security defense during raids</small><button id="buySecurityTraining">RESEARCH</button><div class="upgrade-count" id="securityTrainingCount">Level: 0 / 5</div></div>
-<div class="tree-node locked-node" id="srSecurityEquipment">SECURITY EQUIPMENT<br><small>Undisclosed — requires Security Training</small><button id="buySecurityEquipment">RESEARCH</button><div class="upgrade-count" id="securityEquipmentCount">Level: 0 / 3</div></div>
+<h2>FACILITY UPGRADE TREE</h2>
+<div class="note">Three research paths shape the future of BLACKSITE-01. Every tier has its own named update, giving the facility a history as you expand it.</div>
+<div class="update-banner"><span>CURRENT ERA</span><strong id="currentUpdateName">The Beginning Update</strong><small id="currentUpdateDesc">The facility is coming online.</small></div>
+<div class="upgrade-branches">
+<section class="upgrade-branch security-branch">
+<h3>SECURITY PATH</h3>
+<div class="branch-subtitle">Protect the facility and survive raids.</div>
+<div class="tree-node locked-node" id="srSecurityTraining">THE LOCKDOWN UPDATE<br><small>2 SRP — improves security defense during raids</small><button id="buySecurityTraining">RESEARCH</button><div class="upgrade-count" id="securityTrainingCount">Level: 0 / 5</div></div>
+<div class="tree-node locked-node" id="srSecurityEquipment">THE WATCHTOWER UPDATE<br><small>3 SRP — advanced security equipment requires Security Training</small><button id="buySecurityEquipment">RESEARCH</button><div class="upgrade-count" id="securityEquipmentCount">Level: 0 / 3</div></div>
+<div class="tree-node locked-node" id="srGovernment">THE BLACKOUT UPDATE<br><small>5 SRP — government cover reduces raid-risk increases from experiments</small><button id="buyGovernment">RESEARCH</button></div>
+</section>
+<section class="upgrade-branch research-branch">
+<h3>RESEARCH PATH</h3>
+<div class="branch-subtitle">Push experiments and scientific progress further.</div>
+<div class="tree-node locked-node" id="srResearchSpeed">THE DISCOVERY UPDATE<br><small>2 SRP — scientists complete research faster</small><button id="buyResearchSpeed">RESEARCH</button></div>
+<div class="tree-node hidden-node" id="srAdvanced">THE BREAKTHROUGH UPDATE<br><small>8 SRP — advanced research system revealed after expansion</small><button id="buyAdvanced">RESEARCH</button></div>
+<div class="tree-node hidden-node" id="srShade">THE SHADOW RESEARCH UPDATE<br><small>Government research cover discovered</small></div>
+</section>
+<section class="upgrade-branch infrastructure-branch">
+<h3>INFRASTRUCTURE PATH</h3>
+<div class="branch-subtitle">Build faster, bigger, and deeper.</div>
+<div class="tree-node unlocked-node" id="srConstruction">THE EXPANSION UPDATE<br><small>1 SRP — reduces construction time</small><button id="buyConstruction">RESEARCH</button></div>
+<div class="tree-node locked-node" id="srFacility">THE FOUNDATION UPDATE<br><small>3 SRP — advances the facility to the next level</small><button id="buyFacility">RESEARCH</button></div>
+<div class="tree-node locked-node" id="srExpansion">THE DEEP BLACKSITE UPDATE<br><small>5 SRP — requires Facility Level 2 and unlocks the research wing</small><button id="buyExpansion">RESEARCH</button></div>
+</section>
+</div>
 </div>
 </div>
 
@@ -612,8 +629,22 @@ if("ResizeObserver" in window){
  const main=document.querySelector("main"); if(main)uiResizeObserver.observe(main);
  const aside=document.querySelector("aside"); if(aside)uiResizeObserver.observe(aside);
 }
+function updateCurrentUpdate(){
+ const el=document.getElementById("currentUpdateName"), desc=document.getElementById("currentUpdateDesc");
+ if(!el||!desc)return;
+ let name="The Beginning Update", text="The facility is coming online.";
+ if(state.advancedExperiment){name="The Breakthrough Update";text="Advanced research systems are now active.";}
+ else if(state.expansion){name="The Deep Blacksite Update";text="The facility has expanded into deeper research space.";}
+ else if(facilityLevel>=2){name="The Foundation Update";text="BLACKSITE-01 has entered its next construction era.";}
+ else if(state.constructionSpeed){name="The Expansion Update";text="Construction systems are accelerating facility growth.";}
+ else if(securityEquipmentLevel>0){name="The Watchtower Update";text="Security equipment is protecting the growing site.";}
+ else if(securityTrainingLevel>0){name="The Lockdown Update";text="Security training has hardened the facility.";}
+ else if(researchSpeedLevel>0){name="The Discovery Update";text="Research operations are becoming more efficient.";}
+ el.textContent=name;desc.textContent=text;
+}
 function updateSteps(){
  updateExperimentFile();
+ updateCurrentUpdate();
  const ids=["stepOffice","stepExperimentRoom","stepPower","stepScientist","stepSecurity","stepExperiment"];
  ids.forEach((id,i)=>{
   const el=document.getElementById(id);
