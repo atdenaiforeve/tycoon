@@ -404,7 +404,7 @@ function loadProgress(){
   if(Array.isArray(save.fileLearnings))fileLearnings=save.fileLearnings;
   if(save.state&&typeof save.state==="object")Object.assign(state,DEFAULT_STATE,save.state);
   constructionQueue=save.constructionQueue||null;
-  if(constructionQueue&&!BUILD_TIME[constructionQueue.type])constructionQueue=null;
+  if(constructionQueue&&!["office","experimentBuilding","power","scientist","securityStaff"].includes(constructionQueue.type))constructionQueue=null;
   researchQueue=save.researchQueue||null;
   repairQueue=save.repairQueue||null;
   if(needsMigration)saveProgress();
