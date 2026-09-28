@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="BLACKSITE-01 Nordic Facility Tycoon">
-<title>BLACKSITE-01 | Facility Builder | Build 027</title>
+<title>BLACKSITE-01 | Facility Builder</title>
 <style>
 html,body{margin:0;width:100%;min-height:100%;background:#080c10}
 body{overflow:hidden}
@@ -12,6 +12,13 @@ iframe{display:block;width:100%;height:100vh;border:0}
 </style>
 </head>
 <body>
-<iframe src="ui.html?v=027" title="BLACKSITE-01 Facility Builder UI"></iframe>
+<iframe id="gameFrame" src="ui.html" title="BLACKSITE-01 Facility Builder UI"></iframe>
+<script>
+(function(){
+  const frame=document.getElementById("gameFrame");
+  if(!frame)return;
+  frame.src="ui.html?cache="+Date.now();
+})();
+</script>
 </body>
 </html>
