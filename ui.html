@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#080c10">
-<title>BLACKSITE-01 | Facility UI | Build 027</title>
+<title>BLACKSITE-01 | Facility UI | Build 028</title>
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:#080c10;color:#eef4f8}
@@ -97,7 +97,7 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 <body>
 <div class="tutorial-guide" id="tutorialGuide" aria-live="polite">
   <div class="tutorial-guide-character" aria-hidden="true">
-    <img id="tutorialGuideFace" src="assets/icons/tutorial_assets/neutral_face.jpg?v=5" alt="">
+    <img id="tutorialGuideFace" src="assets/icons/tutorial_assets/neutral_face.jpg?v=6" alt="">
   </div>
   <div class="tutorial-guide-bubble">
     <div class="guide-title">FACILITY OPERATIONS</div>
@@ -119,7 +119,7 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 <header>
 <h1>BLACKSITE-01</h1>
 <div class="subtitle">Nordic Facility Construction Division</div>
-<div class="build">SYSTEM BUILD 027 — SETTINGS</div>
+<div class="build">SYSTEM BUILD 028 — SETTINGS</div>
 </header>
 
 <section class="stats">
@@ -303,7 +303,7 @@ const tutorialFaces={
 };
 function setTutorialFace(face){
  const img=document.getElementById("tutorialGuideFace");
- if(img&&tutorialFaces[face])img.src=tutorialFaces[face]+"?v=5";
+ if(img&&tutorialFaces[face])img.src=tutorialFaces[face]+"?v=6";
 }
 
 function showTutorialMessage(key){
