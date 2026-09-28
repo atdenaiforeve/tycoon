@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#080c10">
-<title>BLACKSITE-01 | Facility UI | Build 025</title>
+<title>BLACKSITE-01 | Facility UI | Build 026</title>
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:#080c10;color:#eef4f8}
@@ -80,6 +80,7 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
  
 .update-banner{margin:0 0 14px;padding:14px;border:1px solid #40515f;border-radius:10px;background:#0b1117;display:grid;gap:4px}.update-banner span{font:11px monospace;letter-spacing:1px;color:#38d9ff}.update-banner strong{font-size:20px}.update-banner small{color:#9eabb6}.upgrade-branches{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.upgrade-branch{min-width:0;padding:10px;border:1px solid #33424f;border-radius:10px;background:#0a1015}.upgrade-branch h3{margin:2px 0 4px;font-size:13px;letter-spacing:1px}.branch-subtitle{min-height:34px;color:#8e9ba7;font-size:11px;line-height:1.35;margin-bottom:8px}.upgrade-branch .tree-node{margin:8px 0}.upgrade-branch .tree-node button{min-height:42px}.security-branch{border-top:3px solid #e63946}.research-branch{border-top:3px solid #38d9ff}.infrastructure-branch{border-top:3px solid #8edfff}@media(max-width:900px){.upgrade-branches{grid-template-columns:1fr}.branch-subtitle{min-height:0}}
 .save-controls{margin-top:18px;padding-top:14px;border-top:1px solid #33424f}.save-controls button{border-color:#6b3030;background:#1c1114}.save-controls button:hover{background:#2a1519}.save-controls .upgrade-count{margin-top:8px}
+.debug-panel{margin-top:14px;padding:12px;border:1px solid #33424f;border-radius:8px;background:#090e13;font-family:monospace;font-size:11px;line-height:1.55;color:#aebbc5}.debug-panel strong{color:#38d9ff}.debug-ok{color:#7fdca8}.debug-warn{color:#f2c879}
 
 /* Corporate tutorial character */
 .tutorial-guide{position:fixed;left:18px;bottom:18px;z-index:90;display:none;align-items:flex-end;gap:12px;max-width:min(560px,calc(100vw - 36px));pointer-events:none}
@@ -118,7 +119,7 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 <header>
 <h1>BLACKSITE-01</h1>
 <div class="subtitle">Nordic Facility Construction Division</div>
-<div class="build">SYSTEM BUILD 025 — SETTINGS</div>
+<div class="build">SYSTEM BUILD 026 — SETTINGS</div>
 </header>
 
 <section class="stats">
@@ -198,6 +199,7 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 <button id="saveProgress" type="button">SAVE PROGRESS NOW<br><small>Manually save the current facility state.</small></button>
 <button id="resetProgress" type="button">RESET ALL PROGRESS<br><small>Clears the saved facility, research, staff, upgrades and RP.</small></button>
 <div class="upgrade-count" id="saveStatus">Progress auto-saves in this browser.</div>
+<div class="debug-panel" id="debugPanel" hidden><strong>DEVELOPMENT DIAGNOSTICS</strong><div id="debugStatus"></div></div>
 </div>
 </div>
 </div>
@@ -350,6 +352,7 @@ document.addEventListener("click",e=>{
 });
 const SAVE_KEY="blacksite01_tycoon_save_v1";
 const SAVE_SCHEMA_VERSION=2;
+const BUILD_ID="026";
 const DEFAULT_STATE={
  office:false, scientists:0, security:0, experimentRoom:false, power:false,
  researchWing:false, basicExperiment:false, advancedExperiment:false,
@@ -401,6 +404,7 @@ function loadProgress(){
   if(Array.isArray(save.fileLearnings))fileLearnings=save.fileLearnings;
   if(save.state&&typeof save.state==="object")Object.assign(state,DEFAULT_STATE,save.state);
   constructionQueue=save.constructionQueue||null;
+  if(constructionQueue&&!BUILD_TIME[constructionQueue.type])constructionQueue=null;
   researchQueue=save.researchQueue||null;
   repairQueue=save.repairQueue||null;
   if(needsMigration)saveProgress();
@@ -420,7 +424,10 @@ function resetAllProgress(){
  constructionSpeedLevel=0; constructionQueue=null; researchQueue=null; researchSpeedLevel=0;
  securityTrainingLevel=0; securityEquipmentLevel=0; raidActive=false; raidTimer=0; repairQueue=null;
  if(raidTimerId){clearInterval(raidTimerId);raidTimerId=null;}
+ if(creatureEscapeTimer){clearTimeout(creatureEscapeTimer);creatureEscapeTimer=null;}
  Object.assign(state,DEFAULT_STATE);
+ creatureComfort=70; creatureEscaped=false; creatureEscapeCause=""; securityFatigue=0;
+ fileLearnings=["Initial containment conditions have not yet produced a confirmed behavioural rule."];
  document.body.classList.remove("raid-active");
  const banner=document.getElementById("raidBanner");
  if(banner)banner.className="raid-banner";
@@ -576,6 +583,21 @@ function repositionOperations(){
  }
 }
 
+function updateDebugPanel(){
+ const panel=document.getElementById("debugPanel"), out=document.getElementById("debugStatus");
+ if(!panel||!out)return;
+ const saveAvailable=(()=>{try{return !!localStorage.getItem(SAVE_KEY)}catch(e){return false}})();
+ out.innerHTML=
+  "Build: "+BUILD_ID+
+  "<br>Tutorial: "+tutorialStep+" / 7"+
+  "<br>Facility Level: "+facilityLevel+
+  "<br>Research: "+Math.floor(points).toLocaleString()+" RP"+
+  "<br>Save: <span class='"+(saveAvailable?"debug-ok":"debug-warn")+"'>"+(saveAvailable?"OK":"NO SAVE")+"</span>"+
+  "<br>Save Schema: "+SAVE_SCHEMA_VERSION+
+  "<br>Construction: "+(constructionQueue?constructionQueue.type+" · "+Math.max(0,Math.ceil((constructionQueue.finish-Date.now())/1000))+"s":"NONE")+
+  "<br>Research Queue: "+(researchQueue?Math.max(0,Math.ceil((researchQueue.finish-Date.now())/1000))+"s":"NONE")+
+  "<br>Repair Queue: "+(repairQueue?Math.max(0,Math.ceil((repairQueue.finish-Date.now())/1000))+"s":"NONE");
+}
 function scanUIDimensions(){
  const w=window.innerWidth||document.documentElement.clientWidth||0;
  const h=window.innerHeight||document.documentElement.clientHeight||0;
@@ -655,10 +677,10 @@ function updateSteps(){
  document.getElementById("experimentBuilding").disabled=tutorialGuideTyping||tutorialGuideReady||recovering||constructionBusy|| (tutorialComplete?(!state.office||points<400||state.experimentRoom||!hasEnergy(ENERGY.experimentBuilding)):(tutorialStep!==2||!state.office||points<400||state.experimentRoom||!hasEnergy(ENERGY.experimentBuilding)));
  document.getElementById("power").disabled=tutorialGuideTyping||tutorialGuideReady||recovering||constructionBusy|| (tutorialComplete?(!state.experimentRoom||points<500||state.power):(tutorialStep!==3||!state.experimentRoom||points<500||state.power));
 
- document.getElementById("scientist").disabled=tutorialGuideTyping||tutorialGuideReady||recovering||tutorialComplete?(!state.office||points<300||state.scientists>=2):(tutorialStep!==4||!state.office||!state.power||points<300||state.scientists>=2);
- document.getElementById("securityStaff").disabled=tutorialGuideTyping||tutorialGuideReady||recovering||tutorialComplete?(!state.office||points<250||state.scientists<1||state.security>=1):(tutorialStep!==5||!state.office||state.scientists<1||points<250||state.security>=1);
+ document.getElementById("scientist").disabled=tutorialGuideTyping||tutorialGuideReady||recovering||(tutorialComplete?(!state.office||points<300||state.scientists>=2):(tutorialStep!==4||!state.office||!state.power||points<300||state.scientists>=2));
+ document.getElementById("securityStaff").disabled=tutorialGuideTyping||tutorialGuideReady||recovering||(tutorialComplete?(!state.office||points<250||state.scientists<1||state.security>=1):(tutorialStep!==5||!state.office||state.scientists<1||points<250||state.security>=1));
 
- document.getElementById("basicExperiment").disabled=tutorialGuideTyping||tutorialGuideReady||recovering||tutorialComplete?(!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment||researchQueue):(tutorialStep!==6||!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment||researchQueue);
+ document.getElementById("basicExperiment").disabled=tutorialGuideTyping||tutorialGuideReady||recovering||(tutorialComplete?(!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment||researchQueue):(tutorialStep!==6||!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment||researchQueue));
 
  if(tutorialComplete){
   lockableButtons.forEach(id=>{
@@ -742,12 +764,21 @@ function completeStep(n){
  }
  return true;
 }
-function startConstruction(type,cost,energyCost,done){
- if(constructionQueue||points<cost||(energyCost&&!hasEnergy(energyCost)))return;
+function completeConstruction(type){
+ if(type==="office"){state.office=true;completeStep(1);}
+ else if(type==="experimentBuilding"){state.experimentRoom=true;completeStep(2);}
+ else if(type==="power"){state.power=true;energyCapacity+=ENERGY.powerCapacity;completeStep(3);}
+ else if(type==="scientist"){state.scientists++;completeStep(4);}
+ else if(type==="securityStaff"){state.security=1;completeStep(5);}
+}
+function startConstruction(type,cost,energyCost){
+ if(constructionQueue||points<cost||(energyCost&&!hasEnergy(energyCost)))return false;
  points-=cost;
  if(energyCost)useEnergy(energyCost);
- constructionQueue={type,finish:Date.now()+constructionDuration(type)*1000,done};
+ constructionQueue={type,finish:Date.now()+constructionDuration(type)*1000};
  updateSteps();
+ saveProgress();
+ return true;
 }
 
 function action(type){
@@ -759,12 +790,12 @@ function action(type){
  else if(type==="buySecurityTraining"&&tutorialStep>6&&securityTrainingLevel<5&&superResearch>=2){superResearch-=2;securityTrainingLevel++}
  else if(type==="buySecurityEquipment"&&tutorialStep>6&&securityTrainingLevel>0&&securityEquipmentLevel<3&&superResearch>=3){superResearch-=3;securityEquipmentLevel++}
  else if(type==="buyResearchSpeed"&&tutorialStep>6&&state.basicExperiment&&researchSpeedLevel<5&&superResearch>=(researchSpeedLevel+1)*2){superResearch-=(researchSpeedLevel+1)*2;researchSpeedLevel++}
- else if(type==="office"&&tutorialStep===1&&!state.office){startConstruction("office",200,ENERGY.office,()=>{state.office=true;completeStep(1)})}
- else if(type==="experimentBuilding"&&tutorialStep===2&&state.office&&!state.experimentRoom)startConstruction("experimentBuilding",400,ENERGY.experimentBuilding,()=>{state.experimentRoom=true;completeStep(2)})
- else if(type==="power"&&tutorialStep===3&&state.experimentRoom&&!state.power)startConstruction("power",500,0,()=>{state.power=true;energyCapacity+=ENERGY.powerCapacity;completeStep(3)})
- else if(type==="scientist"&&tutorialStep===4&&state.office&&state.power&&state.scientists<2){startConstruction("scientist",300,0,()=>{state.scientists++;completeStep(4)})}
- else if(type==="securityStaff"&&tutorialStep===5&&state.scientists>0&&state.security<1){startConstruction("securityStaff",250,0,()=>{state.security=1;completeStep(5)})}
- else if(type==="basicExperiment"&&tutorialStep===6&&state.experimentRoom&&state.power&&state.scientists>0&&state.security>0&&spend(350)&&!researchQueue){researchQueue={type:"basic",finish:Date.now()+Math.ceil(5/(1+researchSpeedLevel*0.2))*1000}}
+ else if(type==="office"&&tutorialStep===1&&!state.office){startConstruction("office",200,ENERGY.office)}
+ else if(type==="experimentBuilding"&&tutorialStep===2&&state.office&&!state.experimentRoom)startConstruction("experimentBuilding",400,ENERGY.experimentBuilding)
+ else if(type==="power"&&tutorialStep===3&&state.experimentRoom&&!state.power)startConstruction("power",500,0)
+ else if(type==="scientist"&&tutorialStep===4&&state.office&&state.power&&state.scientists<2){startConstruction("scientist",300,0)}
+ else if(type==="securityStaff"&&tutorialStep===5&&state.scientists>0&&state.security<1){startConstruction("securityStaff",250,0)}
+ else if(type==="basicExperiment"&&tutorialStep===6&&state.experimentRoom&&state.power&&state.scientists>0&&state.security>0&&spend(350)&&!researchQueue){researchQueue={type:"basic",finish:Date.now()+Math.ceil(5/(1+researchSpeedLevel*0.2))*1000}; saveProgress()}
  updateSteps();
 }
 
@@ -778,6 +809,12 @@ document.getElementById("startSystem").addEventListener("click",()=>{
 
 document.getElementById("saveProgress").addEventListener("click",saveProgress);
 document.getElementById("resetProgress").addEventListener("click",resetAllProgress);
+document.addEventListener("keydown",e=>{
+ if(e.ctrlKey&&e.shiftKey&&e.key.toLowerCase()==="d"){
+  const panel=document.getElementById("debugPanel");
+  if(panel)panel.hidden=!panel.hidden;
+ }
+});
 
 ["office","scientist","securityStaff","experimentBuilding","basicExperiment","power","buyResearchSpeed","buyConstruction","buyFacility","buyGovernment","buyExpansion","buyAdvanced","buySecurityTraining","buySecurityEquipment"].forEach(id=>document.getElementById(id).addEventListener("click",()=>action(id)));
 
@@ -791,7 +828,7 @@ document.querySelectorAll(".tab").forEach(tab=>tab.addEventListener("click",()=>
 
 setInterval(()=>{
  if(repairQueue&&Date.now()>=repairQueue.finish)finishRepair();
- if(constructionQueue&&Date.now()>=constructionQueue.finish){const done=constructionQueue.done;constructionQueue=null;done()}
+ if(constructionQueue&&Date.now()>=constructionQueue.finish){const type=constructionQueue.type;constructionQueue=null;completeConstruction(type);saveProgress()}
  updateExperimentComfort();
  if(securityFatigue>0)securityFatigue=Math.max(0,securityFatigue-0.0005);
  if(researchQueue){const left=Math.max(0,Math.ceil((researchQueue.finish-Date.now())/1000));document.getElementById("researchStatus").textContent="Scientist researching · "+left+"s";if(Date.now()>=researchQueue.finish){researchQueue=null;state.basicExperiment=true;income=10;tutorialStep=7;document.getElementById("researchStatus").textContent="Research complete · +10 RP/sec";updateSteps();tutorialGuideAdvanceNext=()=>{updateSteps();if(window.BLACKSITE_AMBIENCE)BLACKSITE_AMBIENCE.start();};showTutorialMessage(7);}}
@@ -806,10 +843,12 @@ setInterval(()=>{
  }
  updateSteps();
  if(Date.now()%5000<1000)saveProgress();
+ updateDebugPanel();
 },1000);
 scanUIDimensions();
 repositionOperations();
 updateSteps();
+updateDebugPanel();
 saveProgress();
 </script>
 </body>
