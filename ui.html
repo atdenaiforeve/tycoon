@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#080c10">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="geolocation=(), camera=(), microphone=(), usb=(), bluetooth=(), payment=(), serial=(), hid=(), accelerometer=(), gyroscope=(), magnetometer=()">
-<title>BLACKSITE-01 | Facility UI | Build 032</title>
+<title>BLACKSITE-01 | Facility UI | Build 033</title>
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:#080c10;color:#eef4f8}
@@ -87,20 +87,9 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 /* Corporate tutorial dialog */
 .tutorial-guide{position:fixed;left:18px;bottom:18px;z-index:90;display:none;align-items:flex-end;gap:10px;max-width:min(560px,calc(100vw - 36px));pointer-events:none}
 .tutorial-guide.active{display:flex}
-.tutorial-guide-character{width:88px;height:118px;flex:0 0 88px;position:relative;filter:drop-shadow(0 8px 14px #0009)}
-.guide-head{position:absolute;left:23px;top:8px;width:42px;height:48px;border-radius:48% 48% 45% 45%;background:#d7a37a;border:2px solid #8d6248}
-.guide-hair{position:absolute;left:21px;top:4px;width:46px;height:25px;border-radius:55% 55% 35% 35%;background:#4b352b;border:2px solid #30231e;z-index:2}
-.guide-glasses{position:absolute;left:24px;top:27px;width:40px;height:11px;z-index:3}
-.guide-glasses:before,.guide-glasses:after{content:"";position:absolute;top:0;width:13px;height:9px;border:2px solid #263743;border-radius:5px}
-.guide-glasses:before{left:0}.guide-glasses:after{right:0}.guide-glasses{border-top:2px solid #263743}
-.guide-body{position:absolute;left:13px;top:54px;width:62px;height:61px;border-radius:18px 18px 8px 8px;background:linear-gradient(135deg,#263743,#101820);border:2px solid #5d7180}
-.guide-collar{position:absolute;left:34px;top:57px;width:20px;height:25px;background:#d7a37a;clip-path:polygon(0 0,100% 0,72% 100%,28% 100%)}
-.guide-badge{position:absolute;left:50px;top:70px;width:9px;height:9px;border-radius:50%;background:#e63946;box-shadow:0 0 7px #e63946}
-.guide-arm-left,.guide-arm-right{position:absolute;top:65px;width:13px;height:48px;border-radius:10px;background:#17242d;border:2px solid #526674}
-.guide-arm-left{left:6px;transform:rotate(12deg)}.guide-arm-right{right:6px;transform:rotate(-12deg)}
-.guide-hand-left,.guide-hand-right{position:absolute;top:104px;width:13px;height:13px;border-radius:50%;background:#d7a37a;border:2px solid #8d6248}
-.guide-hand-left{left:3px}.guide-hand-right{right:3px}
-.guide-legs{position:absolute;left:28px;top:109px;width:32px;height:9px;border-radius:5px;background:#101820}
+/* New tutorial character — inline SVG only; no legacy image assets are loaded */
+.tutorial-guide-character{width:92px;height:120px;flex:0 0 92px;display:flex;align-items:flex-end;justify-content:center;filter:drop-shadow(0 8px 14px #0009)}
+.tutorial-guide-character svg{width:92px;height:120px;display:block}
 .tutorial-guide-bubble{pointer-events:auto;background:#101820;border:2px solid #38d9ff;border-radius:14px;padding:14px 15px;min-width:230px;box-shadow:0 8px 30px #0009}
 .tutorial-guide-bubble .guide-title{font-size:11px;color:#38d9ff;font-family:monospace;letter-spacing:1px;margin-bottom:7px}
 .tutorial-guide-bubble .guide-text{min-height:48px;font-size:15px;line-height:1.4;color:#f1f6f9}
@@ -112,9 +101,25 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 <body>
 <div class="tutorial-guide" id="tutorialGuide" aria-live="polite">
   <div class="tutorial-guide-character" aria-hidden="true">
-    <div class="guide-hair"></div><div class="guide-head"></div><div class="guide-glasses"></div>
-    <div class="guide-body"></div><div class="guide-collar"></div><div class="guide-badge"></div>
-    <div class="guide-arm-left"></div><div class="guide-arm-right"></div><div class="guide-hand-left"></div><div class="guide-hand-right"></div><div class="guide-legs"></div>
+    <svg viewBox="0 0 92 120" role="img" aria-label="">
+      <rect x="27" y="2" width="38" height="7" rx="3.5" fill="#38d9ff"/>
+      <circle cx="46" cy="31" r="22" fill="#c98f68" stroke="#6f4938" stroke-width="2"/>
+      <path d="M25 27 Q29 6 46 9 Q63 6 67 27 Q57 18 46 19 Q35 18 25 27Z" fill="#303942"/>
+      <rect x="28" y="28" width="16" height="11" rx="4" fill="none" stroke="#18242d" stroke-width="2"/>
+      <rect x="48" y="28" width="16" height="11" rx="4" fill="none" stroke="#18242d" stroke-width="2"/>
+      <path d="M44 33H48" stroke="#18242d" stroke-width="2"/>
+      <path d="M39 46 Q46 50 53 46" fill="none" stroke="#6f4938" stroke-width="2" stroke-linecap="round"/>
+      <path d="M25 55 Q46 48 67 55 L72 103 Q46 113 20 103Z" fill="#1c2a34" stroke="#627684" stroke-width="2"/>
+      <path d="M39 55 L46 69 L53 55" fill="#d8a077"/>
+      <rect x="51" y="72" width="10" height="12" rx="2" fill="#38d9ff"/>
+      <path d="M20 62 L8 94" stroke="#1c2a34" stroke-width="11" stroke-linecap="round"/>
+      <path d="M72 62 L84 94" stroke="#1c2a34" stroke-width="11" stroke-linecap="round"/>
+      <circle cx="8" cy="96" r="7" fill="#c98f68"/>
+      <circle cx="84" cy="96" r="7" fill="#c98f68"/>
+      <path d="M32 102 L28 116" stroke="#111820" stroke-width="10" stroke-linecap="round"/>
+      <path d="M60 102 L64 116" stroke="#111820" stroke-width="10" stroke-linecap="round"/>
+      <path d="M21 116 H35 M57 116 H71" stroke="#0b1117" stroke-width="5" stroke-linecap="round"/>
+    </svg>
   </div>
   <div class="tutorial-guide-bubble">
     <div class="guide-title">FACILITY OPERATIONS</div>
@@ -136,7 +141,7 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 <header>
 <h1>BLACKSITE-01</h1>
 <div class="subtitle">Nordic Facility Construction Division</div>
-<div class="build">SYSTEM BUILD 032 — TUTORIAL GUIDE UPDATED</div>
+<div class="build">SYSTEM BUILD 033 — LEGACY TUTORIAL GUY REMOVED</div>
 </header>
 
 <section class="stats">
