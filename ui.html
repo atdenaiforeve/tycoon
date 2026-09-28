@@ -293,13 +293,19 @@ const tutorialMessages={
 let systemStarted=false;
 
 
+const tutorialFaces={
+ neutral:"assets/icons/tutorial_assets/neutral_face.jpg",
+ thinking:"assets/icons/tutorial_assets/thinking_face.jpg",
+ taskComplete:"assets/icons/tutorial_assets/task_complete_face.jpg",
+ youDidIt:"assets/icons/tutorial_assets/you_did_it_face.jpg"
+};
 function setTutorialFace(face){
  const img=document.getElementById("tutorialGuideFace");
- if(img)img.src="assets/icons/tutorial_assets/"+face+"?v=2";
+ if(img&&tutorialFaces[face])img.src=tutorialFaces[face]+"?v=3";
 }
 
 function showTutorialMessage(key){
- setTutorialFace(key===7?"you_did_it_face.jpg":(key==="intro"?"neutral_face.jpg":"thinking_face.jpg"));
+ setTutorialFace(key===7?"youDidIt":(key==="intro"?"neutral":"thinking"));
  const guide=document.getElementById("tutorialGuide");
  const textEl=document.getElementById("guideText");
  const next=document.getElementById("guideNext");
@@ -714,7 +720,7 @@ function completeStep(n){
  if(tutorialStep!==n||!tutorialActionComplete(n))return false;
  tutorialStep++;
  updateSteps();
- setTutorialFace("task_complete_face.jpg");
+ setTutorialFace("taskComplete");
  const nextMessage=tutorialMessages[tutorialStep];
  if(nextMessage){
   tutorialGuideAdvanceNext=()=>updateSteps();
