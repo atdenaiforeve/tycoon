@@ -97,7 +97,7 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 <body>
 <div class="tutorial-guide" id="tutorialGuide" aria-live="polite">
   <div class="tutorial-guide-character" aria-hidden="true">
-    <img id="tutorialGuideFace" src="assets/icons/tutorial_assets/neutral_face.jpg?v=2" alt="">
+    <img id="tutorialGuideFace" src="assets/icons/tutorial_assets/neutral_face.jpg?v=4" alt="">
   </div>
   <div class="tutorial-guide-bubble">
     <div class="guide-title">FACILITY OPERATIONS</div>
@@ -303,7 +303,7 @@ const tutorialFaces={
 };
 function setTutorialFace(face){
  const img=document.getElementById("tutorialGuideFace");
- if(img&&tutorialFaces[face])img.src=tutorialFaces[face]+"?v=3";
+ if(img&&tutorialFaces[face])img.src=tutorialFaces[face]+"?v=4";
 }
 
 function showTutorialMessage(key){
