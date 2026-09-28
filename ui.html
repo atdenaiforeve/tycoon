@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#080c10">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="geolocation=(), camera=(), microphone=(), usb=(), bluetooth=(), payment=(), serial=(), hid=(), accelerometer=(), gyroscope=(), magnetometer=()">
-<title>BLACKSITE-01 | Facility UI | Build 028</title>
+<title>BLACKSITE-01 | Facility UI | Build 030</title>
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:#080c10;color:#eef4f8}
@@ -121,7 +121,7 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 <header>
 <h1>BLACKSITE-01</h1>
 <div class="subtitle">Nordic Facility Construction Division</div>
-<div class="build">SYSTEM BUILD 029 — PRIVACY & SECURITY</div>
+<div class="build">SYSTEM BUILD 030 — CODE CLEANUP</div>
 </header>
 
 <section class="stats">
@@ -355,6 +355,7 @@ document.addEventListener("click",e=>{
 });
 const SAVE_KEY="blacksite01_tycoon_save_v1";
 const SAVE_SCHEMA_VERSION=4;
+const BUILD_ID="030";
 const BUILD_ID="026";
 const DEFAULT_STATE={
  office:false, scientists:0, security:0, experimentRoom:false, power:false,
@@ -753,16 +754,16 @@ function updateSteps(){
  document.getElementById("srAdvanced").className="tree-node "+(state.expansion?"":"hidden-node");
  document.getElementById("srShade").style.display=governmentCover?"block":"none";
 
- const messages=[
- "Install the Power System first. The facility starts at 0/0 energy and power adds 15 capacity.",
- "Build the Office. It requires 3 Energy.",
- "Build the Experiment Room. It requires 5 Energy.",
- "Hire the Scientist.",
- "Hire Security.",
- "Run the Level 1 Facility Systems Test.",
- "Level 1 complete. The facility is operational."
+ const assignmentMessages=[
+  "Install the Power System first. The facility starts at 0/0 energy and power adds 15 capacity.",
+  "Build the Office. It requires 3 Energy.",
+  "Build the Experiment Room. It requires 5 Energy.",
+  "Hire the Scientist.",
+  "Hire Security.",
+  "Run the Level 1 Facility Systems Test.",
+  "Level 1 complete. The facility is operational."
  ];
- assignment.textContent=messages[Math.min(tutorialStep-1,6)];
+ assignment.textContent=assignmentMessages[Math.min(tutorialStep-1,6)];
  info.textContent=tutorialComplete?"Level 1 complete. Buildings use energy capacity; staff and experiments do not. Optional upgrades are now unlocked.":"Tutorial active. Only the current step can be purchased.";
 }
 
