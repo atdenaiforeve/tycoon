@@ -349,6 +349,7 @@ document.addEventListener("click",e=>{
  if(e.target&&e.target.id==="guideNext"&&tutorialGuideAdvance) tutorialGuideAdvance();
 });
 const SAVE_KEY="blacksite01_tycoon_save_v1";
+const SAVE_SCHEMA_VERSION=2;
 const DEFAULT_STATE={
  office:false, scientists:0, security:0, experimentRoom:false, power:false,
  researchWing:false, basicExperiment:false, advancedExperiment:false,
@@ -357,7 +358,7 @@ const DEFAULT_STATE={
 let state={...DEFAULT_STATE};
 function saveProgress(){
  try{
-  const save={version:1,points,income,tutorialStep,energyUsed,energyCapacity,superResearch,raidRisk,governmentCover,facilityLevel,constructionSpeedLevel,researchSpeedLevel,securityTrainingLevel,securityEquipmentLevel,creatureComfort,creatureEscaped,creatureEscapeCause,securityFatigue,fileLearnings,state:{...state},constructionQueue,researchQueue,repairQueue};
+  const save={version:SAVE_SCHEMA_VERSION,points,income,tutorialStep,energyUsed,energyCapacity,superResearch,raidRisk,governmentCover,facilityLevel,constructionSpeedLevel,researchSpeedLevel,securityTrainingLevel,securityEquipmentLevel,creatureComfort,creatureEscaped,creatureEscapeCause,securityFatigue,fileLearnings,state:{...state},constructionQueue,researchQueue,repairQueue};
   localStorage.setItem(SAVE_KEY,JSON.stringify(save));
   const el=document.getElementById("saveStatus");
   if(el)el.textContent="Progress saved locally · "+new Date().toLocaleTimeString();
@@ -371,7 +372,8 @@ function loadProgress(){
   const raw=localStorage.getItem(SAVE_KEY);
   if(!raw)return;
   const save=JSON.parse(raw);
-  if(!save||save.version!==1)return;
+  if(!save||!Number.isFinite(save.version)||save.version>SAVE_SCHEMA_VERSION)return;
+  const needsMigration=save.version<SAVE_SCHEMA_VERSION;
   if(Number.isFinite(save.points))points=save.points;
   if(Number.isFinite(save.income))income=save.income;
   if(Number.isFinite(save.tutorialStep))tutorialStep=save.tutorialStep;
@@ -394,8 +396,11 @@ function loadProgress(){
   constructionQueue=save.constructionQueue||null;
   researchQueue=save.researchQueue||null;
   repairQueue=save.repairQueue||null;
-  const el=document.getElementById("saveStatus");
-  if(el)el.textContent="Saved progress loaded from this browser.";
+  if(needsMigration)saveProgress();
+  else{
+   const el=document.getElementById("saveStatus");
+   if(el)el.textContent="Saved progress loaded from this browser.";
+  }
  }catch(e){
   localStorage.removeItem(SAVE_KEY);
  }
