@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#080c10">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Permissions-Policy" content="geolocation=(), camera=(), microphone=(), usb=(), bluetooth=(), payment=(), serial=(), hid=(), accelerometer=(), gyroscope=(), magnetometer=()">
 <title>BLACKSITE-01 | Facility UI | Build 028</title>
 <style>
 *{box-sizing:border-box}
@@ -119,7 +121,7 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 <header>
 <h1>BLACKSITE-01</h1>
 <div class="subtitle">Nordic Facility Construction Division</div>
-<div class="build">SYSTEM BUILD 028 — SETTINGS</div>
+<div class="build">SYSTEM BUILD 029 — PRIVACY & SECURITY</div>
 </header>
 
 <section class="stats">
@@ -194,11 +196,12 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 <div class="upgrade-list" id="settings">
 <div class="super-research">
 <h2>SYSTEM SETTINGS</h2>
-<div class="note">Local game controls. Your progress is stored in this browser on this device.</div>
+<div class="note">Privacy-first local storage. The game does not intentionally collect device identifiers, location, camera, microphone, or device hardware information. Game progress stays in this browser on this device.</div>
 <div class="save-controls">
 <button id="saveProgress" type="button">SAVE PROGRESS NOW<br><small>Manually save the current facility state.</small></button>
 <button id="resetProgress" type="button">RESET ALL PROGRESS<br><small>Clears the saved facility, research, staff, upgrades and RP.</small></button>
-<div class="upgrade-count" id="saveStatus">Progress auto-saves in this browser.</div>
+<div class="upgrade-count" id="saveStatus">Progress auto-saves locally. No game account or device profile is required.</div>
+<div class="info" style="margin-top:10px"><strong>DATA SAFETY</strong><br>The game only uses local save data needed for your facility. It does not request location, camera, microphone, Bluetooth, USB, serial, or other device-hardware permissions.</div>
 <div class="debug-panel" id="debugPanel" hidden><strong>DEVELOPMENT DIAGNOSTICS</strong><div id="debugStatus"></div></div>
 </div>
 </div>
@@ -351,7 +354,7 @@ document.addEventListener("click",e=>{
  if(e.target&&e.target.id==="guideNext"&&tutorialGuideAdvance) tutorialGuideAdvance();
 });
 const SAVE_KEY="blacksite01_tycoon_save_v1";
-const SAVE_SCHEMA_VERSION=3;
+const SAVE_SCHEMA_VERSION=4;
 const BUILD_ID="026";
 const DEFAULT_STATE={
  office:false, scientists:0, security:0, experimentRoom:false, power:false,
@@ -361,7 +364,7 @@ const DEFAULT_STATE={
 let state={...DEFAULT_STATE};
 function saveProgress(){
  try{
-  const save={version:SAVE_SCHEMA_VERSION,build:BUILD_ID,tutorialOrderVersion:2,points,income,tutorialStep,energyUsed,energyCapacity,superResearch,raidRisk,governmentCover,facilityLevel,constructionSpeedLevel,researchSpeedLevel,securityTrainingLevel,securityEquipmentLevel,creatureComfort,creatureEscaped,creatureEscapeCause,securityFatigue,fileLearnings,state:{...state},constructionQueue,researchQueue,repairQueue};
+  const save={version:SAVE_SCHEMA_VERSION,build:BUILD_ID,tutorialOrderVersion:2,privacyMode:"local-only",points,income,tutorialStep,energyUsed,energyCapacity,superResearch,raidRisk,governmentCover,facilityLevel,constructionSpeedLevel,researchSpeedLevel,securityTrainingLevel,securityEquipmentLevel,creatureComfort,creatureEscaped,creatureEscapeCause,securityFatigue,fileLearnings,state:{...state},constructionQueue,researchQueue,repairQueue};
   localStorage.setItem(SAVE_KEY,JSON.stringify(save));
   const el=document.getElementById("saveStatus");
   if(el)el.textContent="Progress saved locally · "+new Date().toLocaleTimeString();
