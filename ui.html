@@ -84,7 +84,7 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 /* Corporate tutorial character */
 .tutorial-guide{position:fixed;left:18px;bottom:18px;z-index:90;display:none;align-items:flex-end;gap:12px;max-width:min(560px,calc(100vw - 36px));pointer-events:none}
 .tutorial-guide.active{display:flex}
-.tutorial-guide-character{width:92px;height:112px;flex:0 0 92px;position:relative;filter:drop-shadow(0 8px 16px #0008)}
+.tutorial-guide-character{width:92px;height:112px;flex:0 0 92px;position:relative;display:flex;align-items:flex-end;justify-content:center;filter:drop-shadow(0 8px 16px #0008)}.tutorial-guide-character img{width:100%;height:100%;object-fit:contain;display:block}
 .tutorial-guide-character .head{position:absolute;left:27px;top:4px;width:39px;height:39px;border-radius:50%;background:#d7a77f;border:2px solid #18232c}
 .tutorial-guide-character .hair{position:absolute;left:29px;top:3px;width:35px;height:14px;border-radius:18px 18px 8px 8px;background:#26323a}
 .tutorial-guide-character .body{position:absolute;left:17px;top:40px;width:59px;height:62px;border-radius:13px 13px 8px 8px;background:#172432;border:2px solid #304454}
@@ -105,8 +105,7 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 <body>
 <div class="tutorial-guide" id="tutorialGuide" aria-live="polite">
   <div class="tutorial-guide-character" aria-hidden="true">
-    <div class="head"></div><div class="hair"></div><div class="body"></div><div class="shirt"></div><div class="tie"></div>
-    <div class="arm left"></div><div class="arm right"></div><div class="tablet"></div><div class="leg left"></div><div class="leg right"></div>
+    <img src="assets/icons/tutorial_assets.png" alt="">
   </div>
   <div class="tutorial-guide-bubble">
     <div class="guide-title">FACILITY OPERATIONS</div>
