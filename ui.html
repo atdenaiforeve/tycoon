@@ -370,7 +370,14 @@ function saveProgress(){
 function loadProgress(){
  try{
   const raw=localStorage.getItem(SAVE_KEY);
-  if(!raw)return;
+  if(!raw){
+   points=2000; income=0; tutorialStep=1; energyUsed=0; energyCapacity=8;
+   superResearch=0; raidRisk=0; governmentCover=false; facilityLevel=1;
+   constructionSpeedLevel=0; constructionQueue=null; researchQueue=null; researchSpeedLevel=0;
+   securityTrainingLevel=0; securityEquipmentLevel=0; raidActive=false; raidTimer=0; repairQueue=null;
+   Object.assign(state,DEFAULT_STATE);
+   return;
+  }
   const save=JSON.parse(raw);
   if(!save||!Number.isFinite(save.version)||save.version>SAVE_SCHEMA_VERSION)return;
   const needsMigration=save.version<SAVE_SCHEMA_VERSION;
