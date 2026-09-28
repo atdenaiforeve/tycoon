@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#080c10">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="geolocation=(), camera=(), microphone=(), usb=(), bluetooth=(), payment=(), serial=(), hid=(), accelerometer=(), gyroscope=(), magnetometer=()">
-<title>BLACKSITE-01 | Facility UI | Build 031</title>
+<title>BLACKSITE-01 | Facility UI | Build 032</title>
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:#080c10;color:#eef4f8}
@@ -85,8 +85,22 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 .debug-panel{margin-top:14px;padding:12px;border:1px solid #33424f;border-radius:8px;background:#090e13;font-family:monospace;font-size:11px;line-height:1.55;color:#aebbc5}.debug-panel strong{color:#38d9ff}.debug-ok{color:#7fdca8}.debug-warn{color:#f2c879}
 
 /* Corporate tutorial dialog */
-.tutorial-guide{position:fixed;left:18px;bottom:18px;z-index:90;display:none;max-width:min(560px,calc(100vw - 36px));pointer-events:none}
-.tutorial-guide.active{display:block}
+.tutorial-guide{position:fixed;left:18px;bottom:18px;z-index:90;display:none;align-items:flex-end;gap:10px;max-width:min(560px,calc(100vw - 36px));pointer-events:none}
+.tutorial-guide.active{display:flex}
+.tutorial-guide-character{width:88px;height:118px;flex:0 0 88px;position:relative;filter:drop-shadow(0 8px 14px #0009)}
+.guide-head{position:absolute;left:23px;top:8px;width:42px;height:48px;border-radius:48% 48% 45% 45%;background:#d7a37a;border:2px solid #8d6248}
+.guide-hair{position:absolute;left:21px;top:4px;width:46px;height:25px;border-radius:55% 55% 35% 35%;background:#4b352b;border:2px solid #30231e;z-index:2}
+.guide-glasses{position:absolute;left:24px;top:27px;width:40px;height:11px;z-index:3}
+.guide-glasses:before,.guide-glasses:after{content:"";position:absolute;top:0;width:13px;height:9px;border:2px solid #263743;border-radius:5px}
+.guide-glasses:before{left:0}.guide-glasses:after{right:0}.guide-glasses{border-top:2px solid #263743}
+.guide-body{position:absolute;left:13px;top:54px;width:62px;height:61px;border-radius:18px 18px 8px 8px;background:linear-gradient(135deg,#263743,#101820);border:2px solid #5d7180}
+.guide-collar{position:absolute;left:34px;top:57px;width:20px;height:25px;background:#d7a37a;clip-path:polygon(0 0,100% 0,72% 100%,28% 100%)}
+.guide-badge{position:absolute;left:50px;top:70px;width:9px;height:9px;border-radius:50%;background:#e63946;box-shadow:0 0 7px #e63946}
+.guide-arm-left,.guide-arm-right{position:absolute;top:65px;width:13px;height:48px;border-radius:10px;background:#17242d;border:2px solid #526674}
+.guide-arm-left{left:6px;transform:rotate(12deg)}.guide-arm-right{right:6px;transform:rotate(-12deg)}
+.guide-hand-left,.guide-hand-right{position:absolute;top:104px;width:13px;height:13px;border-radius:50%;background:#d7a37a;border:2px solid #8d6248}
+.guide-hand-left{left:3px}.guide-hand-right{right:3px}
+.guide-legs{position:absolute;left:28px;top:109px;width:32px;height:9px;border-radius:5px;background:#101820}
 .tutorial-guide-bubble{pointer-events:auto;background:#101820;border:2px solid #38d9ff;border-radius:14px;padding:14px 15px;min-width:230px;box-shadow:0 8px 30px #0009}
 .tutorial-guide-bubble .guide-title{font-size:11px;color:#38d9ff;font-family:monospace;letter-spacing:1px;margin-bottom:7px}
 .tutorial-guide-bubble .guide-text{min-height:48px;font-size:15px;line-height:1.4;color:#f1f6f9}
@@ -97,6 +111,11 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 </head>
 <body>
 <div class="tutorial-guide" id="tutorialGuide" aria-live="polite">
+  <div class="tutorial-guide-character" aria-hidden="true">
+    <div class="guide-hair"></div><div class="guide-head"></div><div class="guide-glasses"></div>
+    <div class="guide-body"></div><div class="guide-collar"></div><div class="guide-badge"></div>
+    <div class="guide-arm-left"></div><div class="guide-arm-right"></div><div class="guide-hand-left"></div><div class="guide-hand-right"></div><div class="guide-legs"></div>
+  </div>
   <div class="tutorial-guide-bubble">
     <div class="guide-title">FACILITY OPERATIONS</div>
     <div class="guide-text" id="guideText"></div>
@@ -117,7 +136,7 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 <header>
 <h1>BLACKSITE-01</h1>
 <div class="subtitle">Nordic Facility Construction Division</div>
-<div class="build">SYSTEM BUILD 031 — TUTORIAL CHARACTER REMOVED</div>
+<div class="build">SYSTEM BUILD 032 — TUTORIAL GUIDE UPDATED</div>
 </header>
 
 <section class="stats">
@@ -292,13 +311,7 @@ const tutorialMessages={
  7:"Level 1 is complete. The facility is operational. You’re in control from here."
 };
 let systemStarted=false;
-function setTutorialFace(face){
- const img=document.getElementById("tutorialGuideFace");
- if(img&&tutorialFaces[face])img.src=tutorialFaces[face]+"?v=6";
-}
-
 function showTutorialMessage(key){
- setTutorialFace(key===7?"youDidIt":(key==="intro"?"neutral":"thinking"));
  const guide=document.getElementById("tutorialGuide");
  const textEl=document.getElementById("guideText");
  const next=document.getElementById("guideNext");
