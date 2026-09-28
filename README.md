@@ -2,13 +2,13 @@
 
 A browser-based facility construction and research tycoon set inside the fictional underground **BLACKSITE-01** complex.
 
-The game is built around physically expanding the facility through connected rooms, corridors, systems, staff, experiments, research, and future security events.
+The game is built around expanding and operating a connected underground facility through construction, power, staff, experiments, research, security, raids, repairs, and future facility systems.
 
 ## Current Build
 
-**System Build 025**
+**System Build 026**
 
-The project is actively in development. Systems, UI layout, tutorial flow, and facility mechanics are still being expanded.
+The project is actively in development. The current build includes the updated power-first tutorial, browser save recovery, the Upgrade Tree, responsive UI support, and the image-based tutorial guide.
 
 ## Core Gameplay
 
@@ -16,14 +16,16 @@ BLACKSITE-01 is designed as more than a menu of upgrades. Construction represent
 
 ### Facility Construction
 
-Players can construct:
+Current construction systems include:
 
 - Office Room
 - Experiment Room
 - Power System
 - Future research and facility sectors
 
-Buildings consume facility energy where appropriate and contribute to the growing BLACKSITE-01 complex.
+Buildings use facility energy where appropriate and contribute to the growing BLACKSITE-01 complex.
+
+Construction uses short timed queues and saves active construction so progress can recover after a page reload.
 
 ### Staff
 
@@ -34,7 +36,7 @@ Current staff:
 - Scientist
 - Security Staff
 
-Scientists support research, while security protects the facility during security events.
+Scientists support research, while security contributes to the facility's defense during security events.
 
 ### Experiments
 
@@ -60,13 +62,9 @@ Research speed can be improved through the Upgrade Tree.
 
 ## Energy System
 
-Buildings use facility energy.
+New facilities start with **0/0 Energy**.
 
-Current starting capacity:
-
-- **8 Energy**
-
-Current systems:
+The tutorial therefore begins by installing the Power System before the player builds anything that requires energy.
 
 | System | RP Cost | Energy |
 |---|---:|---:|
@@ -80,18 +78,17 @@ Staff and experiments do not directly consume energy.
 
 The opening tutorial guides the player through the initial facility setup in a fixed operational order:
 
-1. Build the Office
-2. Build the Experiment Room
-3. Install the Power System
+1. Install the Power System
+2. Build the Office
+3. Build the Experiment Room
 4. Hire a Scientist
 5. Hire Security Staff
 6. Run the Facility Systems Test
-7. Wait for research to complete
-8. Receive the operational briefing
+7. Continue into normal facility operations
 
-The tutorial includes voice guidance, a visual arrow system, action-specific progression, and responsive positioning.
+The tutorial now uses a small 2D image-based facility guide with text bubbles instead of the previous voice and arrow guidance system.
 
-Tutorial guidance identifies the relevant interface element by its HTML ID and measures its current position so the guide can adapt when the interface changes size or layout.
+Tutorial progression is action-specific: each step unlocks the relevant action and advances after that action is completed.
 
 ## Security & Raids
 
@@ -116,8 +113,10 @@ Current progression areas include:
 - Security Training
 - Security Equipment
 - Government Shade
-- Hidden future expansion systems
-- Hidden future research systems
+- Future expansion systems
+- Future research systems
+
+The tree is designed around connected progression paths so upgrades can build toward larger facility capabilities.
 
 Some future systems remain undisclosed until their intended progression is implemented.
 
@@ -125,12 +124,16 @@ Some future systems remain undisclosed until their intended progression is imple
 
 The game includes browser-based progress saving.
 
-Saved progression includes major facility state, Research Points, research income, upgrades, staff, construction queues, research queues, raid state, and other progression data.
+Saved progression covers major facility state, Research Points, research income, upgrades, staff, construction queues, research queues, raid state, repair state, and other progression data.
+
+The save system uses a versioned schema so future updates can be handled more safely.
 
 The Settings section provides:
 
-- Save Progress Now
-- Reset All Progress
+- **Save Progress Now**
+- **Reset All Progress**
+
+Resetting progress clears the current browser save and returns the game to the new-player starting state, including the 0/0 Energy tutorial start.
 
 ## Responsive Interface
 
@@ -142,9 +145,23 @@ The interface is designed to adapt to different screen sizes, including:
 - Tablet-sized displays
 - Mobile-sized layouts
 
-The UI scans its available dimensions and recalculates important interface positioning when the window or layout changes.
+The tutorial guide and Upgrade Tree are designed to remain usable as the interface changes size.
 
-This is particularly important for the tutorial guide and Upgrade Tree.
+## Development & Diagnostics
+
+The game includes a hidden development diagnostics panel for testing and troubleshooting.
+
+Press:
+
+**Ctrl + Shift + D**
+
+to toggle the development panel.
+
+It can display information such as the current build, tutorial step, facility level, research, save status, schema version, and active queues.
+
+## Cache Protection
+
+The entry page loads the main UI with a cache-busting query so GitHub Pages is less likely to keep displaying an older version after an update.
 
 ## Project Direction
 
@@ -176,13 +193,13 @@ The interface and underlying systems are being developed together so that future
 
 Important project files include:
 
-- `index.html` — entry page and Build 025 cache-busted UI loader
+- `index.html` — cache-busting entry page and UI loader
 - `ui.html` — main facility interface and game systems
-- `assets/` — interface, icon, and audio assets
-- `assets/audio/tutorial/` — tutorial voice files
+- `assets/` — interface and game assets
+- `assets/icons/tutorial_assets/` — 2D tutorial character face images
 
 ## Status
 
-🚧 **In development — System Build 025.**
+🚧 **In development — System Build 026.**
 
 BLACKSITE-01 is an actively evolving project. Features and systems may change as the facility, progression, research, security, and Nordic storyline are expanded.
