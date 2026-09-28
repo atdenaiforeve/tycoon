@@ -411,6 +411,8 @@ function loadProgress(){
    else if(state.security>0){tutorialStep=6;}
    else if(state.scientists>0){tutorialStep=5;}
    else if(state.power&&state.experimentRoom&&state.office){tutorialStep=4;}
+   else if(state.power&&state.office){tutorialStep=3;}
+   else if(state.power){tutorialStep=2;}
    else {tutorialStep=1;}
    if(!state.power){energyCapacity=0;energyUsed=0;}
    else {energyCapacity=Math.max(15,Number.isFinite(energyCapacity)?energyCapacity:0);energyUsed=Math.max(0,Math.min(energyUsed,energyCapacity));}
