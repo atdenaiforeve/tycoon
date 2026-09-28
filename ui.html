@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#080c10">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Permissions-Policy" content="geolocation=(), camera=(), microphone=(), usb=(), bluetooth=(), payment=(), serial=(), hid=(), accelerometer=(), gyroscope=(), magnetometer=()">
-<title>BLACKSITE-01 | Facility UI | Build 030</title>
+<title>BLACKSITE-01 | Facility UI | Build 031</title>
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:#080c10;color:#eef4f8}
@@ -84,23 +84,19 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 .save-controls{margin-top:18px;padding-top:14px;border-top:1px solid #33424f}.save-controls button{border-color:#6b3030;background:#1c1114}.save-controls button:hover{background:#2a1519}.save-controls .upgrade-count{margin-top:8px}
 .debug-panel{margin-top:14px;padding:12px;border:1px solid #33424f;border-radius:8px;background:#090e13;font-family:monospace;font-size:11px;line-height:1.55;color:#aebbc5}.debug-panel strong{color:#38d9ff}.debug-ok{color:#7fdca8}.debug-warn{color:#f2c879}
 
-/* Corporate tutorial character */
-.tutorial-guide{position:fixed;left:18px;bottom:18px;z-index:90;display:none;align-items:flex-end;gap:12px;max-width:min(560px,calc(100vw - 36px));pointer-events:none}
-.tutorial-guide.active{display:flex}
-.tutorial-guide-character{width:92px;height:112px;flex:0 0 92px;position:relative;display:flex;align-items:flex-end;justify-content:center;filter:drop-shadow(0 8px 16px #0008)}.tutorial-guide-character img{width:100%;height:100%;object-fit:contain;display:block}
+/* Corporate tutorial dialog */
+.tutorial-guide{position:fixed;left:18px;bottom:18px;z-index:90;display:none;max-width:min(560px,calc(100vw - 36px));pointer-events:none}
+.tutorial-guide.active{display:block}
 .tutorial-guide-bubble{pointer-events:auto;background:#101820;border:2px solid #38d9ff;border-radius:14px;padding:14px 15px;min-width:230px;box-shadow:0 8px 30px #0009}
 .tutorial-guide-bubble .guide-title{font-size:11px;color:#38d9ff;font-family:monospace;letter-spacing:1px;margin-bottom:7px}
 .tutorial-guide-bubble .guide-text{min-height:48px;font-size:15px;line-height:1.4;color:#f1f6f9}
 .tutorial-guide-bubble .guide-next{margin:10px 0 0;width:auto;min-width:105px;min-height:38px;padding:7px 13px;text-align:center;font-size:13px}
 .tutorial-guide-bubble .guide-next:disabled{opacity:.45}
-@media(max-width:520px){.tutorial-guide{left:8px;bottom:8px;max-width:calc(100vw - 16px);gap:6px}.tutorial-guide-character{width:66px;height:82px;flex-basis:66px;transform:scale(.75);transform-origin:bottom left;margin-right:-18px}.tutorial-guide-bubble{padding:11px 12px}.tutorial-guide-bubble .guide-text{font-size:13px;min-height:44px}}
+@media(max-width:520px){.tutorial-guide{left:8px;bottom:8px;max-width:calc(100vw - 16px)}.tutorial-guide-bubble{padding:11px 12px}.tutorial-guide-bubble .guide-text{font-size:13px;min-height:44px}}
 </style>
 </head>
 <body>
 <div class="tutorial-guide" id="tutorialGuide" aria-live="polite">
-  <div class="tutorial-guide-character" aria-hidden="true">
-    <img id="tutorialGuideFace" src="assets/icons/tutorial_assets/neutral_face.jpg?v=6" alt="">
-  </div>
   <div class="tutorial-guide-bubble">
     <div class="guide-title">FACILITY OPERATIONS</div>
     <div class="guide-text" id="guideText"></div>
@@ -121,7 +117,7 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 <header>
 <h1>BLACKSITE-01</h1>
 <div class="subtitle">Nordic Facility Construction Division</div>
-<div class="build">SYSTEM BUILD 030 — CODE CLEANUP</div>
+<div class="build">SYSTEM BUILD 031 — TUTORIAL CHARACTER REMOVED</div>
 </header>
 
 <section class="stats">
@@ -296,14 +292,6 @@ const tutorialMessages={
  7:"Level 1 is complete. The facility is operational. You’re in control from here."
 };
 let systemStarted=false;
-
-
-const tutorialFaces={
- neutral:"assets/icons/tutorial_assets/neutral_face.jpg",
- thinking:"assets/icons/tutorial_assets/thinking_face.jpg",
- taskComplete:"assets/icons/tutorial_assets/task_complete_face.jpg",
- youDidIt:"assets/icons/tutorial_assets/you_did_it_face.jpg"
-};
 function setTutorialFace(face){
  const img=document.getElementById("tutorialGuideFace");
  if(img&&tutorialFaces[face])img.src=tutorialFaces[face]+"?v=6";
@@ -772,7 +760,6 @@ function completeStep(n){
  if(tutorialStep!==n||!tutorialActionComplete(n))return false;
  tutorialStep++;
  updateSteps();
- setTutorialFace("taskComplete");
  const nextMessage=tutorialMessages[tutorialStep];
  if(nextMessage){
   tutorialGuideAdvanceNext=()=>updateSteps();
