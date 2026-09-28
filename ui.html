@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#080c10">
-<title>BLACKSITE-01 | Facility UI | Build 026</title>
+<title>BLACKSITE-01 | Facility UI | Build 027</title>
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:#080c10;color:#eef4f8}
@@ -97,7 +97,7 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 <body>
 <div class="tutorial-guide" id="tutorialGuide" aria-live="polite">
   <div class="tutorial-guide-character" aria-hidden="true">
-    <img id="tutorialGuideFace" src="assets/icons/tutorial_assets/neutral_face.jpg?v=4" alt="">
+    <img id="tutorialGuideFace" src="assets/icons/tutorial_assets/neutral_face.jpg?v=5" alt="">
   </div>
   <div class="tutorial-guide-bubble">
     <div class="guide-title">FACILITY OPERATIONS</div>
@@ -119,13 +119,13 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 <header>
 <h1>BLACKSITE-01</h1>
 <div class="subtitle">Nordic Facility Construction Division</div>
-<div class="build">SYSTEM BUILD 026 — SETTINGS</div>
+<div class="build">SYSTEM BUILD 027 — SETTINGS</div>
 </header>
 
 <section class="stats">
 <div class="stat"><div class="label">Research Points</div><div class="value" id="points">2,000 RP</div></div>
 <div class="stat"><div class="label">Research / sec</div><div class="value" id="income">0 RP / sec</div></div>
-<div class="stat"><div class="label">Energy Load</div><div class="value" id="energy">0 / 8</div></div>
+<div class="stat"><div class="label">Energy Load</div><div class="value" id="energy">0 / 0</div></div>
 <div class="stat"><div class="label">Facility Status</div><div class="value" id="status">TUTORIAL</div></div>
 <div class="stat"><div class="label">Super Research</div><div class="value" id="srp">0 SRP</div></div>
 <div class="stat"><div class="label">Raid Risk</div><div class="value" id="raidRisk">0%</div></div>
@@ -134,14 +134,14 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 <main>
 <section class="panel">
 <h2>BLACKSITE-01 Facility Map</h2>
-<div class="note">Level 1 begins with basic facility infrastructure. Buildings use energy capacity. Staff and experiments do not consume energy.</div>
+<div class="note">Level 1 begins with the Power System at 0/0 energy. Power adds 15 capacity; buildings use energy capacity, while staff and experiments do not consume energy.</div>
 
 <div class="tutorial" id="tutorialPanel">
 <strong>TUTORIAL — LEVEL 1 FACILITY INITIALIZATION</strong>
 <div class="steps">
-<div class="step current" id="stepOffice">1. BUILDING — Office Room — 200 RP · 3 ENERGY</div>
-<div class="step locked" id="stepExperimentRoom">2. BUILDING — Experiment Room — 400 RP · 5 ENERGY</div>
-<div class="step locked" id="stepPower">3. BUILDING — Power System — 500 RP · +15 ENERGY</div>
+<div class="step current" id="stepPower">1. BUILDING — Power System — 500 RP · +15 ENERGY</div>
+<div class="step locked" id="stepOffice">2. BUILDING — Office Room — 200 RP · 3 ENERGY</div>
+<div class="step locked" id="stepExperimentRoom">3. BUILDING — Experiment Room — 400 RP · 5 ENERGY</div>
 <div class="step locked" id="stepScientist">4. STAFF — Scientist — 300 RP</div>
 <div class="step locked" id="stepSecurity">5. STAFF — Security — 250 RP</div>
 <div class="step locked" id="stepExperiment">6. EXPERIMENTS — Facility Systems Test — 350 RP</div>
@@ -158,7 +158,7 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 <div class="room research locked" id="researchRoom">RESEARCH WING<small>Level 2</small></div>
 </div>
 </div>
-<div class="assignment" id="assignment">Build the Office first.</div>
+<div class="assignment" id="assignment">Install the Power System first. The facility starts at 0/0 energy.</div>
 <div class="info" id="info">Tutorial active. Only the current step can be purchased.</div>
 <div class="recovery" id="recoveryPanel"></div>
 </section>
@@ -303,7 +303,7 @@ const tutorialFaces={
 };
 function setTutorialFace(face){
  const img=document.getElementById("tutorialGuideFace");
- if(img&&tutorialFaces[face])img.src=tutorialFaces[face]+"?v=4";
+ if(img&&tutorialFaces[face])img.src=tutorialFaces[face]+"?v=5";
 }
 
 function showTutorialMessage(key){
@@ -351,7 +351,7 @@ document.addEventListener("click",e=>{
  if(e.target&&e.target.id==="guideNext"&&tutorialGuideAdvance) tutorialGuideAdvance();
 });
 const SAVE_KEY="blacksite01_tycoon_save_v1";
-const SAVE_SCHEMA_VERSION=2;
+const SAVE_SCHEMA_VERSION=3;
 const BUILD_ID="026";
 const DEFAULT_STATE={
  office:false, scientists:0, security:0, experimentRoom:false, power:false,
@@ -361,7 +361,7 @@ const DEFAULT_STATE={
 let state={...DEFAULT_STATE};
 function saveProgress(){
  try{
-  const save={version:SAVE_SCHEMA_VERSION,points,income,tutorialStep,energyUsed,energyCapacity,superResearch,raidRisk,governmentCover,facilityLevel,constructionSpeedLevel,researchSpeedLevel,securityTrainingLevel,securityEquipmentLevel,creatureComfort,creatureEscaped,creatureEscapeCause,securityFatigue,fileLearnings,state:{...state},constructionQueue,researchQueue,repairQueue};
+  const save={version:SAVE_SCHEMA_VERSION,build:BUILD_ID,tutorialOrderVersion:2,points,income,tutorialStep,energyUsed,energyCapacity,superResearch,raidRisk,governmentCover,facilityLevel,constructionSpeedLevel,researchSpeedLevel,securityTrainingLevel,securityEquipmentLevel,creatureComfort,creatureEscaped,creatureEscapeCause,securityFatigue,fileLearnings,state:{...state},constructionQueue,researchQueue,repairQueue};
   localStorage.setItem(SAVE_KEY,JSON.stringify(save));
   const el=document.getElementById("saveStatus");
   if(el)el.textContent="Progress saved locally · "+new Date().toLocaleTimeString();
@@ -384,6 +384,7 @@ function loadProgress(){
   const save=JSON.parse(raw);
   if(!save||!Number.isFinite(save.version)||save.version>SAVE_SCHEMA_VERSION)return;
   const needsMigration=save.version<SAVE_SCHEMA_VERSION;
+  const legacyTutorial=!Number.isFinite(save.tutorialOrderVersion)||save.tutorialOrderVersion<2;
   if(Number.isFinite(save.points))points=save.points;
   if(Number.isFinite(save.income))income=save.income;
   if(Number.isFinite(save.tutorialStep))tutorialStep=save.tutorialStep;
@@ -403,11 +404,22 @@ function loadProgress(){
   if(Number.isFinite(save.securityFatigue))securityFatigue=save.securityFatigue;
   if(Array.isArray(save.fileLearnings))fileLearnings=save.fileLearnings;
   if(save.state&&typeof save.state==="object")Object.assign(state,DEFAULT_STATE,save.state);
+  if(legacyTutorial){
+   if(save.constructionQueue&&save.constructionQueue.type){
+    tutorialStep=save.constructionQueue.type==="power"?1:save.constructionQueue.type==="office"?2:save.constructionQueue.type==="experimentBuilding"?3:save.constructionQueue.type==="scientist"?4:save.constructionQueue.type==="securityStaff"?5:tutorialStep;
+   }else if(state.basicExperiment){tutorialStep=7;}
+   else if(state.security>0){tutorialStep=6;}
+   else if(state.scientists>0){tutorialStep=5;}
+   else if(state.power&&state.experimentRoom&&state.office){tutorialStep=4;}
+   else {tutorialStep=1;}
+   if(!state.power){energyCapacity=0;energyUsed=0;}
+   else {energyCapacity=Math.max(15,Number.isFinite(energyCapacity)?energyCapacity:0);energyUsed=Math.max(0,Math.min(energyUsed,energyCapacity));}
+  }
   constructionQueue=save.constructionQueue||null;
   if(constructionQueue&&!["office","experimentBuilding","power","scientist","securityStaff"].includes(constructionQueue.type))constructionQueue=null;
   researchQueue=save.researchQueue||null;
   repairQueue=save.repairQueue||null;
-  if(needsMigration)saveProgress();
+  if(needsMigration||legacyTutorial)saveProgress();
   else{
    const el=document.getElementById("saveStatus");
    if(el)el.textContent="Saved progress loaded from this browser.";
@@ -419,7 +431,7 @@ function loadProgress(){
 function resetAllProgress(){
  if(!confirm("Reset ALL BLACKSITE-01 progress? This cannot be undone."))return;
  localStorage.removeItem(SAVE_KEY);
- points=2000; income=0; tutorialStep=1; energyUsed=0; energyCapacity=8;
+ points=2000; income=0; tutorialStep=1; energyUsed=0; energyCapacity=0;
  superResearch=0; raidRisk=0; governmentCover=false; facilityLevel=1;
  constructionSpeedLevel=0; constructionQueue=null; researchQueue=null; researchSpeedLevel=0;
  securityTrainingLevel=0; securityEquipmentLevel=0; raidActive=false; raidTimer=0; repairQueue=null;
