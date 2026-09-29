@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 420">
+<rect width="320" height="420" fill="none"/>
+<g stroke="#263742" stroke-width="7" stroke-linejoin="round">
+<path fill="#d8dde2" d="M91 103h138v42H91z"/>
+<path fill="#4b5b67" d="M72 141h176v105H72z"/>
+<path fill="#8b99a3" d="M94 246h132v112H94z"/>
+<path fill="#17222a" d="M72 150h176v54H72z"/>
+<path fill="#38d9ff" d="M91 163h138v25H91z"/>
+<circle fill="#101820" cx="128" cy="176" r="5"/><circle fill="#101820" cx="192" cy="176" r="5"/>
+<path fill="#17222a" d="M118 207h84v21h-84z"/>
+<path fill="#d8dde2" d="M103 42h114v67H103z"/>
+<path fill="#38d9ff" d="M113 56h94v35h-94z"/>
+<circle fill="#101820" cx="145" cy="73" r="7"/><circle fill="#101820" cx="175" cy="73" r="7"/>
+<path fill="#e63946" d="M148 86h24v5h-24z" stroke-width="4"/>
+<path fill="#4b5b67" d="M30 158h42v90H30z"/><path fill="#4b5b67" d="M248 158h42v90h-42z"/>
+<path fill="#8b99a3" d="M102 356h42v45h-42z"/><path fill="#8b99a3" d="M176 356h42v45h-42z"/>
+</g>
+<text x="160" y="414" text-anchor="middle" font-family="Arial" font-size="16" fill="#9eabb6">BLACKSITE GUIDE</text>
+</svg>
