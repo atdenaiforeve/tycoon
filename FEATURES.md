@@ -7,6 +7,7 @@
 | research | js/features/research.js | Experiments and files |
 | raids | js/features/raids.js | Raid events |
 | upgrades | js/features/upgrades.js | Security, research and infrastructure upgrades |
+| ambience | js/features/ambience.js | Optional facility ambience playback |
 
 ## Removed by design
 
