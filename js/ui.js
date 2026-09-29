@@ -3,7 +3,8 @@ import { BUILD_ID, COSTS, UPGRADE_COSTS, UPDATE_AGES } from "./config.js";
 const $ = id => document.getElementById(id);
 const money = n => Math.floor(n).toLocaleString();
 
-export function createUI({ stateRef, events, features, save }) {
+export function createUI({ stateStore, events, features, save }) {
+  const stateRef = () => stateStore.value;
   const construction = features.find("construction");
   const economy = features.find("economy");
   const research = features.find("research");
@@ -44,7 +45,7 @@ export function createUI({ stateRef, events, features, save }) {
     $("resetProgress").addEventListener("click", () => {
       if (!confirm("Reset ALL BLACKSITE-01 progress? This cannot be undone.")) return;
       save.reset();
-      stateRef.value = stateRef.factory();
+      stateStore.value = stateStore.factory();
       message("All progress reset. Starting a new facility.");
       render();
       save.save();
