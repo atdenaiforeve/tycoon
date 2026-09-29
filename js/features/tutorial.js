@@ -133,23 +133,17 @@ export const tutorialFeature = {
 
         clearPulses();
 
-        const face = index === 0 ? "neutral_face.jpg"
-          : index <= 4 ? "thinking_face.jpg"
-          : index === 5 ? "task_complete_face.jpg"
-          : "you_did_it_face.jpg";
+        const face = index === 0 ? "neutral_face.png"
+          : index <= 4 ? "thinking_face.png"
+          : index === 5 ? "task_complete_face.png"
+          : "you_did_it_face.png";
 
         const src = FACE_BASE + face;
         guide.style.visibility = "hidden";
 
-        let transparentSrc = transparentFaces.get(src);
-        if (!transparentSrc) {
-          transparentSrc = await removeOutsideBackground(src);
-          transparentFaces.set(src, transparentSrc);
-        }
-
-        // Ignore a stale async result if the tutorial advanced while loading.
+        // The PNG already contains real alpha transparency.
         if (steps[index] !== step) return;
-        guide.src = transparentSrc;
+        guide.src = src;
         guide.style.background = "transparent";
         guide.style.visibility = "visible";
 
