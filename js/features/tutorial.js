@@ -11,83 +11,6 @@ const steps = [
   ["YOU'RE IN COMMAND","That's it. The rest of the facility is yours to develop. Raids, upgrades and deeper experiments are now yours to discover.",null,null]
 ];
 
-const transparentFaces = new Map();
-
-function removeOutsideBackground(src) {
-  return new Promise(resolve => {
-    const source = new Image();
-    source.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = source.naturalWidth;
-      canvas.height = source.naturalHeight;
-      const ctx = canvas.getContext("2d", { willReadFrequently: true });
-      if (!ctx) return resolve(src);
-
-      ctx.drawImage(source, 0, 0);
-      const image = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const data = image.data;
-      const w = canvas.width;
-      const h = canvas.height;
-      const visited = new Uint8Array(w * h);
-      const queue = new Int32Array(w * h);
-      let head = 0;
-      let tail = 0;
-
-      // Remove only background-colored pixels that are connected to an outside edge.
-      // This keeps black/white details that are actually part of the character.
-      const isBackground = i => {
-        const r = data[i], g = data[i + 1], b = data[i + 2];
-        const max = Math.max(r, g, b);
-        const min = Math.min(r, g, b);
-        const neutral = max - min <= 45;
-        const brightness = (r + g + b) / 3;
-
-        // White/gray paper-style background.
-        if (neutral && brightness >= 145) return true;
-
-        // Black/dark background.
-        if (neutral && brightness <= 55) return true;
-
-        return false;
-      };
-
-      const seed = (x, y) => {
-        const p = y * w + x;
-        if (visited[p]) return;
-        if (!isBackground(p * 4)) return;
-        visited[p] = 1;
-        queue[tail++] = p;
-      };
-
-      for (let x = 0; x < w; x++) {
-        seed(x, 0);
-        seed(x, h - 1);
-      }
-      for (let y = 1; y < h - 1; y++) {
-        seed(0, y);
-        seed(w - 1, y);
-      }
-
-      while (head < tail) {
-        const p = queue[head++];
-        const x = p % w;
-        const y = Math.floor(p / w);
-        data[p * 4 + 3] = 0;
-
-        if (x > 0) seed(x - 1, y);
-        if (x + 1 < w) seed(x + 1, y);
-        if (y > 0) seed(x, y - 1);
-        if (y + 1 < h) seed(x, y + 1);
-      }
-
-      ctx.putImageData(image, 0, 0);
-      resolve(canvas.toDataURL("image/png"));
-    };
-    source.onerror = () => resolve(src);
-    source.src = src;
-  });
-}
-
 export const tutorialFeature = {
   id: "tutorial",
 
@@ -127,7 +50,7 @@ export const tutorialFeature = {
         return true;
       };
 
-      const show = async () => {
+      const show = () => {
         const step = steps[index];
         if (!step) return;
 
@@ -138,12 +61,8 @@ export const tutorialFeature = {
           : index === 5 ? "task_complete_face.png"
           : "you_did_it_face.png";
 
-        const src = FACE_BASE + face;
         guide.style.visibility = "hidden";
-
-        // The PNG already contains real alpha transparency.
-        if (steps[index] !== step) return;
-        guide.src = src;
+        guide.src = FACE_BASE + face + "?v=1";
         guide.style.background = "transparent";
         guide.style.visibility = "visible";
 
