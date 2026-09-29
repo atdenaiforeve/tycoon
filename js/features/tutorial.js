@@ -1,8 +1,6 @@
 const $ = id => document.getElementById(id);
 const FACE_BASE = "assets/characters/tutorial-guy/";
-const transparentFaces = new Map();
 
-const makeBackgroundTransparent = src => new Promise(resolve => {
   if (transparentFaces.has(src)) {
     resolve(transparentFaces.get(src));
     return;
@@ -134,19 +132,12 @@ export const tutorialFeature = {
         clearPulses();
         const guide = $("tutorialGuide");
         if (guide) {
-          const face = index === 0 ? "neutral_face.jpg"
-            : index === 1 || index === 2 || index === 4 ? "thinking_face.jpg"
-            : index === 5 ? "task_complete_face.jpg"
-            : "you_did_it_face.jpg";
-          const src = FACE_BASE + face;
-          guide.style.visibility = "hidden";
-          makeBackgroundTransparent(src).then(result => {
-            // Ignore a late image result if the tutorial has already moved on.
-            if (guide) {
-              guide.src = result;
-              guide.style.visibility = "visible";
-            }
-          });
+          const face = index === 0 ? "neutral_face.svg"
+            : index === 1 || index === 2 || index === 3 || index === 4 ? "thinking_face.svg"
+            : index === 5 ? "task_complete_face.svg"
+            : "you_did_it_face.svg";
+          guide.src = FACE_BASE + face;
+          guide.style.visibility = "visible";
         }
 
         $("tutorialTitle").textContent = step[0];
