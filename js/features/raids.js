@@ -14,13 +14,20 @@ export const raidsFeature = {
   tick(dt) {
     const s = this.stateRef();
     this.checkTimer += dt;
+    if (s.repair && Date.now() >= s.repair.endsAt) {
+      s.repair = null;
+      s.securityFatigue = Math.max(0, s.securityFatigue - 0.12);
+      this.events.emit("raid:repaired");
+    }
     if (s.raid.active) {
       if (Date.now() >= s.raid.endsAt) this.finishRaid();
       return;
     }
+    s.securityFatigue = Math.max(0, s.securityFatigue - 0.003 * dt / 1000);
     if (this.checkTimer < RAID_CHECK_MS) return;
     this.checkTimer = 0;
-    const risk = Math.min(80, Math.max(0, s.raidRisk + s.experiments * 2 - this.securityPower() * 4));
+    const experimentRisk = s.experiments * (s.governmentCover ? 1 : 2);
+    const risk = Math.min(80, Math.max(0, s.raidRisk + experimentRisk - this.securityPower() * 4));
     if (risk > 0 && Math.random() < risk / 100 * 0.12) this.startRaid();
   },
   startRaid() {
@@ -35,6 +42,7 @@ export const raidsFeature = {
     if (damage > 0) {
       s.points = Math.max(0, s.points - damage);
       s.securityFatigue = Math.min(0.7, s.securityFatigue + 0.08);
+      s.repair = { endsAt: Date.now() + 6000, cost: damage };
       this.events.emit("raid:damage", damage);
     } else {
       s.raidRisk = Math.max(0, s.raidRisk - 5);
