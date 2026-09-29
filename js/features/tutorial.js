@@ -132,10 +132,10 @@ export const tutorialFeature = {
         clearPulses();
         const guide = $("tutorialGuide");
         if (guide) {
-          const face = index === 0 ? "neutral_face.svg"
-            : index === 1 || index === 2 || index === 3 || index === 4 ? "thinking_face.svg"
-            : index === 5 ? "task_complete_face.svg"
-            : "you_did_it_face.svg";
+          const face = index === 0 ? "neutral_face.jpg"
+            : index === 1 || index === 2 || index === 4 ? "thinking_face.jpg"
+            : index === 5 ? "task_complete_face.jpg"
+            : "you_did_it_face.jpg";
           guide.src = FACE_BASE + face;
           guide.style.visibility = "visible";
         }
