@@ -71,9 +71,9 @@ export function applySavedState(state, saved) {
   if (!saved || typeof saved !== "object") return clean;
   for (const key of Object.keys(clean)) {
     if (key === "fileLearnings" || key === "raid" || key === "constructionQueue" || key === "repair") continue;
-    if (typeof saved[key] === typeof clean[key] && Number.isFinite(saved[key]) || typeof saved[key] === "boolean" || typeof saved[key] === "string") {
-      clean[key] = saved[key];
-    }
+    if (typeof clean[key] === "number" && Number.isFinite(saved[key])) clean[key] = saved[key];
+    else if (typeof clean[key] === "boolean" && typeof saved[key] === "boolean") clean[key] = saved[key];
+    else if (typeof clean[key] === "string" && typeof saved[key] === "string") clean[key] = saved[key];
   }
   if (Array.isArray(saved.fileLearnings)) clean.fileLearnings = saved.fileLearnings.filter(x => typeof x === "string").slice(0, 50);
   if (saved.constructionQueue && typeof saved.constructionQueue === "object") clean.constructionQueue = saved.constructionQueue;
