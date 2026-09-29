@@ -84,46 +84,9 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 .save-controls{margin-top:18px;padding-top:14px;border-top:1px solid #33424f}.save-controls button{border-color:#6b3030;background:#1c1114}.save-controls button:hover{background:#2a1519}.save-controls .upgrade-count{margin-top:8px}
 .debug-panel{margin-top:14px;padding:12px;border:1px solid #33424f;border-radius:8px;background:#090e13;font-family:monospace;font-size:11px;line-height:1.55;color:#aebbc5}.debug-panel strong{color:#38d9ff}.debug-ok{color:#7fdca8}.debug-warn{color:#f2c879}
 
-/* Corporate tutorial dialog */
-.tutorial-guide{position:fixed;left:18px;bottom:18px;z-index:90;display:none;align-items:flex-end;gap:10px;max-width:min(560px,calc(100vw - 36px));pointer-events:none}
-.tutorial-guide.active{display:flex}
-/* New tutorial character — inline SVG only; no legacy image assets are loaded */
-.tutorial-guide-character{width:92px;height:120px;flex:0 0 92px;display:flex;align-items:flex-end;justify-content:center;filter:drop-shadow(0 8px 14px #0009)}
-.tutorial-guide-character svg{width:92px;height:120px;display:block}
-.tutorial-guide-bubble{pointer-events:auto;background:#101820;border:2px solid #38d9ff;border-radius:14px;padding:14px 15px;min-width:230px;box-shadow:0 8px 30px #0009}
-.tutorial-guide-bubble .guide-title{font-size:11px;color:#38d9ff;font-family:monospace;letter-spacing:1px;margin-bottom:7px}
-.tutorial-guide-bubble .guide-text{min-height:48px;font-size:15px;line-height:1.4;color:#f1f6f9}
-.tutorial-guide-bubble .guide-next{margin:10px 0 0;width:auto;min-width:105px;min-height:38px;padding:7px 13px;text-align:center;font-size:13px}
-.tutorial-guide-bubble .guide-next:disabled{opacity:.45}
-@media(max-width:520px){.tutorial-guide{left:8px;bottom:8px;max-width:calc(100vw - 16px)}.tutorial-guide-bubble{padding:11px 12px}.tutorial-guide-bubble .guide-text{font-size:13px;min-height:44px}}
 </style>
 </head>
 <body>
-<div class="tutorial-guide" id="tutorialGuide" aria-live="polite">
-  <div class="tutorial-guide-character" aria-hidden="true">
-    <svg viewBox="0 0 92 120" role="img" aria-label="">
-      <rect x="9" y="86" width="74" height="30" rx="9" fill="#18232b" stroke="#38d9ff" stroke-width="2"/>
-      <rect x="20" y="77" width="52" height="25" rx="10" fill="#26343d"/>
-      <circle cx="46" cy="43" r="25" fill="#d7a47a" stroke="#0b1117" stroke-width="3"/>
-      <path d="M22 39 Q24 14 46 13 Q68 14 70 39 Q61 25 46 27 Q31 25 22 39Z" fill="#4a3429"/>
-      <path d="M28 42 Q35 38 41 42 M51 42 Q57 38 64 42" fill="none" stroke="#1a2025" stroke-width="2.5" stroke-linecap="round"/>
-      <circle cx="35" cy="45" r="2.4" fill="#0b1117"/><circle cx="57" cy="45" r="2.4" fill="#0b1117"/>
-      <path d="M39 57 Q46 61 53 57" fill="none" stroke="#7d4939" stroke-width="2.2" stroke-linecap="round"/>
-      <rect x="25" y="39" width="20" height="12" rx="4" fill="none" stroke="#26343d" stroke-width="2"/>
-      <rect x="47" y="39" width="20" height="12" rx="4" fill="none" stroke="#26343d" stroke-width="2"/>
-      <path d="M45 44 H47" stroke="#26343d" stroke-width="2"/>
-      <path d="M20 81 Q12 91 18 101 M72 81 Q80 91 74 101" fill="none" stroke="#26343d" stroke-width="8" stroke-linecap="round"/>
-      <rect x="40" y="82" width="12" height="9" rx="2" fill="#38d9ff"/>
-      <circle cx="46" cy="86.5" r="2" fill="#0b1117"/>
-      <path d="M31 116 H42 M50 116 H61" stroke="#0b1117" stroke-width="5" stroke-linecap="round"/>
-    </svg>
-  </div>
-  <div class="tutorial-guide-bubble">
-    <div class="guide-title">FACILITY OPERATIONS</div>
-    <div class="guide-text" id="guideText"></div>
-    <button class="guide-next" id="guideNext" type="button" disabled>NEXT</button>
-  </div>
-</div>
 <div id="startOverlay" style="position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:#080c10ee;padding:20px">
 <div style="width:min(520px,100%);padding:28px;background:#101820;border:2px solid #40515f;border-radius:12px;text-align:center">
 <div style="color:#38d9ff;font-family:monospace;font-size:12px;letter-spacing:2px;margin-bottom:10px">BLACKSITE-01 SYSTEM BOOT</div>
@@ -278,10 +241,6 @@ let raidActive=false;
 let raidTimer=0;
 let raidTimerId=null;
 let repairQueue=null;
-let tutorialGuideTyping=false;
-let tutorialGuideReady=false;
-let tutorialGuideToken=0;
-let tutorialGuideAdvance=null;
 let creatureComfort=70;
 let creatureEscaped=false;
 let creatureEscapeCause="";
@@ -302,60 +261,6 @@ function tutorialActionComplete(step=tutorialStep){
  return !!(action&&typeof action.complete==="function"&&action.complete());
 }
 
-const tutorialMessages={
- intro:"Welcome to BLACKSITE-01. I’ll guide you through the first facility setup. You’ll need to complete each step before the next one unlocks.",
- 1:"First, install the Power System. The facility starts at 0/0 energy, so we need power before anything else can run.",
- 2:"Good. Now build the Office. It gives your facility a command center and starts the basic infrastructure.",
- 3:"Next, build the Experiment Room. It needs 5 energy and prepares the facility for its first systems test.",
- 4:"The facility needs research staff. Hire a Scientist to begin running research operations.",
- 5:"Research needs protection. Hire Security to keep the facility covered during operations.",
- 6:"Everything is ready. Run the Facility Systems Test to begin your first research cycle.",
- 7:"Level 1 is complete. The facility is operational. You’re in control from here."
-};
-let systemStarted=false;
-function showTutorialMessage(key){
- const guide=document.getElementById("tutorialGuide");
- const textEl=document.getElementById("guideText");
- const next=document.getElementById("guideNext");
- const message=tutorialMessages[key];
- if(!guide||!textEl||!next||!message)return;
- const token=++tutorialGuideToken;
- tutorialGuideTyping=true;
- tutorialGuideReady=false;
- tutorialGuideAdvance=null;
- guide.classList.add("active");
- next.disabled=true;
- next.textContent="NEXT";
- textEl.textContent="";
- let i=0;
- const typeNext=()=>{
-  if(token!==tutorialGuideToken)return;
-  if(i<message.length){
-   textEl.textContent+=message[i++];
-   setTimeout(typeNext,Math.max(14,Math.min(38,42-(message.length>100?10:0))));
-  }else{
-   tutorialGuideTyping=false;
-   tutorialGuideReady=true;
-   next.disabled=false;
-   tutorialGuideAdvance=()=>{
-    if(tutorialGuideTyping)return;
-    tutorialGuideReady=false;
-    next.disabled=true;
-    guide.classList.remove("active");
-    if(typeof tutorialGuideAdvanceNext==="function"){
-      const fn=tutorialGuideAdvanceNext;
-      tutorialGuideAdvanceNext=null;
-      fn();
-    }
-   };
-  }
- };
- typeNext();
-}
-let tutorialGuideAdvanceNext=null;
-document.addEventListener("click",e=>{
- if(e.target&&e.target.id==="guideNext"&&tutorialGuideAdvance) tutorialGuideAdvance();
-});
 const SAVE_KEY="blacksite01_tycoon_save_v1";
 const SAVE_SCHEMA_VERSION=4;
 const BUILD_ID="030";
@@ -694,14 +599,14 @@ function updateSteps(){
  document.getElementById("powerRoom").innerHTML=state.power?"POWER<small>GENERATOR ONLINE · +15 CAPACITY</small>":"POWER<small>Locked until tutorial</small>";
  document.getElementById("researchRoom").innerHTML="RESEARCH WING<small>"+(researchQueue?"RESEARCH IN PROGRESS":"ACTIVE")+"</small>";
 
- document.getElementById("office").disabled=tutorialGuideTyping||tutorialGuideReady||recovering||constructionBusy|| (tutorialComplete?state.office:(tutorialStep!==2||state.office||points<200||!hasEnergy(ENERGY.office)));
- document.getElementById("experimentBuilding").disabled=tutorialGuideTyping||tutorialGuideReady||recovering||constructionBusy|| (tutorialComplete?(!state.office||points<400||state.experimentRoom||!hasEnergy(ENERGY.experimentBuilding)):(tutorialStep!==3||!state.office||points<400||state.experimentRoom||!hasEnergy(ENERGY.experimentBuilding)));
- document.getElementById("power").disabled=tutorialGuideTyping||tutorialGuideReady||recovering||constructionBusy|| (tutorialComplete?(!state.experimentRoom||points<500||state.power):(tutorialStep!==1||state.power||points<500));
+ document.getElementById("office").disabled=recovering||constructionBusy|| (tutorialComplete?state.office:(tutorialStep!==2||state.office||points<200||!hasEnergy(ENERGY.office)));
+ document.getElementById("experimentBuilding").disabled=recovering||constructionBusy|| (tutorialComplete?(!state.office||points<400||state.experimentRoom||!hasEnergy(ENERGY.experimentBuilding)):(tutorialStep!==3||!state.office||points<400||state.experimentRoom||!hasEnergy(ENERGY.experimentBuilding)));
+ document.getElementById("power").disabled=recovering||constructionBusy|| (tutorialComplete?(!state.experimentRoom||points<500||state.power):(tutorialStep!==1||state.power||points<500));
 
- document.getElementById("scientist").disabled=tutorialGuideTyping||tutorialGuideReady||recovering||(tutorialComplete?(!state.office||points<300||state.scientists>=2):(tutorialStep!==4||!state.office||!state.power||points<300||state.scientists>=2));
- document.getElementById("securityStaff").disabled=tutorialGuideTyping||tutorialGuideReady||recovering||(tutorialComplete?(!state.office||points<250||state.scientists<1||state.security>=1):(tutorialStep!==5||!state.office||state.scientists<1||points<250||state.security>=1));
+ document.getElementById("scientist").disabled=recovering||(tutorialComplete?(!state.office||points<300||state.scientists>=2):(tutorialStep!==4||!state.office||!state.power||points<300||state.scientists>=2));
+ document.getElementById("securityStaff").disabled=recovering||(tutorialComplete?(!state.office||points<250||state.scientists<1||state.security>=1):(tutorialStep!==5||!state.office||state.scientists<1||points<250||state.security>=1));
 
- document.getElementById("basicExperiment").disabled=tutorialGuideTyping||tutorialGuideReady||recovering||(tutorialComplete?(!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment||researchQueue):(tutorialStep!==6||!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment||researchQueue));
+ document.getElementById("basicExperiment").disabled=recovering||(tutorialComplete?(!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment||researchQueue):(tutorialStep!==6||!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment||researchQueue));
 
  if(tutorialComplete){
   lockableButtons.forEach(id=>{
@@ -719,9 +624,6 @@ function updateSteps(){
   securityStaff:tutorialStep!==5,
   basicExperiment:tutorialStep!==6,
  };
- if(tutorialGuideTyping||tutorialGuideReady){
-  Object.keys(tutorialLocks).forEach(id=>tutorialLocks[id]=true);
- }
  Object.entries(tutorialLocks).forEach(([id,locked])=>{
   const button=document.getElementById(id);
   if(!button)return;
@@ -775,13 +677,7 @@ function completeStep(n){
  if(tutorialStep!==n||!tutorialActionComplete(n))return false;
  tutorialStep++;
  updateSteps();
- const nextMessage=tutorialMessages[tutorialStep];
- if(nextMessage){
-  tutorialGuideAdvanceNext=()=>updateSteps();
-  setTimeout(()=>showTutorialMessage(tutorialStep),1400);
- }else{
-  updateSteps();
- }
+ updateSteps();
  return true;
 }
 function completeConstruction(type){
@@ -823,8 +719,7 @@ document.getElementById("startSystem").addEventListener("click",()=>{
  systemStarted=true;
  const overlay=document.getElementById("startOverlay");
  if(overlay)overlay.style.display="none";
- tutorialGuideAdvanceNext=()=>updateSteps();
- showTutorialMessage("intro");
+ updateSteps();
 });
 
 document.getElementById("saveProgress").addEventListener("click",saveProgress);
@@ -851,7 +746,7 @@ setInterval(()=>{
  if(constructionQueue&&Date.now()>=constructionQueue.finish){const type=constructionQueue.type;constructionQueue=null;completeConstruction(type);saveProgress()}
  updateExperimentComfort();
  if(securityFatigue>0)securityFatigue=Math.max(0,securityFatigue-0.0005);
- if(researchQueue){const left=Math.max(0,Math.ceil((researchQueue.finish-Date.now())/1000));document.getElementById("researchStatus").textContent="Scientist researching · "+left+"s";if(Date.now()>=researchQueue.finish){researchQueue=null;state.basicExperiment=true;income=10;tutorialStep=7;document.getElementById("researchStatus").textContent="Research complete · +10 RP/sec";updateSteps();tutorialGuideAdvanceNext=()=>{updateSteps();if(window.BLACKSITE_AMBIENCE)BLACKSITE_AMBIENCE.start();};showTutorialMessage(7);}}
+ if(researchQueue){const left=Math.max(0,Math.ceil((researchQueue.finish-Date.now())/1000));document.getElementById("researchStatus").textContent="Scientist researching · "+left+"s";if(Date.now()>=researchQueue.finish){researchQueue=null;state.basicExperiment=true;income=10;tutorialStep=7;document.getElementById("researchStatus").textContent="Research complete · +10 RP/sec";updateSteps();if(window.BLACKSITE_AMBIENCE)BLACKSITE_AMBIENCE.start();}}
  else if(state.basicExperiment){document.getElementById("researchStatus").textContent="Research active · Scientist assigned";}
  if(state.basicExperiment){
   points+=income;
