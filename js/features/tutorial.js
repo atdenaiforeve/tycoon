@@ -103,6 +103,65 @@ export const tutorialFeature = {
 
       let index = 0;
 
+      const makeBackgroundTransparent = (img, src) => {
+        const source = new Image();
+        source.onload = () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = source.naturalWidth;
+          canvas.height = source.naturalHeight;
+          const ctx = canvas.getContext("2d", { willReadFrequently: true });
+          ctx.drawImage(source, 0, 0);
+
+          const image = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const data = image.data;
+          const w = canvas.width;
+          const h = canvas.height;
+          const visited = new Uint8Array(w * h);
+          const queue = [];
+
+          const isBackground = (x, y) => {
+            const i = (y * w + x) * 4;
+            return data[i] >= 215 && data[i + 1] >= 215 && data[i + 2] >= 215;
+          };
+
+          const add = (x, y) => {
+            const p = y * w + x;
+            if (!visited[p] && isBackground(x, y)) {
+              visited[p] = 1;
+              queue.push(p);
+            }
+          };
+
+          for (let x = 0; x < w; x++) {
+            add(x, 0);
+            add(x, h - 1);
+          }
+          for (let y = 0; y < h; y++) {
+            add(0, y);
+            add(w - 1, y);
+          }
+
+          for (let head = 0; head < queue.length; head++) {
+            const p = queue[head];
+            const x = p % w;
+            const y = Math.floor(p / w);
+            const i = p * 4;
+            data[i + 3] = 0;
+
+            if (x > 0) add(x - 1, y);
+            if (x < w - 1) add(x + 1, y);
+            if (y > 0) add(x, y - 1);
+            if (y < h - 1) add(x, y + 1);
+          }
+
+          ctx.putImageData(image, 0, 0);
+          img.src = canvas.toDataURL("image/png");
+          img.style.background = "transparent";
+          img.style.visibility = "visible";
+        };
+        source.src = src;
+      };
+
       const clearPulses = () => {
         document.querySelectorAll(".tutorial-pulse").forEach(el => el.classList.remove("tutorial-pulse"));
       };
@@ -133,10 +192,15 @@ export const tutorialFeature = {
         const guide = $("tutorialGuide");
         if (guide) {
           const face = index === 0 ? "neutral_face.jpg"
-            : index === 1 || index === 2 || index === 4 ? "thinking_face.jpg"
+            : index === 1 || index === 2 || index === 3 || index === 4 ? "thinking_face.jpg"
             : index === 5 ? "task_complete_face.jpg"
             : "you_did_it_face.jpg";
-          guide.src = FACE_BASE + face;
+          const src = FACE_BASE + face;
+          if (guide.dataset.transparentSource !== src) {
+            guide.dataset.transparentSource = src;
+            guide.style.visibility = "hidden";
+            makeBackgroundTransparent(guide, src);
+          }
           guide.style.visibility = "visible";
         }
 
