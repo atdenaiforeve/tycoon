@@ -4,7 +4,7 @@ import { applySavedState, serializeState } from "./state.js";
 export function createSaveSystem({ stateRef, events }) {
   function save() {
     try {
-      localStorage.setItem(SAVE_KEY, JSON.stringify(serializeState(stateRef())));
+      localStorage.setItem(SAVE_KEY, JSON.stringify(serializeState(stateRef.value)));
       events.emit("save:complete");
       return true;
     } catch (error) {
@@ -23,7 +23,7 @@ export function createSaveSystem({ stateRef, events }) {
         events.emit("save:future-version");
         return false;
       }
-      stateRef.value = applySavedState(stateRef(), parsed);
+      stateRef.value = applySavedState(stateRef.value, parsed);
       events.emit("save:loaded");
       return true;
     } catch (error) {
