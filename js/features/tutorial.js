@@ -121,7 +121,9 @@ export const tutorialFeature = {
 
           const isBackground = (x, y) => {
             const i = (y * w + x) * 4;
-            return data[i] >= 215 && data[i + 1] >= 215 && data[i + 2] >= 215;
+            const bright = data[i] >= 215 && data[i + 1] >= 215 && data[i + 2] >= 215;
+            const dark = data[i] <= 35 && data[i + 1] <= 35 && data[i + 2] <= 35;
+            return bright || dark;
           };
 
           const add = (x, y) => {
