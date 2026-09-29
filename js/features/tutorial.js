@@ -1,4 +1,5 @@
 const $ = id => document.getElementById(id);
+const FACE_BASE = "assets/characters/tutorial-guy/";
 
 const steps = [
   ["WELCOME TO BLACKSITE-01","I'm your facility guide. I'll show you the basics without locking you out of anything.",null,null],
@@ -50,6 +51,15 @@ export const tutorialFeature = {
         if (!step) return;
 
         clearPulses();
+        const guide = $("tutorialGuide");
+        if (guide) {
+          const face = index === 0 ? "neutral_face.jpg"
+            : index === 1 || index === 2 || index === 4 ? "thinking_face.jpg"
+            : index === 5 ? "task_complete_face.jpg"
+            : "you_did_it_face.jpg";
+          guide.src = FACE_BASE + face;
+        }
+
         $("tutorialTitle").textContent = step[0];
         $("tutorialText").textContent = step[1];
         $("tutorialStep").textContent = (index + 1) + " / " + steps.length;
