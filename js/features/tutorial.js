@@ -1,5 +1,7 @@
 const $ = id => document.getElementById(id);
 
+const FACE_BASE = "assets/characters/tutorial-guy/";
+
 const steps = [
   ["WELCOME TO BLACKSITE-01","I'm your facility guide. I'll show you the basics without locking you out of anything.",null,null],
   ["BUILD AN OFFICE","Open BUILDING and construct the Office Room. Construction takes a few seconds.","building","office"],
@@ -54,6 +56,17 @@ export const tutorialFeature = {
         $("tutorialText").textContent = step[1];
         $("tutorialStep").textContent = (index + 1) + " / " + steps.length;
         $("tutorialNext").textContent = index === steps.length - 1 ? "FINISH" : "NEXT";
+
+        const guide = $("tutorialGuide");
+        if (guide) {
+          let face = "neutral_face.jpg";
+          if (index === steps.length - 1) {
+            face = "you_did_it_face.jpg";
+          } else if (index > 0) {
+            face = ready(step[3]) ? "task_complete_face.jpg" : "thinking_face.jpg";
+          }
+          guide.src = FACE_BASE + face;
+        }
 
         if (step[2]) {
           const tab = document.querySelector('.tab[data-tab="' + step[2] + '"]');
