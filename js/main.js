@@ -9,6 +9,7 @@ import { researchFeature } from "./features/research.js";
 import { raidsFeature } from "./features/raids.js";
 import { upgradesFeature } from "./features/upgrades.js";
 import { ambienceFeature } from "./features/ambience.js";
+import { tutorialFeature } from "./features/tutorial.js";
 import { createUI } from "./ui.js";
 
 const events = createEventBus();
@@ -29,6 +30,7 @@ registry.register(researchFeature);
 registry.register(raidsFeature);
 registry.register(upgradesFeature);
 registry.register(ambienceFeature);
+registry.register(tutorialFeature);
 
 const features = {
   list: () => registry.list(),
