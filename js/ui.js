@@ -57,7 +57,8 @@ export function createUI({ stateStore, events, features, save }) {
     events.on("research:experiment-started", () => message("Facility systems test started. Super Research is being generated."));
     events.on("raid:started", () => message("Security alert: external raid detected."));
     events.on("raid:defended", () => message("Raid repelled. Security held the facility."));
-    events.on("raid:damage", damage => message("Raid damage contained. " + damage + " RP was lost."));
+    events.on("raid:damage", damage => message("Raid damage contained. " + damage + " RP was lost. Recovery has started."));
+    events.on("raid:repaired", () => message("Raid recovery complete. Security systems are back to normal."));
     events.on("experiment:breach", () => message("Containment warning: experiment conditions caused a breach."));
     render();
   }
@@ -148,6 +149,17 @@ export function createUI({ stateStore, events, features, save }) {
 
     const file = research.fileText();
     $("experimentFile").innerHTML = "<strong>UNKNOWN EXPERIMENT — OBSERVATION FILE</strong><br><br>Condition: " + file.condition + "<br>Containment: " + (s.creatureEscaped ? "BREACHED" : "SECURE") + "<br>Security condition: " + (s.securityFatigue > 0 ? "Temporarily fatigued" : "Normal") + "<br><br><strong>LEARNED INFORMATION</strong><br>" + file.lines.map((x,i) => (i+1) + ". " + x).join("<br>");
+
+    const repair = $("recoveryPanel");
+    if (repair) {
+      if (s.repair) {
+        repair.className = "recovery active";
+        repair.innerHTML = "<strong>RECOVERY IN PROGRESS</strong><br>Security is repairing raid damage. " + Math.max(0, Math.ceil((s.repair.endsAt - Date.now()) / 1000)) + "s remaining.";
+      } else {
+        repair.className = "recovery";
+        repair.innerHTML = "";
+      }
+    }
 
     $("raidBanner").classList.toggle("active", s.raid.active);
     $("raidMarker").classList.toggle("active", s.raid.active);
