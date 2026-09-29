@@ -34,15 +34,15 @@ h2{margin:0 0 10px;font-size:clamp(19px,2.5vw,24px)}
 .corridor.one{left:150px;top:151px;width:55px}.corridor.two{left:335px;top:151px;width:55px}
 .corridor.three{left:268px;top:190px;width:14px;height:40px}.corridor.four{left:455px;top:190px;width:14px;height:40px}
 .room.locked{opacity:.35;border-style:dashed}
-.tutorial{padding:12px;margin-bottom:14px;background:#090e13;border:1px solid #40515f;border-radius:8px}
-.tutorial strong{color:#38d9ff}.steps{display:grid;gap:5px;margin-top:8px;font-size:12px}.step.done{color:#7fdca8}.step.current{color:#fff}.step.locked{color:#667387}
+.{padding:12px;margin-bottom:14px;background:#090e13;border:1px solid #40515f;border-radius:8px}
+. strong{color:#38d9ff}.steps{display:grid;gap:5px;margin-top:8px;font-size:12px}.step.done{color:#7fdca8}.step.current{color:#fff}.step.locked{color:#667387}
 .assignment{margin-top:10px;padding:10px;border-left:3px solid #38d9ff;background:#0b1117;font-size:12px;color:#c5d0d8}
 .info{margin-top:16px;padding:14px;background:#090e13;border-left:3px solid #5b7180;border-radius:7px;color:#c5d0d8;line-height:1.5;font-size:clamp(13px,1.8vw,16px)}
 button{width:100%;padding:10px 12px;margin:6px 0;border:1px solid #40515f;border-radius:9px;background:#1d2a34;color:#f4f8fa;font-size:clamp(14px,2vw,17px);font-weight:bold;cursor:pointer;min-height:76px;text-align:left}.action-art{float:left;width:58px;height:52px;object-fit:contain;margin:0 12px 0 0}.button-copy{display:block;min-height:52px;line-height:1.25}
 button:hover{background:#263742}
 button:focus-visible{outline:2px solid #38d9ff;outline-offset:2px}
 button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-button:disabled{background:#151d24;color:#65727d;cursor:not-allowed}.super-research{margin-top:18px;padding-top:14px;border-top:1px solid #33424f}.tree-node{padding:12px;margin:8px 0;border:1px solid #40515f;border-radius:8px;background:#0b1117}.tree-node small{color:#9eabb6}.tree-node button{min-height:42px;padding:8px;margin-top:8px;font-size:12px}.locked-node{opacity:.55}.hidden-node{display:none}button.tutorial-locked{position:relative;padding-right:48px}button.tutorial-locked::after{content:"";position:absolute;right:14px;top:50%;width:18px;height:18px;transform:translateY(-50%);background:url("assets/icons/ui/lock.svg") center/contain no-repeat;opacity:.9}
+button:disabled{background:#151d24;color:#65727d;cursor:not-allowed}.super-research{margin-top:18px;padding-top:14px;border-top:1px solid #33424f}.tree-node{padding:12px;margin:8px 0;border:1px solid #40515f;border-radius:8px;background:#0b1117}.tree-node small{color:#9eabb6}.tree-node button{min-height:42px;padding:8px;margin-top:8px;font-size:12px}.locked-node{opacity:.55}.hidden-node{display:none}
 button small{font-size:.75em;font-weight:normal;color:#aab6bf}
 .cost{float:right;color:#38d9ff}
 .energy-cost{color:#8edfff}
@@ -87,28 +87,20 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 </style>
 </head>
 <body>
-<div id="startOverlay" style="position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:#080c10ee;padding:20px">
-<div style="width:min(520px,100%);padding:28px;background:#101820;border:2px solid #40515f;border-radius:12px;text-align:center">
-<div style="color:#38d9ff;font-family:monospace;font-size:12px;letter-spacing:2px;margin-bottom:10px">BLACKSITE-01 SYSTEM BOOT</div>
-<h2 style="margin:0 0 10px">FACILITY INITIALIZATION</h2>
-<div style="color:#9eabb6;font-size:13px;line-height:1.5;margin-bottom:18px">Press start to begin the facility tutorial.</div>
-<button id="startSystem" type="button" style="text-align:center">▶ START SYSTEM</button>
-</div>
-</div>
 <audio id="facilityAmbience" src="assets/audio/ambiance/blacksite-ambience.mp3" preload="auto" loop></audio>
 <script src="assets/audio/ambiance/blacksite-ambience.js"></script>
 <div class="raid-banner" id="raidBanner">RAID IN PROGRESS · <span id="raidTimer">12</span>s</div>
 <header>
 <h1>BLACKSITE-01</h1>
 <div class="subtitle">Nordic Facility Construction Division</div>
-<div class="build">SYSTEM BUILD 034 — TUTORIAL CHARACTER FIXED</div>
+<div class="build">SYSTEM BUILD 035 — PROGRESSION FREE</div>
 </header>
 
 <section class="stats">
 <div class="stat"><div class="label">Research Points</div><div class="value" id="points">2,000 RP</div></div>
 <div class="stat"><div class="label">Research / sec</div><div class="value" id="income">0 RP / sec</div></div>
 <div class="stat"><div class="label">Energy Load</div><div class="value" id="energy">0 / 0</div></div>
-<div class="stat"><div class="label">Facility Status</div><div class="value" id="status">TUTORIAL</div></div>
+<div class="stat"><div class="label">Facility Status</div><div class="value" id="status">OPERATIONAL</div></div>
 <div class="stat"><div class="label">Super Research</div><div class="value" id="srp">0 SRP</div></div>
 <div class="stat"><div class="label">Raid Risk</div><div class="value" id="raidRisk">0%</div></div>
 </section>
@@ -118,31 +110,17 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 <h2>BLACKSITE-01 Facility Map</h2>
 <div class="note">Level 1 begins with the Power System at 0/0 energy. Power adds 15 capacity; buildings use energy capacity, while staff and experiments do not consume energy.</div>
 
-<div class="tutorial" id="tutorialPanel">
-<strong>TUTORIAL — LEVEL 1 FACILITY INITIALIZATION</strong>
-<div class="steps">
-<div class="step current" id="stepPower">1. BUILDING — Power System — 500 RP · +15 ENERGY</div>
-<div class="step locked" id="stepOffice">2. BUILDING — Office Room — 200 RP · 3 ENERGY</div>
-<div class="step locked" id="stepExperimentRoom">3. BUILDING — Experiment Room — 400 RP · 5 ENERGY</div>
-<div class="step locked" id="stepScientist">4. STAFF — Scientist — 300 RP</div>
-<div class="step locked" id="stepSecurity">5. STAFF — Security — 250 RP</div>
-<div class="step locked" id="stepExperiment">6. EXPERIMENTS — Facility Systems Test — 350 RP</div>
-</div>
-</div>
-
 <div class="map">
 <div class="map-grid" id="mapGrid">
 <div class="corridor one"></div><div class="corridor two"></div><div class="corridor three"></div><div class="corridor four"></div>
 <div class="raid-marker" id="raidMarker" style="display:none;left:225px;top:65px" aria-hidden="true"><img src="assets/icons/raid/sword.svg" alt="" width="18" height="18"> RAIDERS</div><div class="security-shield" id="securityShield"><img src="assets/icons/security/shield.svg" alt="" width="18" height="18"> SECURITY</div><div class="room office locked" id="officeRoom">OFFICE<small>Awaiting construction</small></div>
 <div class="room security locked" id="securityRoom">SECURITY<small>Awaiting staff</small></div>
 <div class="room experiment locked" id="experimentRoom">EXPERIMENT ROOM<small>Locked</small></div>
-<div class="room power locked" id="powerRoom">POWER<small>Locked until tutorial</small></div>
+<div class="room power locked" id="powerRoom">POWER<small>Awaiting construction</small></div>
 <div class="room research locked" id="researchRoom">RESEARCH WING<small>Level 2</small></div>
 </div>
 </div>
-<div class="assignment" id="assignment">Install the Power System first. The facility starts at 0/0 energy.</div>
-<div class="info" id="info">Tutorial active. Only the current step can be purchased.</div>
-<div class="recovery" id="recoveryPanel"></div>
+<div class="recovery id="recoveryPanel"></div>
 </section>
 
 <aside class="panel">
@@ -224,7 +202,6 @@ body.ui-short header{padding-top:10px;padding-bottom:10px}body.ui-short .stats{p
 <script>
 let points=2000;
 let income=0;
-let tutorialStep=1;
 let energyUsed=0;
 let energyCapacity=0;
 let superResearch=0;
@@ -248,23 +225,9 @@ let creatureEscapeTimer=null;
 let securityFatigue=0;
 let fileLearnings=["Initial containment conditions have not yet produced a confirmed behavioural rule."];
 
-const tutorialActions={
-  1:{buttonId:"power",complete:()=>state.power},
-  2:{buttonId:"office",complete:()=>state.office},
-  3:{buttonId:"experimentBuilding",complete:()=>state.experimentRoom},
-  4:{buttonId:"scientist",complete:()=>state.scientists>0},
-  5:{buttonId:"securityStaff",complete:()=>state.security>0},
-  6:{buttonId:"basicExperiment",complete:()=>!!researchQueue||state.basicExperiment}
-};
-function tutorialActionComplete(step=tutorialStep){
- const action=tutorialActions[step];
- return !!(action&&typeof action.complete==="function"&&action.complete());
-}
-
 const SAVE_KEY="blacksite01_tycoon_save_v1";
-const SAVE_SCHEMA_VERSION=4;
-const BUILD_ID="030";
-const BUILD_ID="026";
+const SAVE_SCHEMA_VERSION=5;
+const BUILD_ID="035";
 const DEFAULT_STATE={
  office:false, scientists:0, security:0, experimentRoom:false, power:false,
  researchWing:false, basicExperiment:false, advancedExperiment:false,
@@ -273,7 +236,7 @@ const DEFAULT_STATE={
 let state={...DEFAULT_STATE};
 function saveProgress(){
  try{
-  const save={version:SAVE_SCHEMA_VERSION,build:BUILD_ID,tutorialOrderVersion:2,privacyMode:"local-only",points,income,tutorialStep,energyUsed,energyCapacity,superResearch,raidRisk,governmentCover,facilityLevel,constructionSpeedLevel,researchSpeedLevel,securityTrainingLevel,securityEquipmentLevel,creatureComfort,creatureEscaped,creatureEscapeCause,securityFatigue,fileLearnings,state:{...state},constructionQueue,researchQueue,repairQueue};
+  const save={version:SAVE_SCHEMA_VERSION,build:BUILD_ID,privacyMode:"local-only",points,income,energyUsed,energyCapacity,superResearch,raidRisk,governmentCover,facilityLevel,constructionSpeedLevel,researchSpeedLevel,securityTrainingLevel,securityEquipmentLevel,creatureComfort,creatureEscaped,creatureEscapeCause,securityFatigue,fileLearnings,state:{...state},constructionQueue,researchQueue,repairQueue};
   localStorage.setItem(SAVE_KEY,JSON.stringify(save));
   const el=document.getElementById("saveStatus");
   if(el)el.textContent="Progress saved locally · "+new Date().toLocaleTimeString();
@@ -286,7 +249,7 @@ function loadProgress(){
  try{
   const raw=localStorage.getItem(SAVE_KEY);
   if(!raw){
-   points=2000; income=0; tutorialStep=1; energyUsed=0; energyCapacity=0;
+   points=2000; income=0; energyUsed=0; energyCapacity=0;
    superResearch=0; raidRisk=0; governmentCover=false; facilityLevel=1;
    constructionSpeedLevel=0; constructionQueue=null; researchQueue=null; researchSpeedLevel=0;
    securityTrainingLevel=0; securityEquipmentLevel=0; raidActive=false; raidTimer=0; repairQueue=null;
@@ -296,11 +259,9 @@ function loadProgress(){
   const save=JSON.parse(raw);
   if(!save||!Number.isFinite(save.version)||save.version>SAVE_SCHEMA_VERSION)return;
   const needsMigration=save.version<SAVE_SCHEMA_VERSION;
-  const legacyTutorial=!Number.isFinite(save.tutorialOrderVersion)||save.tutorialOrderVersion<2;
-  if(Number.isFinite(save.points))points=save.points;
+    if(Number.isFinite(save.points))points=save.points;
   if(Number.isFinite(save.income))income=save.income;
-  if(Number.isFinite(save.tutorialStep))tutorialStep=save.tutorialStep;
-  if(Number.isFinite(save.energyUsed))energyUsed=save.energyUsed;
+    if(Number.isFinite(save.energyUsed))energyUsed=save.energyUsed;
   if(Number.isFinite(save.energyCapacity))energyCapacity=save.energyCapacity;
   if(Number.isFinite(save.superResearch))superResearch=save.superResearch;
   if(Number.isFinite(save.raidRisk))raidRisk=save.raidRisk;
@@ -316,24 +277,11 @@ function loadProgress(){
   if(Number.isFinite(save.securityFatigue))securityFatigue=save.securityFatigue;
   if(Array.isArray(save.fileLearnings))fileLearnings=save.fileLearnings;
   if(save.state&&typeof save.state==="object")Object.assign(state,DEFAULT_STATE,save.state);
-  if(legacyTutorial){
-   if(save.constructionQueue&&save.constructionQueue.type){
-    tutorialStep=save.constructionQueue.type==="power"?1:save.constructionQueue.type==="office"?2:save.constructionQueue.type==="experimentBuilding"?3:save.constructionQueue.type==="scientist"?4:save.constructionQueue.type==="securityStaff"?5:tutorialStep;
-   }else if(state.basicExperiment){tutorialStep=7;}
-   else if(state.security>0){tutorialStep=6;}
-   else if(state.scientists>0){tutorialStep=5;}
-   else if(state.power&&state.experimentRoom&&state.office){tutorialStep=4;}
-   else if(state.power&&state.office){tutorialStep=3;}
-   else if(state.power){tutorialStep=2;}
-   else {tutorialStep=1;}
-   if(!state.power){energyCapacity=0;energyUsed=0;}
-   else {energyCapacity=Math.max(15,Number.isFinite(energyCapacity)?energyCapacity:0);energyUsed=Math.max(0,Math.min(energyUsed,energyCapacity));}
-  }
   constructionQueue=save.constructionQueue||null;
   if(constructionQueue&&!["office","experimentBuilding","power","scientist","securityStaff"].includes(constructionQueue.type))constructionQueue=null;
   researchQueue=save.researchQueue||null;
   repairQueue=save.repairQueue||null;
-  if(needsMigration||legacyTutorial)saveProgress();
+  if(needsMigration)saveProgress();
   else{
    const el=document.getElementById("saveStatus");
    if(el)el.textContent="Saved progress loaded from this browser.";
@@ -345,7 +293,7 @@ function loadProgress(){
 function resetAllProgress(){
  if(!confirm("Reset ALL BLACKSITE-01 progress? This cannot be undone."))return;
  localStorage.removeItem(SAVE_KEY);
- points=2000; income=0; tutorialStep=1; energyUsed=0; energyCapacity=0;
+ points=2000; income=0; energyUsed=0; energyCapacity=0;
  superResearch=0; raidRisk=0; governmentCover=false; facilityLevel=1;
  constructionSpeedLevel=0; constructionQueue=null; researchQueue=null; researchSpeedLevel=0;
  securityTrainingLevel=0; securityEquipmentLevel=0; raidActive=false; raidTimer=0; repairQueue=null;
@@ -360,7 +308,7 @@ function resetAllProgress(){
  clearRaidMarkers();
  const el=document.getElementById("saveStatus");
  if(el)el.textContent="All progress reset. Starting a new facility."; 
- updateSteps();
+ updateUI();
  saveProgress();
 }
 loadProgress();
@@ -377,7 +325,7 @@ const ENERGY={
 };
 
 const pointsEl=document.getElementById("points"),incomeEl=document.getElementById("income"),statusEl=document.getElementById("status");
-const energyEl=document.getElementById("energy"),info=document.getElementById("info"),assignment=document.getElementById("assignment");
+const energyEl=document.getElementById("energy");
 const srpEl=document.getElementById("srp"),raidRiskEl=document.getElementById("raidRisk");
 
 function hasEnergy(cost){return energyUsed+cost<=energyCapacity}
@@ -392,7 +340,7 @@ function updateExperimentComfort(){
  if(creatureEscaped){creatureComfort=Math.min(70,creatureComfort+1);return;}
  const researching=!!researchQueue;
  creatureComfort=Math.max(0,Math.min(100,creatureComfort+(researching?-0.6:0.25)));
- if(creatureComfort<20&&!creatureEscaped&&Math.random()<0.012){creatureEscaped=true;creatureEscapeCause=creatureComfort<10?"severe environmental stress":"sustained discomfort";fileLearnings.push("Containment breach recorded: "+creatureEscapeCause+". Avoid repeating the conditions that caused prolonged distress.");securityFatigue=Math.min(0.6,securityFatigue+0.35);setTimeout(()=>{creatureEscaped=false;creatureComfort=35;fileLearnings.push("Security contained the escaped experiment. Security personnel are temporarily fatigued.");updateSteps();},5000);}
+ if(creatureComfort<20&&!creatureEscaped&&Math.random()<0.012){creatureEscaped=true;creatureEscapeCause=creatureComfort<10?"severe environmental stress":"sustained discomfort";fileLearnings.push("Containment breach recorded: "+creatureEscapeCause+". Avoid repeating the conditions that caused prolonged distress.");securityFatigue=Math.min(0.6,securityFatigue+0.35);setTimeout(()=>{creatureEscaped=false;creatureComfort=35;fileLearnings.push("Security contained the escaped experiment. Security personnel are temporarily fatigued.");updateUI();},5000);}
 }
 function updateExperimentFile(){
  const status=creatureEscaped?"CONTAINMENT BREACH · SECURITY RESPONSE":creatureComfort<20?"CRITICAL DISTRESS":creatureComfort<40?"DISTRESSED":creatureComfort<60?"UNCOMFORTABLE":creatureComfort>85?"HIGH COMFORT":"STABLE";
@@ -469,7 +417,7 @@ function startRaid(){
    }else{
     document.getElementById("info").textContent="Raid repelled. Security held the facility.";
    }
-   updateSteps();
+   updateUI();
   }
  },1000);
 }
@@ -482,7 +430,7 @@ function setTutorialButtonsLocked(locked){
   if(!button)return;
   button.dataset.voiceLocked=locked?"1":"0";
   button.setAttribute("aria-disabled",locked?"true":"false");
-  button.classList.toggle("tutorial-locked",locked);
+  button.classList.toggle("",locked);
  });
 }
 function repositionOperations(){
@@ -515,7 +463,7 @@ function updateDebugPanel(){
  const saveAvailable=(()=>{try{return !!localStorage.getItem(SAVE_KEY)}catch(e){return false}})();
  out.innerHTML=
   "Build: "+BUILD_ID+
-  "<br>Tutorial: "+tutorialStep+" / 7"+
+  "<br>: "++" / 7"+
   "<br>Facility Level: "+facilityLevel+
   "<br>Research: "+Math.floor(points).toLocaleString()+" RP"+
   "<br>Save: <span class='"+(saveAvailable?"debug-ok":"debug-warn")+"'>"+(saveAvailable?"OK":"NO SAVE")+"</span>"+
@@ -558,28 +506,19 @@ function updateCurrentUpdate(){
  else if(researchSpeedLevel>0){name="The Discovery Update";text="Research operations are becoming more efficient.";}
  el.textContent=name;desc.textContent=text;
 }
-function updateSteps(){
+function updateUI(){
  updateExperimentFile();
  updateCurrentUpdate();
- const ids=["stepPower","stepOffice","stepExperimentRoom","stepScientist","stepSecurity","stepExperiment"];
- ids.forEach((id,i)=>{
-  const el=document.getElementById(id);
-  el.className="step "+(i<tutorialStep-1?"done":i===tutorialStep-1?"current":"locked");
- });
-
- const tutorialComplete=tutorialStep>6;
  const recovering=!!repairQueue;
  const constructionBusy=!!constructionQueue;
- document.getElementById("tutorialPanel").style.display=tutorialComplete?"none":"block";
- document.getElementById("superResearchPanel").style.display=tutorialComplete?"block":"none";
- const lockableButtons=["office","experimentBuilding","power","scientist","securityStaff","basicExperiment"];
- statusEl.textContent=tutorialComplete?"OPERATIONAL":"TUTORIAL";
+ statusEl.textContent="OPERATIONAL";
 
  document.getElementById("officeRoom").className="room office"+(state.office?"":" locked");
  document.getElementById("securityRoom").className="room security"+(state.security?"":" locked");
  document.getElementById("experimentRoom").className="room experiment"+(state.experimentRoom?"":" locked");
  document.getElementById("powerRoom").className="room power"+(state.power?"":" locked");
  document.getElementById("researchRoom").style.display=state.researchWing?"block":"none";
+
  if(constructionQueue){
   const left=Math.max(0,Math.ceil((constructionQueue.finish-Date.now())/1000));
   const statusText="CONSTRUCTION · "+left+"s";
@@ -591,63 +530,29 @@ function updateSteps(){
   document.getElementById("experimentBuildStatus").textContent=state.experimentRoom?"COMPLETE":"Ready to build";
   document.getElementById("powerBuildStatus").textContent=state.power?"COMPLETE":"Ready to build";
  }
- document.getElementById("researchRoom").className="room research";
 
+ document.getElementById("researchRoom").className="room research";
  document.getElementById("officeRoom").innerHTML=state.office?"OFFICE<small>STAFF OPERATIONS</small>":"OFFICE<small>Awaiting construction</small>";
  document.getElementById("securityRoom").innerHTML=state.security?"SECURITY<small>"+state.security+" STAFF · ACTIVE</small>":"SECURITY<small>Awaiting staff</small>";
- document.getElementById("experimentRoom").innerHTML=state.experimentRoom?"EXPERIMENT ROOM<small>"+(state.basicExperiment?"SYSTEMS TEST ACTIVE":"READY")+"</small>":"EXPERIMENT ROOM<small>Locked</small>";
- document.getElementById("powerRoom").innerHTML=state.power?"POWER<small>GENERATOR ONLINE · +15 CAPACITY</small>":"POWER<small>Locked until tutorial</small>";
+ document.getElementById("experimentRoom").innerHTML=state.experimentRoom?"EXPERIMENT ROOM<small>"+(state.basicExperiment?"SYSTEMS TEST ACTIVE":"READY")+"</small>":"EXPERIMENT ROOM<small>Awaiting construction</small>";
+ document.getElementById("powerRoom").innerHTML=state.power?"POWER<small>GENERATOR ONLINE · +15 CAPACITY</small>":"POWER<small>Awaiting construction</small>";
  document.getElementById("researchRoom").innerHTML="RESEARCH WING<small>"+(researchQueue?"RESEARCH IN PROGRESS":"ACTIVE")+"</small>";
 
- document.getElementById("office").disabled=recovering||constructionBusy|| (tutorialComplete?state.office:(tutorialStep!==2||state.office||points<200||!hasEnergy(ENERGY.office)));
- document.getElementById("experimentBuilding").disabled=recovering||constructionBusy|| (tutorialComplete?(!state.office||points<400||state.experimentRoom||!hasEnergy(ENERGY.experimentBuilding)):(tutorialStep!==3||!state.office||points<400||state.experimentRoom||!hasEnergy(ENERGY.experimentBuilding)));
- document.getElementById("power").disabled=recovering||constructionBusy|| (tutorialComplete?(!state.experimentRoom||points<500||state.power):(tutorialStep!==1||state.power||points<500));
+ document.getElementById("office").disabled=recovering||constructionBusy||!state.power||state.office||points<200||!hasEnergy(ENERGY.office);
+ document.getElementById("experimentBuilding").disabled=recovering||constructionBusy||!state.office||!state.power||points<400||state.experimentRoom||!hasEnergy(ENERGY.experimentBuilding);
+ document.getElementById("power").disabled=recovering||constructionBusy||state.power||points<500;
+ document.getElementById("scientist").disabled=recovering||constructionBusy||!state.office||!state.power||points<300||state.scientists>=2;
+ document.getElementById("securityStaff").disabled=recovering||constructionBusy||!state.office||state.scientists<1||points<250||state.security>=1;
+ document.getElementById("basicExperiment").disabled=recovering||!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment||researchQueue;
 
- document.getElementById("scientist").disabled=recovering||(tutorialComplete?(!state.office||points<300||state.scientists>=2):(tutorialStep!==4||!state.office||!state.power||points<300||state.scientists>=2));
- document.getElementById("securityStaff").disabled=recovering||(tutorialComplete?(!state.office||points<250||state.scientists<1||state.security>=1):(tutorialStep!==5||!state.office||state.scientists<1||points<250||state.security>=1));
-
- document.getElementById("basicExperiment").disabled=recovering||(tutorialComplete?(!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment||researchQueue):(tutorialStep!==6||!state.experimentRoom||!state.power||state.scientists<1||state.security<1||points<350||state.basicExperiment||researchQueue));
-
- if(tutorialComplete){
-  lockableButtons.forEach(id=>{
-   const button=document.getElementById(id);
-   button.classList.remove("tutorial-locked");
-   button.title="";
-  });
- }
-
- const tutorialLocks={
-  power:tutorialStep!==1,
-  office:tutorialStep!==2,
-  experimentBuilding:tutorialStep!==3,
-  scientist:tutorialStep!==4,
-  securityStaff:tutorialStep!==5,
-  basicExperiment:tutorialStep!==6,
- };
- Object.entries(tutorialLocks).forEach(([id,locked])=>{
-  const button=document.getElementById(id);
-  if(!button)return;
-  safeClassToggle(button,"tutorial-locked",locked);
-  button.title=locked?"Locked — complete the current tutorial step first.":"";
- });
-
-
- document.getElementById("scientistCount").textContent="Hired: "+state.scientists;
- document.getElementById("securityCount").textContent="Hired: "+state.security;
- document.getElementById("experimentCount").textContent="Experiments: "+(state.basicExperiment?1:0);
- pointsEl.textContent=Math.floor(points).toLocaleString()+" RP";
- incomeEl.textContent=Math.floor(income)+" RP / sec";
- energyEl.textContent=energyUsed+" / "+energyCapacity;
- srpEl.textContent=parseFloat(superResearch.toFixed(1)).toString()+" SRP";
- raidRiskEl.textContent=Math.round(raidRisk)+"%";
- document.getElementById("buyConstruction").disabled=!tutorialComplete||state.constructionSpeed||superResearch<1;
- document.getElementById("buyFacility").disabled=!tutorialComplete||facilityLevel>=5||superResearch<3||!state.constructionSpeed;
- document.getElementById("buyGovernment").disabled=!tutorialComplete||governmentCover||superResearch<5||!state.constructionSpeed;
- document.getElementById("buyExpansion").disabled=!tutorialComplete||!state.expansion&&facilityLevel<2?true:(!state.expansion&&superResearch<5);
- document.getElementById("buyAdvanced").disabled=!tutorialComplete||!state.expansion||state.advancedExperiment||superResearch<8;
- document.getElementById("buyResearchSpeed").disabled=!tutorialComplete||!state.basicExperiment||researchSpeedLevel>=5||superResearch<(researchSpeedLevel+1)*2;
- document.getElementById("buySecurityTraining").disabled=!tutorialComplete||securityTrainingLevel>=5||superResearch<2;
- document.getElementById("buySecurityEquipment").disabled=!tutorialComplete||securityTrainingLevel<1||securityEquipmentLevel>=3||superResearch<3;
+ document.getElementById("buyConstruction").disabled=state.constructionSpeed||superResearch<1;
+ document.getElementById("buyFacility").disabled=facilityLevel>=5||superResearch<3||!state.constructionSpeed;
+ document.getElementById("buyGovernment").disabled=governmentCover||superResearch<5||!state.constructionSpeed;
+ document.getElementById("buyExpansion").disabled=!state.expansion&&(facilityLevel<2||superResearch<5);
+ document.getElementById("buyAdvanced").disabled=!state.expansion||state.advancedExperiment||superResearch<8;
+ document.getElementById("buyResearchSpeed").disabled=!state.basicExperiment||researchSpeedLevel>=5||superResearch<(researchSpeedLevel+1)*2;
+ document.getElementById("buySecurityTraining").disabled=securityTrainingLevel>=5||superResearch<2;
+ document.getElementById("buySecurityEquipment").disabled=securityTrainingLevel<1||securityEquipmentLevel>=3||superResearch<3;
  document.getElementById("srSecurityTraining").className="tree-node "+(state.basicExperiment?"":"locked-node");
  document.getElementById("srSecurityEquipment").className="tree-node "+(securityTrainingLevel>0?"":"locked-node");
  document.getElementById("securityTrainingCount").textContent="Level: "+securityTrainingLevel+" / 5";
@@ -659,68 +564,50 @@ function updateSteps(){
  document.getElementById("srAdvanced").className="tree-node "+(state.expansion?"":"hidden-node");
  document.getElementById("srShade").style.display=governmentCover?"block":"none";
 
- const assignmentMessages=[
-  "Install the Power System first. The facility starts at 0/0 energy and power adds 15 capacity.",
-  "Build the Office. It requires 3 Energy.",
-  "Build the Experiment Room. It requires 5 Energy.",
-  "Hire the Scientist.",
-  "Hire Security.",
-  "Run the Level 1 Facility Systems Test.",
-  "Level 1 complete. The facility is operational."
- ];
- assignment.textContent=assignmentMessages[Math.min(tutorialStep-1,6)];
- info.textContent=tutorialComplete?"Level 1 complete. Buildings use energy capacity; staff and experiments do not. Optional upgrades are now unlocked.":"Tutorial active. Only the current step can be purchased.";
+ document.getElementById("scientistCount").textContent="Hired: "+state.scientists;
+ document.getElementById("securityCount").textContent="Hired: "+state.security;
+ document.getElementById("experimentCount").textContent="Experiments: "+(state.basicExperiment?1:0);
+ pointsEl.textContent=Math.floor(points).toLocaleString()+" RP";
+ incomeEl.textContent=Math.floor(income)+" RP / sec";
+ energyEl.textContent=energyUsed+" / "+energyCapacity;
+ srpEl.textContent=parseFloat(superResearch.toFixed(1)).toString()+" SRP";
+ raidRiskEl.textContent=Math.round(raidRisk)+"%";
 }
-
 function spend(cost){if(points<cost)return false;points-=cost;return true}
-function completeStep(n){
- if(tutorialStep!==n||!tutorialActionComplete(n))return false;
- tutorialStep++;
- updateSteps();
- updateSteps();
- return true;
-}
 function completeConstruction(type){
- if(type==="power"){state.power=true;energyCapacity+=ENERGY.powerCapacity;completeStep(1);}
- else if(type==="office"){state.office=true;completeStep(2);}
- else if(type==="experimentBuilding"){state.experimentRoom=true;completeStep(3);}
- else if(type==="scientist"){state.scientists++;completeStep(4);}
- else if(type==="securityStaff"){state.security=1;completeStep(5);}
+ if(type==="power"){state.power=true;energyCapacity+=ENERGY.powerCapacity;}
+ else if(type==="office"){state.office=true;}
+ else if(type==="experimentBuilding"){state.experimentRoom=true;}
+ else if(type==="scientist"){state.scientists++;}
+ else if(type==="securityStaff"){state.security=1;}
 }
 function startConstruction(type,cost,energyCost){
  if(constructionQueue||points<cost||(energyCost&&!hasEnergy(energyCost)))return false;
  points-=cost;
  if(energyCost)useEnergy(energyCost);
  constructionQueue={type,finish:Date.now()+constructionDuration(type)*1000};
- updateSteps();
+ updateUI();
  saveProgress();
  return true;
 }
 
 function action(type){
- if(type==="buyConstruction"&&tutorialStep>6&&!state.constructionSpeed&&superResearch>=1){superResearch-=1;state.constructionSpeed=true;constructionSpeedLevel=1}
- else if(type==="buyFacility"&&tutorialStep>6&&state.constructionSpeed&&facilityLevel<5&&superResearch>=3){superResearch-=3;facilityLevel++}
- else if(type==="buyGovernment"&&tutorialStep>6&&state.constructionSpeed&&!governmentCover&&superResearch>=5){superResearch-=5;governmentCover=true}
- else if(type==="buyExpansion"&&tutorialStep>6&&facilityLevel>=2&&!state.expansion&&superResearch>=5){superResearch-=5;state.expansion=true;state.researchWing=true}
- else if(type==="buyAdvanced"&&tutorialStep>6&&state.expansion&&!state.advancedExperiment&&superResearch>=8){superResearch-=8;state.advancedExperiment=true}
- else if(type==="buySecurityTraining"&&tutorialStep>6&&securityTrainingLevel<5&&superResearch>=2){superResearch-=2;securityTrainingLevel++}
- else if(type==="buySecurityEquipment"&&tutorialStep>6&&securityTrainingLevel>0&&securityEquipmentLevel<3&&superResearch>=3){superResearch-=3;securityEquipmentLevel++}
- else if(type==="buyResearchSpeed"&&tutorialStep>6&&state.basicExperiment&&researchSpeedLevel<5&&superResearch>=(researchSpeedLevel+1)*2){superResearch-=(researchSpeedLevel+1)*2;researchSpeedLevel++}
- else if(type==="power"&&tutorialStep===1&&!state.power)startConstruction("power",500,0)
- else if(type==="office"&&tutorialStep===2&&!state.office)startConstruction("office",200,ENERGY.office)
- else if(type==="experimentBuilding"&&tutorialStep===3&&state.office&&!state.experimentRoom)startConstruction("experimentBuilding",400,ENERGY.experimentBuilding)
- else if(type==="scientist"&&tutorialStep===4&&state.office&&state.power&&state.scientists<2){startConstruction("scientist",300,0)}
- else if(type==="securityStaff"&&tutorialStep===5&&state.scientists>0&&state.security<1){startConstruction("securityStaff",250,0)}
- else if(type==="basicExperiment"&&tutorialStep===6&&state.experimentRoom&&state.power&&state.scientists>0&&state.security>0&&spend(350)&&!researchQueue){researchQueue={type:"basic",finish:Date.now()+Math.ceil(5/(1+researchSpeedLevel*0.2))*1000}; saveProgress()}
- updateSteps();
+ if(type==="buyConstruction"&&!state.constructionSpeed&&superResearch>=1){superResearch-=1;state.constructionSpeed=true;constructionSpeedLevel=1}
+ else if(type==="buyFacility"&&state.constructionSpeed&&facilityLevel<5&&superResearch>=3){superResearch-=3;facilityLevel++}
+ else if(type==="buyGovernment"&&state.constructionSpeed&&!governmentCover&&superResearch>=5){superResearch-=5;governmentCover=true}
+ else if(type==="buyExpansion"&&facilityLevel>=2&&!state.expansion&&superResearch>=5){superResearch-=5;state.expansion=true;state.researchWing=true}
+ else if(type==="buyAdvanced"&&state.expansion&&!state.advancedExperiment&&superResearch>=8){superResearch-=8;state.advancedExperiment=true}
+ else if(type==="buySecurityTraining"&&securityTrainingLevel<5&&superResearch>=2){superResearch-=2;securityTrainingLevel++}
+ else if(type==="buySecurityEquipment"&&securityTrainingLevel>0&&securityEquipmentLevel<3&&superResearch>=3){superResearch-=3;securityEquipmentLevel++}
+ else if(type==="buyResearchSpeed"&&state.basicExperiment&&researchSpeedLevel<5&&superResearch>=(researchSpeedLevel+1)*2){superResearch-=(researchSpeedLevel+1)*2;researchSpeedLevel++}
+ else if(type==="power"&&!state.power)startConstruction("power",500,0)
+ else if(type==="office"&&state.power&&!state.office)startConstruction("office",200,ENERGY.office)
+ else if(type==="experimentBuilding"&&state.office&&state.power&&!state.experimentRoom)startConstruction("experimentBuilding",400,ENERGY.experimentBuilding)
+ else if(type==="scientist"&&state.office&&state.power&&state.scientists<2)startConstruction("scientist",300,0)
+ else if(type==="securityStaff"&&state.office&&state.scientists>0&&state.security<1)startConstruction("securityStaff",250,0)
+ else if(type==="basicExperiment"&&state.experimentRoom&&state.power&&state.scientists>0&&state.security>0&&spend(350)&&!researchQueue){researchQueue={type:"basic",finish:Date.now()+Math.ceil(5/(1+researchSpeedLevel*0.2))*1000}; saveProgress()}
+ updateUI();
 }
-
-document.getElementById("startSystem").addEventListener("click",()=>{
- systemStarted=true;
- const overlay=document.getElementById("startOverlay");
- if(overlay)overlay.style.display="none";
- updateSteps();
-});
 
 document.getElementById("saveProgress").addEventListener("click",saveProgress);
 document.getElementById("resetProgress").addEventListener("click",resetAllProgress);
@@ -746,7 +633,7 @@ setInterval(()=>{
  if(constructionQueue&&Date.now()>=constructionQueue.finish){const type=constructionQueue.type;constructionQueue=null;completeConstruction(type);saveProgress()}
  updateExperimentComfort();
  if(securityFatigue>0)securityFatigue=Math.max(0,securityFatigue-0.0005);
- if(researchQueue){const left=Math.max(0,Math.ceil((researchQueue.finish-Date.now())/1000));document.getElementById("researchStatus").textContent="Scientist researching · "+left+"s";if(Date.now()>=researchQueue.finish){researchQueue=null;state.basicExperiment=true;income=10;tutorialStep=7;document.getElementById("researchStatus").textContent="Research complete · +10 RP/sec";updateSteps();if(window.BLACKSITE_AMBIENCE)BLACKSITE_AMBIENCE.start();}}
+ if(researchQueue){const left=Math.max(0,Math.ceil((researchQueue.finish-Date.now())/1000));document.getElementById("researchStatus").textContent="Scientist researching · "+left+"s";if(Date.now()>=researchQueue.finish){researchQueue=null;state.basicExperiment=true;income=10;document.getElementById("researchStatus").textContent="Research complete · +10 RP/sec";updateUI();if(window.BLACKSITE_AMBIENCE)BLACKSITE_AMBIENCE.start();}}
  else if(state.basicExperiment){document.getElementById("researchStatus").textContent="Research active · Scientist assigned";}
  if(state.basicExperiment){
   points+=income;
@@ -756,13 +643,13 @@ setInterval(()=>{
   raidRisk=Math.max(0,baseRisk*(governmentCover?0.4:1)-state.security*2);
   if(!raidActive && !repairQueue && Math.random()*100<raidRisk)startRaid();
  }
- updateSteps();
+ updateUI();
  if(Date.now()%5000<1000)saveProgress();
  updateDebugPanel();
 },1000);
 scanUIDimensions();
 repositionOperations();
-updateSteps();
+updateUI();
 updateDebugPanel();
 saveProgress();
 </script>
