@@ -411,27 +411,10 @@ function startRaid(){
    raidActive=false;
    if(banner) banner.className="raid-banner";
    document.body.classList.remove("raid-active");
-   if(defense<required){
-    damageFacility();
-    document.getElementById("info").textContent="Raid lost. Recovery protocol prevented an unrecoverable repair bill.";
-   }else{
-    document.getElementById("info").textContent="Raid repelled. Security held the facility.";
-   }
+   if(defense<required){ damageFacility(); }
    updateUI();
   }
  },1000);
-}
-function safeClassToggle(el,cls,on){if(el)el.classList.toggle(cls,on)}
-
-function setTutorialButtonsLocked(locked){
- const ids=["office","experimentBuilding","power","scientist","securityStaff","basicExperiment"];
- ids.forEach(id=>{
-  const button=document.getElementById(id);
-  if(!button)return;
-  button.dataset.voiceLocked=locked?"1":"0";
-  button.setAttribute("aria-disabled",locked?"true":"false");
-  button.classList.toggle("",locked);
- });
 }
 function repositionOperations(){
  const aside=document.querySelector("aside");
