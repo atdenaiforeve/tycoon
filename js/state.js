@@ -22,6 +22,7 @@ export const DEFAULT_STATE = Object.freeze({
   creatureEscaped: false,
   creatureEscapeCause: "",
   securityFatigue: 0,
+  tutorialComplete: false,
   fileLearnings: ["Initial containment conditions have not yet produced a confirmed behavioural rule."]
 });
 
@@ -59,6 +60,7 @@ export function serializeState(state) {
     creatureEscaped: state.creatureEscaped,
     creatureEscapeCause: state.creatureEscapeCause,
     securityFatigue: state.securityFatigue,
+    tutorialComplete: !!state.tutorialComplete,
     fileLearnings: [...state.fileLearnings],
     constructionQueue: state.constructionQueue,
     raid: state.raid,
