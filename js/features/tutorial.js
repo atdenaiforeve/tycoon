@@ -26,6 +26,18 @@ export const tutorialFeature = {
 
       let index = 0;
 
+      // Preload every tutorial face so all 7 steps can switch instantly.
+      const tutorialFaces = [
+        "neutral_face.png",
+        "thinking_face.png",
+        "task_complete_face.png",
+        "you_did_it_face.png"
+      ];
+      tutorialFaces.forEach(name => {
+        const image = new Image();
+        image.src = FACE_BASE + name + "?v=3";
+      });
+
       const clearPulses = () => {
         document.querySelectorAll(".tutorial-pulse").forEach(el => {
           el.classList.remove("tutorial-pulse");
@@ -67,9 +79,13 @@ export const tutorialFeature = {
           : "you_did_it_face.png";
 
         guide.style.visibility = "hidden";
-        guide.src = FACE_BASE + face + "?v=2";
+        guide.src = FACE_BASE + face + "?v=3";
         guide.style.background = "transparent";
-        guide.style.visibility = "visible";
+        guide.onload = () => { guide.style.visibility = "visible"; };
+        guide.onerror = () => {
+          // Keep the tutorial usable even if a face asset fails to load.
+          guide.style.visibility = "visible";
+        };
 
         $("tutorialTitle").textContent = step[0];
         $("tutorialText").textContent = step[1];
