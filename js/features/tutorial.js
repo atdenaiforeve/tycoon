@@ -32,10 +32,15 @@ export const tutorialFeature = {
         });
       };
 
+      let offConstructionComplete = () => {};
+      let offConstructionStarted = () => {};
+
       const finish = () => {
         stateRef().tutorialComplete = true;
         save.save();
         clearPulses();
+        offConstructionComplete();
+        offConstructionStarted();
         root.remove();
         events.emit("tutorial:complete");
       };
@@ -62,7 +67,7 @@ export const tutorialFeature = {
           : "you_did_it_face.png";
 
         guide.style.visibility = "hidden";
-        guide.src = FACE_BASE + face + "?v=1";
+        guide.src = FACE_BASE + face + "?v=2";
         guide.style.background = "transparent";
         guide.style.visibility = "visible";
 
@@ -101,8 +106,8 @@ export const tutorialFeature = {
       });
 
       skip.addEventListener("click", finish);
-      events.on("construction:complete", show);
-      events.on("construction:started", show);
+      offConstructionComplete = events.on("construction:complete", show);
+      offConstructionStarted = events.on("construction:started", show);
 
       show();
     });
